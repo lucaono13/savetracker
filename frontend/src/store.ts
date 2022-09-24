@@ -1,5 +1,6 @@
 import { InjectionKey } from 'vue'
 import { createStore, Store, useStore as baseUseStore } from 'vuex'
+import { defineStore } from 'pinia'
 
 // define your typings for the store state
 export interface State {
@@ -24,4 +25,25 @@ export const store = createStore<State>({
 
 export function useStore() {
   return baseUseStore(key)
+}
+
+
+export const useCounterStore = defineStore('counter', {
+  state: (): State => ({
+    count: 0,
+  }),
+  actions: {
+    increment() {
+      this.count++
+    }
+  }
+})
+
+export default {
+  setup(){
+    const counter = useCounterStore()
+    return {
+      counter,
+    }
+  }
 }

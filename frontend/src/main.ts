@@ -1,37 +1,52 @@
-import { createApp } from 'vue'
+import { createApp, defineComponent } from 'vue'
 import App from './App.vue'
-import { store, key } from './store'
+import { useCounterStore, store } from './store'
 import router from './router'
+import { createPinia, storeToRefs } from 'pinia'
 
-// PrimeVue
+// PrimeVue Components 
 import PrimeVue from 'primevue/config'
 import ProgressSpinner from 'primevue/progressspinner'
+import Sidebar from 'primevue/sidebar'
+import Menubar from 'primevue/menubar'
+import InputText from 'primevue/inputtext'
+import MegaMenu from 'primevue/megamenu'
+import Menu from 'primevue/menu'
+import Dock from 'primevue/dock'
+import Button from 'primevue/button'
 
-// Quasar
-import { Quasar } from 'quasar'
+// PrimeIcons
+import 'primeicons/primeicons.css'
 
-// Import icon libraries
-import '@quasar/extras/material-icons/material-icons.css'
+// PrimeFlex
+import 'primeflex/primeflex.css'
 
-// Import Quasar css
-import 'quasar/src/css/index.sass'
+// Themeing
+import 'primevue/resources/primevue.min.css'
+import 'primevue/resources/themes/lara-dark-teal/theme.css'
+
+// const pinia = createPinia()
 
 const app = createApp(App)
+app.use(createPinia())
 
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
-// // Adding PrimeVue
-// app.use(PrimeVue)
-// // PrimeVue components
-// app.component('ProgressSpinner',ProgressSpinner)
+// Adding PrimeVue
+app.use(PrimeVue)
 
-app.use(Quasar, {
-    plugins: {},
-})
+// PrimeVue components
+app.component('ProgressSpinner',ProgressSpinner)
+app.component('Sidebar',Sidebar)
+app.component('Menubar', Menubar)
+app.component('InputText', InputText)
+app.component('MegaMenu', MegaMenu)
+app.component('Menu', Menu)
+app.component('Dock', Dock)
+app.component('Button', Button)
 
-// For Wails
-app.use(store, key).use(router)
+// Use Vue Router
+app.use(router)
 
 // Mounting app
 app.mount('#app')
-

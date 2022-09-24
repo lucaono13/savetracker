@@ -1,34 +1,62 @@
 <template>
   <div class="logos">
-    <img class="wails" src="../assets/images/wails.svg" alt="wails">
-    <img class="vue" src="../assets/images/vue.svg" alt="vue">
+    <img class="wails" src="../assets/images/wails.svg" alt="wails" />
+    <img class="vue" src="../assets/images/vue.svg" alt="vue" />
   </div>
   <h3>Home</h3>
   <q-avatar color="red" text-color="white" icon="directions" />
   <div class="result" id="result">{{ result }}</div>
   <div class="input-box" id="input" data-wails-no-drag>
-    <input class="input" v-model="name" type="text" autocomplete="off">
+    <input class="input" v-model="name" type="text" autocomplete="off" />
     <button class="btn" @click="greet()">Greet</button>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { ref } from 'vue'
+  import { useCounterStore } from '../store'
+
+  const counterStore = useCounterStore()
+  const result = ref('Please enter your name below 👇')
+  const name = ref('')
+  
+  const greet = () => {
+    window.go.main.App.Greet(name.value).then((response) => {
+      counterStore.increment()
+      result.value = `${counterStore.count}. ${response}`
+    })
+  }
+  </script>
+
+<!-- <script lang="ts">
 // This template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { ref } from 'vue'
-import { useStore } from '../store'
+import { useCounterStore, store } from '../store'
+import { defineComponent } from 'vue'
 
-const store = useStore()
-const result = ref("Please enter your name below 👇")
-const name = ref("")
+export default defineComponent({
+  setup() {
+    const counter = useCounterStore()
+    counter.increment()
+    return { counter }
+  },
+})
 
-const greet = () => {
-  window.go.main.App.Greet(name.value).then(response => {
-    store.commit('increment')
-    result.value = `${store.state.count}. ${response}`
-  })
-}
-</script>
+// const store = useStore()
+
+// const result = ref('Please enter your name below 👇')
+// const name = ref('')
+
+// const greet = () => {
+//   window.go.main.App.Greet(name.value).then((response) => {
+//     counterStore.commit('increment')
+//     result.value = `${counterStore.state.count}. ${response}`
+//   })
+// }
+</script> -->
+
+
 
 <style lang="scss">
 .logos {
