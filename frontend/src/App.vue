@@ -13,7 +13,7 @@
   </div> -->
   <div class="grid" style="width: 100%">
     <div class="col-2" v-if="true">
-      <Menu :model="$router.getRoutes()" >
+      <Menu :model="$router.getRoutes()" class="fixed">
         <template #item="{ item }">
           <span :class="{ 'hidden': item.meta.secondary}">
           <i :class="item.meta.icon"></i>
@@ -76,4 +76,13 @@ h3 {
     text-decoration: underline;
   }
 }
+
+.p-menu {
+  height: 100%!important;
+}
+
+.p-menu-list {
+  justify-content:space-around!important;
+}
+
 </style>
