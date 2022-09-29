@@ -4,7 +4,7 @@
     <img class="vue" src="../assets/images/vue.svg" alt="vue">
   </div>
   <h3>Features</h3>
-  <div class="links">
+  <div class="links overflow-auto">
     <ul>
       <li><a class="link" @click="link('https://github.com/codydbentley/wails-vite-vue-the-works')">Template Github</a></li>
       <li><a class="link" @click="link('https://wails.io')">Wails Docs</a></li>

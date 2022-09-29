@@ -1,8 +1,8 @@
 module fm-save-tracker
 
-go 1.17
+go 1.18
 
-require github.com/wailsapp/wails/v2 v2.0.0-rc.1.1
+require github.com/wailsapp/wails/v2 v2.0.0
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect

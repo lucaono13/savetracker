@@ -4,68 +4,52 @@
     <router-link class="link" to="/features">Feature Docs</router-link> |
     <router-link class="link" to="/home">Home</router-link>
   </div>
-  <br>
-  <div class="grid" style="width:100%">
-    <div class="col-1" v-if="enough" >
-      <ul>
-        <li>Item 1</li>
-        <li>Item 2</li>
-        <li>Item 3</li>
-      </ul>
+  <br />
+  <!-- <div class="absolute top-0 left-0">
+    <Menu  :model="items" />
+  </div>
+  <div>
+    <router-view />
+  </div> -->
+  <div class="grid" style="width: 100%">
+    <div class="col-2" v-if="true">
+      <Menu :model="$router.getRoutes()" >
+        <template #item="{ item }">
+          <span :class="{ 'hidden': item.meta.secondary}">
+          <i :class="item.meta.icon"></i>
+          <router-link :to="item.path" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">            
+            <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }">
+              {{ route.name }}
+            </a>
+          </router-link>
+          </span>
+        </template>
+      </Menu>
     </div>
-    <div class="col-11">
-
+    <div class="col-10">
       <router-view />
     </div>
-    <div class="col">
-      <Button type="button" label="visibility" v-on:click="enough = !enough" />
-    </div>"
   </div>
-  <!-- <div class="dock-window">
-    <Dock :model="items" position="left">
-      <template #icon="{ item }">
-        <img :alt="item.label" :src="item.icon"/>
-      </template>
-    </Dock>
-  </div> -->
-  <!-- <router-view /> -->
 </template>
 
 <script setup lang="ts">
-  function showSideBar() {
-    enough = !enough
-  }
-
-  const items = [
-    {
-      label: "First",
-      icon: "pi-hashtag"
-    },
-    {
-      label: "Second",
-      icon: "pi-server",
-    },
-  ]
-  let enough = false
 // This template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 </script>
 
 <style lang="scss">
 @font-face {
-  font-family: "Nunito";
+  font-family: 'Nunito';
   font-style: normal;
   font-weight: 400;
-  src: local(""),
-  url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+  src: local(''), url('assets/fonts/nunito-v16-latin-regular.woff2') format('woff2');
 }
 
 html {
   background-color: rgba(33, 37, 43, 1);
   color: white;
-  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-  "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-  sans-serif;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 body {

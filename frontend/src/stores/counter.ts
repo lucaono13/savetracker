@@ -39,11 +39,11 @@ export const useCounterStore = defineStore('counter', {
   }
 })
 
-export default {
-  setup(){
-    const counter = useCounterStore()
-    return {
-      counter,
-    }
-  }
-}
+// export default {
+//   setup(){
+//     const counter = useCounterStore()
+//     return {
+//       counter,
+//     }
+//   }
+// }

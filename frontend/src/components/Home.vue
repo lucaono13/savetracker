@@ -1,24 +1,31 @@
 <template>
-  <div class="logos">
-    <img class="wails" src="../assets/images/wails.svg" alt="wails" />
-    <img class="vue" src="../assets/images/vue.svg" alt="vue" />
-  </div>
-  <h3>Home</h3>
-  <q-avatar color="red" text-color="white" icon="directions" />
-  <div class="result" id="result">{{ result }}</div>
-  <div class="input-box" id="input" data-wails-no-drag>
-    <input class="input" v-model="name" type="text" autocomplete="off" />
-    <button class="btn" @click="greet()">Greet</button>
+  <div class="flex justify-items-center align-items-center">
+  <!-- <div class="grid"> -->
+    <div class=" logos">
+      <img class="wails" src="../assets/images/wails.svg" alt="wails" />
+      <img class="vue" src="../assets/images/vue.svg" alt="vue" />
+    </div>
+    <div class="">
+      <h3>Home</h3>
+      <div class="result" id="result">{{ result }}</div>
+      <div class="input-box" id="input" data-wails-no-drag>
+        <InputText type="text" v-model="name" />
+        <!-- <input class="input" v-model="name" type="text" autocomplete="off" /> -->
+        <button class="btn" @click="greet()">Greet</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { useCounterStore } from '../store'
+  import { useCounterStore } from '../stores/counter'
+  import { useSavesStore } from '../stores/saves';
 
   const counterStore = useCounterStore()
   const result = ref('Please enter your name below 👇')
   const name = ref('')
+  const before = counterStore.count
   
   const greet = () => {
     window.go.main.App.Greet(name.value).then((response) => {

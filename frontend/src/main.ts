@@ -1,6 +1,6 @@
 import { createApp, defineComponent } from 'vue'
 import App from './App.vue'
-import { useCounterStore, store } from './store'
+import { useCounterStore, store } from './stores/counter'
 import router from './router'
 import { createPinia, storeToRefs } from 'pinia'
 
