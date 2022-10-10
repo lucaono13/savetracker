@@ -35,8 +35,8 @@
     }
 </script> -->
 
-<template>
-    <!-- <div class="grid">
+<!-- <template>
+     <div class="grid">
         <div class="col-fixed" style="width:100px">
             <h1>Side bar</h1>
         </div>
@@ -51,10 +51,15 @@
                 </template>
             </Menubar>
         </div>
-    </div> -->
-    <h1>Test</h1>
-</template>
-
+    </div> 
+    <>Test</>
+</template> -->
+<template>
+    <div class="flex justify-items-center align-items-center">
+    <!-- <div class="grid"> -->
+      <div><h1>Test</h1></div>
+    </div>
+  </template>
 <script>
 export default {
     data() {

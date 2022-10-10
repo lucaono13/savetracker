@@ -12,7 +12,7 @@
     <router-view />
   </div> -->
   <div class="grid" style="width: 100%">
-    <div class="col-2" v-if="true">
+    <div class="col-2" >
       <Menu :model="$router.getRoutes()" class="fixed">
         <template #item="{ item }">
           <span :class="{ 'hidden': item.meta.secondary}">
@@ -79,6 +79,9 @@ h3 {
 
 .p-menu {
   height: 100%!important;
+  width: 100%!important;
+  // width:calc(max-content+25px)!important;
+  // background: aliceblue!important;
 }
 
 .p-menu-list {
