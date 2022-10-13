@@ -5,14 +5,8 @@
     <router-link class="link" to="/home">Home</router-link>
   </div>
   <br />
-  <!-- <div class="absolute top-0 left-0">
-    <Menu  :model="items" />
-  </div>
-  <div>
-    <router-view />
-  </div> -->
-  <div class="grid" style="width: 100%">
-    <div class="col-2" >
+  <div class="grid w-full">
+    <div class="col-fixed"  style="width:205px">
       <Menu :model="$router.getRoutes()" class="fixed">
         <template #item="{ item }">
           <span :class="{ 'hidden': item.meta.secondary}">
@@ -26,7 +20,7 @@
         </template>
       </Menu>
     </div>
-    <div class="col-10">
+    <div class="col">
       <router-view />
     </div>
   </div>
@@ -79,13 +73,19 @@ h3 {
 
 .p-menu {
   height: 100%!important;
-  width: 100%!important;
+  padding: .75rem!important;
+  // width: 100%!important;
   // width:calc(max-content+25px)!important;
-  // background: aliceblue!important;
+  background: rgba(240, 248, 255, 0)!important;
+  border: rgba(240, 248, 255, 0)!important;
 }
 
 .p-menu-list {
   justify-content:space-around!important;
+}
+
+.col-fixed {
+  padding: 0!important;
 }
 
 </style>

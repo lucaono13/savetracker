@@ -1,6 +1,5 @@
 <template>
-  <div class="flex justify-items-center align-items-center">
-  <!-- <div class="grid"> -->
+  <div class="grid">
     <div class=" logos">
       <img class="wails" src="../assets/images/wails.svg" alt="wails" />
       <img class="vue" src="../assets/images/vue.svg" alt="vue" />
