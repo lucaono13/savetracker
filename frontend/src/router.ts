@@ -9,30 +9,13 @@ import { PrimeIcons } from 'primevue/api'
 const routes = [
   {
     path: '/home',
-    name: 'Home',
+    name: 'Home 2',
     component: Home,
     meta: {
       icon: PrimeIcons.HOME,
       secondary: false
     },
-    children: [
-      {
-        path: 'test1',
-        name: 'TFeatures',
-        component: () => import('./components/TrackerFeatures.vue'),
-        meta: {
-          secondary: true,
-        }
-      },
-      {
-        path: 'test',
-        name: 'test',
-        component: () => import('./components/Features.vue'),
-        meta: {
-          secondary: true
-        }
-      }
-    ]
+    
   },
   {
     path: '/features',
@@ -44,7 +27,7 @@ const routes = [
     },
   },
   {
-    path: '/',
+    path: '/start',
     name: 'Start',
     component: () => import('./components/Start.vue'),
     meta: {
@@ -53,13 +36,14 @@ const routes = [
     },
   },
   {
-    path: '/tracker-features',
+    path: '/',
     name: 'Tracker Features',
     component: () => import('./components/TrackerFeatures.vue'),
     meta: {
       icon: PrimeIcons.ANDROID,
       secondary: false,
-    }
+    },
+    
   },
 ]
 
@@ -70,11 +54,15 @@ const router = createRouter({
 
 
 
-router.beforeEach(() => {
+// router.beforeEach((to, from, next) => {
+//   // const saves = localStorage.getItem('saveCount')
+//   if (localStorage.getItem('saves') == "0") next({ name: 'Tracker Features'})
+//   else next()
   
-  const saves = useSavesStore()
-  // if (saves.saves == 1) return '/tracker-features'
-})
+  
+//   // if (saves.saves == 1) return '/tracker-features'
+// })
+
 
 export default router 
 // export default routes

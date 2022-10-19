@@ -1,6 +1,32 @@
 <template>
 
-<div class="surface-section px-4 py-8 md:px-6 lg:px-8 text-center">
+<div class="px-4 py-8 md:px-6 md:py-4 sm:py-2 lg:px-8 text-center">
+
+    <div class="mb-3" >
+        <Button label="Add Save" class="p-button" @click="openAddSave" />
+        <Dialog header="test" v-model:visible="addSaveModal" :modal="true">
+            <h3 class="mb-5">Add Save</h3>
+            <form>
+                <div class="p-float-label mt-2 field">
+                    <InputText id="saveName" type="text" v-model="saveName" />
+                    <label for="saveName">Save Name</label>
+                </div>
+                <div class="p-float-label mt-auto field">
+                    <InputText id="managerName" type="text" v-model="managerName" />
+                    <label for="managerName">Manager Name</label>
+                </div>
+                <div class="field" >
+                    <!-- <label for="version">Game Version</label> -->
+                    <Dropdown v-model="gameVersion" id="version" :options="versions" optionLabel="name" optionValue="name" placeholder="Select Game Version" />
+                    
+                </div>
+                
+            </form>
+            <template #footer>
+                <Button label="Close" @click="closeAddSave" />
+            </template>
+        </Dialog>
+    </div>
     <div class="mb-3 font-bold text-2xl">
         <span class="text-900">One Product, </span>
         <span class="text-blue-600">Many Solutions</span>
@@ -52,3 +78,30 @@
     </div>
 </div>
 </template>
+
+<script>
+    export default {
+        data() {
+            return {
+                addSaveModal: false,
+                saveName: null,
+                gameVersion: null,
+                managerName: null,
+                versions: [
+                    {name: "2020"},
+                    {name: "2021"},
+                    {name: "2022"},
+                    {name: "2023"}
+                ]
+            }
+        },
+        methods: {
+            openAddSave() {
+                this.addSaveModal = true
+            },
+            closeAddSave() {
+                this.addSaveModal = false;
+            }
+        }
+    }
+</script>

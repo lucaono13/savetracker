@@ -10,7 +10,7 @@
       <div class="input-box" id="input" data-wails-no-drag>
         <InputText type="text" v-model="name" />
         <!-- <input class="input" v-model="name" type="text" autocomplete="off" /> -->
-        <button class="btn" @click="greet()">Greet</button>
+        <Button class="" @click="greet()">Greet</Button>
       </div>
     </div>
   </div>
@@ -22,13 +22,14 @@
   import { useSavesStore } from '../stores/saves';
 
   const counterStore = useCounterStore()
-  const result = ref('Please enter your name below 👇')
+  const result = ref('Please enter your name belo 👇')
   const name = ref('')
   const before = counterStore.count
   
   const greet = () => {
     window.go.main.App.Greet(name.value).then((response) => {
       counterStore.increment()
+      
       result.value = `${counterStore.count}. ${response}`
     })
   }

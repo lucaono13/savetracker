@@ -1,22 +1,25 @@
 <template>
-  <div>
+  <!-- <div>
     <router-link class="link" to="/">Start</router-link> |
     <router-link class="link" to="/features">Feature Docs</router-link> |
     <router-link class="link" to="/home">Home</router-link>
-  </div>
+  </div> -->
   <br />
   <div class="grid w-full">
     <div class="col-fixed"  style="width:205px">
-      <Menu :model="$router.getRoutes()" class="fixed">
+      <Menu :model="$router.getRoutes()" class="fixed align-content-evenly">
         <template #item="{ item }">
+          <!-- <br> -->
           <span :class="{ 'hidden': item.meta.secondary}">
           <i :class="item.meta.icon"></i>
           <router-link :to="item.path" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">            
-            <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }">
+            <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
               {{ route.name }}
             </a>
           </router-link>
           </span>
+          <!-- <br> -->
+          <!-- <hr> -->
         </template>
       </Menu>
     </div>
@@ -86,6 +89,10 @@ h3 {
 
 .col-fixed {
   padding: 0!important;
+}
+
+.active-link-exact {
+  color: fuchsia!important;
 }
 
 </style>

@@ -14,6 +14,8 @@ import MegaMenu from 'primevue/megamenu'
 import Menu from 'primevue/menu'
 import Dock from 'primevue/dock'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
+import Dropdown from 'primevue/dropdown'
 
 // PrimeIcons
 import 'primeicons/primeicons.css'
@@ -44,6 +46,8 @@ app.component('MegaMenu', MegaMenu)
 app.component('Menu', Menu)
 app.component('Dock', Dock)
 app.component('Button', Button)
+app.component('Dialog', Dialog)
+app.component('Dropdown', Dropdown)
 
 // Use Vue Router
 app.use(router)
