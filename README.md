@@ -23,7 +23,7 @@ A way to track your Saves by exporting with specific filters that will be in the
 *TBD*
 
 ### **Possible Future Features:**
-~No guarantee I will add all or any of these~
+No guarantee I will add all or any of these
   - [ ] Comparisons between players
   - [ ] Track multiple teams managed in 1 save (for like Journeyman, Glory Hunter, etc)
   - [ ] Results w/ Head-to-head (separated by competition, etc)
