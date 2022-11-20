@@ -60,7 +60,7 @@
       <div><h1>Test</h1></div>
     </div>
   </template>
-<script>
+<script lang="ts">
 export default {
     data() {
         return {

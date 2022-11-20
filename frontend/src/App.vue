@@ -4,14 +4,25 @@
     <router-link class="link" to="/features">Feature Docs</router-link> |
     <router-link class="link" to="/home">Home</router-link>
   </div> -->
-  <br />
-  <div class="grid w-full">
-    <div class="col-fixed"  style="width:205px">
+  <!-- <br /> -->
+  <Menubar class="w-full" :model="items">
+    <template #start>
+      <OverlayPanel ref="op">
+        
+      </OverlayPanel>
+    </template>
+    <template #end>
+      <p>Save Tracker</p>
+    </template>
+  </Menubar>
+  <div class="grid w-full h-full">
+    <div class="col-fixed h-full" v-if="sbVisible" style="width:205px">
       <Menu :model="$router.getRoutes()" class="fixed align-content-evenly">
         <template #item="{ item }">
           <!-- <br> -->
           <span :class="{ 'hidden': item.meta.secondary}">
-          <i :class="item.meta.icon"></i>
+          <font-awesome-icon :icon="item.meta.icon" />
+          <!-- <i :class="item.meta.icon"></i> -->
           <router-link :to="item.path" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">            
             <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
               {{ route.name }}
@@ -29,7 +40,34 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+  // Below is checking if there are any saves in database
+  // TODO: when page is loaded, check
+  var saves: number
+  let sidebarV = false
+  if (localStorage.length == 0) {
+    localStorage.setItem('saves', "0")
+    saves = 0
+  } else {
+    saves = JSON.parse(localStorage.getItem('saves') || "0")
+  }
+  if (saves > 0) {
+    sidebarV = true
+  }
+  export default {
+    data() {
+      return {
+        sbVisible : sidebarV,
+        items: [
+          {
+            label: "Test",
+            icon: "pi pi-fw pi-file"
+          }
+        ]
+      }
+    }
+  }
+
 // This template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 </script>
@@ -93,6 +131,12 @@ h3 {
 
 .active-link-exact {
   color: fuchsia!important;
+}
+
+.p-menubar{
+  background: rgba(240, 248, 255, 0)!important;
+  border: rgba(240, 248, 255, 0)!important;
+  // padding-right: 5px!important;
 }
 
 </style>

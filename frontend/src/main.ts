@@ -7,6 +7,7 @@ import { createPinia, storeToRefs } from 'pinia'
 // PrimeVue Components 
 import PrimeVue from 'primevue/config'
 import ProgressSpinner from 'primevue/progressspinner'
+import ProgressBar from 'primevue/progressbar'
 import Sidebar from 'primevue/sidebar'
 import Menubar from 'primevue/menubar'
 import InputText from 'primevue/inputtext'
@@ -16,6 +17,21 @@ import Dock from 'primevue/dock'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
+import Card from 'primevue/card'
+import BlockUI from 'primevue/blockui'
+import OverlayPanel from 'primevue/overlaypanel'
+
+// Font Awesome Icons
+//import the fontawesome core
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+// Import Font Awesome icon component
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+// Import specific icons
+import { faMugHot } from '@fortawesome/free-solid-svg-icons'
+
+
 
 // PrimeIcons
 import 'primeicons/primeicons.css'
@@ -34,11 +50,18 @@ app.use(createPinia())
 
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
+// Add Icons to Library
+library.add(faMugHot)
+
+// Add FontAwesome to app
+app.component('font-awesome-icon', FontAwesomeIcon)
+
 // Adding PrimeVue
 app.use(PrimeVue)
 
 // PrimeVue components
 app.component('ProgressSpinner',ProgressSpinner)
+app.component('ProgressBar', ProgressBar)
 app.component('Sidebar',Sidebar)
 app.component('Menubar', Menubar)
 app.component('InputText', InputText)
@@ -48,6 +71,9 @@ app.component('Dock', Dock)
 app.component('Button', Button)
 app.component('Dialog', Dialog)
 app.component('Dropdown', Dropdown)
+app.component('Card', Card)
+app.component('BlockUI', BlockUI)
+app.component('OverlayPanel', OverlayPanel)
 
 // Use Vue Router
 app.use(router)

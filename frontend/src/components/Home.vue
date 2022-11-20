@@ -8,7 +8,7 @@
       <h3>Home</h3>
       <div class="result" id="result">{{ result }}</div>
       <div class="input-box" id="input" data-wails-no-drag>
-        <InputText type="text" v-model="name" />
+        <InputText type="text" v-model="data.name" />
         <!-- <input class="input" v-model="name" type="text" autocomplete="off" /> -->
         <Button class="" @click="greet()">Greet</Button>
       </div>
@@ -20,17 +20,23 @@
   import { ref } from 'vue'
   import { useCounterStore } from '../stores/counter'
   import { useSavesStore } from '../stores/saves';
+  import { reactive } from 'vue';
+  import { Greet } from '../../wailsjs/go/main/App';
 
   const counterStore = useCounterStore()
-  const result = ref('Please enter your name belo 👇')
+  const result = ref('Please enter your name below 👇')
   const name = ref('')
   const before = counterStore.count
+  const data = reactive({
+    name: "",
+    result: "'Please enter your name below 👇'"
+  })
   
   const greet = () => {
-    window.go.main.App.Greet(name.value).then((response) => {
+    Greet(name.value).then((response) => {
       counterStore.increment()
-      
-      result.value = `${counterStore.count}. ${response}`
+      data.result = `${counterStore.count}. ${response}`
+      // result.value = `${counterStore.count}. ${response}`
     })
   }
   </script>

@@ -12,7 +12,7 @@ const routes = [
     name: 'Home 2',
     component: Home,
     meta: {
-      icon: PrimeIcons.HOME,
+      icon: "fa-solid fa-mug-hot",
       secondary: false
     },
     

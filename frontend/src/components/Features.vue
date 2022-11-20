@@ -22,8 +22,9 @@
 <script setup lang="ts">
 // This template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
+  import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 const link = (link: string) => {
-  window.runtime.BrowserOpenURL(link)
+  BrowserOpenURL(link)
 }
 </script>
 
