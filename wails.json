@@ -1,11 +1,12 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "Save Tracker",
+  "assetdir": "./frontend/dist",
   "outputfilename": "Save Tracker",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
-  "frontend:dev:serverUrl": "auto",
+  
   "author": {
     "name": "lucaono13",
     "email": "gionorato@gmail.com"
