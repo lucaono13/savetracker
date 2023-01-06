@@ -7,7 +7,7 @@
   <!-- <br /> -->
   <Menubar class="w-full" :model="items">
     <template #start>
-      <OverlayPanel ref="op">
+      <OverlayPanel ref="op" :showCloseIcon="true" >
         
       </OverlayPanel>
     </template>

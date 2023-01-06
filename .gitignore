@@ -1,3 +1,6 @@
 build/bin
 frontend/dist
 frontend/node_modules
+db.db
+db.sqbpro
+save-tracker-db-schema.png
