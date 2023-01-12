@@ -39,7 +39,7 @@
             </form>
             <template #footer >
                 <div class="flex align-content-center justify-content-center">
-                    <Button label="Cancel" id="cancelB" :disabled="addingToDB" class='p-button-text' @click="closeAddSave" />
+                    <Button label="Cancel" id="cancelB" :disabled="addingToDB" class='p-button-text' @click="addSave" />
                     <Button label="Add" id="submitB" :disabled="addingToDB" type="submit" form="addForm"/>
                 </div>
                 <div v-if="addingToDB" class="mt-3 justify-content-start">
@@ -55,6 +55,7 @@
 <script lang="ts">
     import { required } from "@vuelidate/validators";
     import { useVuelidate } from "@vuelidate/core";
+    import { AddNewSave } from "../../../wailsjs/go/main/App";
     export default {
         setup: () => ({ v$: useVuelidate()}),
         data() {
@@ -78,7 +79,9 @@
             openAddSave() {
                 this.addSaveModal = true
             },
-            closeAddSave() {
+            addSave() {
+                AddNewSave(this.managerName, +this.gameVersion)
+                this.$emit('saveAdded')
                 this.resetForm()
                 this.addSaveModal = false;
             },
@@ -99,7 +102,7 @@
                 setTimeout(() => {
                     // this.blockedDocument = false;
                     this.addingToDB = false;
-                    this.closeAddSave()
+                    this.addSave()
                     this.resetForm()
                 }, 3000);
                 

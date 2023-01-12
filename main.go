@@ -2,6 +2,10 @@ package main
 
 import (
 	"embed"
+	"fmt"
+	"net/http"
+	"os"
+	"strings"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
@@ -13,9 +17,35 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+type FileLoader struct {
+	http.Handler
+}
+
+func NewFileLoader() *FileLoader {
+	return &FileLoader{}
+}
+
+func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	var err error
+	requestedFilename := strings.TrimPrefix(req.URL.Path, "/")
+	println("Requesting file:", requestedFilename)
+	fileData, err := os.ReadFile(requestedFilename)
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		res.Write([]byte(fmt.Sprintf("Could not load file %s", requestedFilename)))
+	}
+
+	res.Write(fileData)
+}
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+
+	// _, err := gorm.Open(sqlite.Open("db.db"), &gorm.Config{})
+	// if err != nil {
+	// 	panic("failed to connect to DB")
+	// }
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -23,12 +53,14 @@ func main() {
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
-			Assets: assets,
+			Assets:  assets,
+			Handler: NewFileLoader(),
 		},
-		//BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		BackgroundColour: &options.RGBA{R: 255, G: 255, B: 255, A: 255},
 		LogLevel:         logger.DEBUG,
 		OnStartup:        app.startup,
+		OnDomReady:       app.domReady,
+		OnShutdown:       app.shutdown,
 		Bind: []interface{}{
 			app,
 		},
@@ -36,6 +68,9 @@ func main() {
 			WebviewIsTransparent: false,
 			WindowIsTranslucent:  false,
 			DisableWindowIcon:    false,
+		},
+		Debug: options.Debug{
+			OpenInspectorOnStartup: true,
 		},
 	})
 

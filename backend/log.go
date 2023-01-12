@@ -13,7 +13,7 @@ import (
 var (
 	logFileHandler *os.File
 	logFile        = fmt.Sprintf("save-tracker/logs/%s.json", time.Now().Format("20060102"))
-	logger         zerolog.Logger
+	Logger         zerolog.Logger
 )
 
 func StartLogger() {
@@ -29,9 +29,9 @@ func StartLogger() {
 	} else {
 
 		logFileHandler = file
-		logger = zerolog.New(logFileHandler).With().Logger()
+		Logger = zerolog.New(logFileHandler).With().Logger()
 	}
-	logger.Info().Timestamp().Msg("Logger has been created and is starting.")
+	Logger.Info().Timestamp().Msg("Logger has been created and is starting.")
 }
 
 func EndLogging() {

@@ -1,62 +1,81 @@
+
+
 <template>
-  <!-- <div>
-    <router-link class="link" to="/">Start</router-link> |
-    <router-link class="link" to="/features">Feature Docs</router-link> |
-    <router-link class="link" to="/home">Home</router-link>
-  </div> -->
-  <!-- <br /> -->
   <Menubar class="w-full" :model="items">
     <template #start>
-      <OverlayPanel ref="op" :showCloseIcon="true" >
+      <!-- <OverlayPanel ref="op" :showCloseIcon="true" >
         
-      </OverlayPanel>
+      </OverlayPanel> -->
+      <CascadeSelect id="change" @change="saveSelect" v-model="selectedSave" :options="finalSaves" optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
+        
+      </CascadeSelect>
     </template>
     <template #end>
       <p>Save Tracker</p>
     </template>
   </Menubar>
   <div class="grid w-full h-full">
-    <div class="col-fixed h-full" v-if="sbVisible" style="width:205px">
+    <Sidebar v-if="sbVisible"/>
+    <!-- <div class="col-fixed h-full" v-if="sbVisible" style="width:205px">
       <Menu :model="$router.getRoutes()" class="fixed align-content-evenly">
         <template #item="{ item }">
-          <!-- <br> -->
           <span :class="{ 'hidden': item.meta.secondary}">
           <font-awesome-icon :icon="item.meta.icon" />
-          <!-- <i :class="item.meta.icon"></i> -->
           <router-link :to="item.path" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">            
             <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
               {{ route.name }}
             </a>
           </router-link>
           </span>
-          <!-- <br> -->
-          <!-- <hr> -->
         </template>
       </Menu>
-    </div>
+    </div> -->
+    
     <div class="col">
-      <router-view />
+      <router-view @saveAdded="GetSaves" />
     </div>
   </div>
 </template>
 
+
+
 <script lang="ts">
   // Below is checking if there are any saves in database
   // TODO: when page is loaded, check
-  var saves: number
+  import { nullLiteral } from '@babel/types'
+  import { nextTick, ref } from 'vue'
+  import { RetrieveSaves, DeleteSaves } from '../wailsjs/go/main/App'
+  import { backend } from '../wailsjs/go/models'
+  import Sidebar from './components/Sidebar.vue'
+  // import 
+
+
   let sidebarV = false
-  if (localStorage.length == 0) {
-    localStorage.setItem('saves', "0")
-    saves = 0
-  } else {
-    saves = JSON.parse(localStorage.getItem('saves') || "0")
+  let savesMap = new Map<number, {}[]>()
+  let savesList: {}[] = []
+  let finalSaves = ref(savesList)
+  function getSaves(): void {
+    RetrieveSaves().then((response) => {
+      for (var i in response) {
+        if (!savesMap.has(response[i].gameVersion)) {
+          savesMap.set(response[i].gameVersion, [{id: response[i].id, name: response[i].managerName}])
+        } else if (savesMap.has(response[i].gameVersion)){
+          let newSave: {}[] = savesMap.get(response[i].gameVersion)!
+          newSave.push({id: response[i].id, name: response[i].managerName})
+          savesMap.set(response[i].gameVersion, newSave)
+        }
+      }    
+      finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
+      nextTick()
+    })
   }
-  if (saves > 0) {
-    sidebarV = true
-  }
+  getSaves()
+  
   export default {
     data() {
       return {
+        finalSaves: finalSaves,
+        selectedSave: null,
         sbVisible : sidebarV,
         items: [
           {
@@ -64,6 +83,17 @@
             icon: "pi pi-fw pi-file"
           }
         ]
+      }
+    },
+    components: {
+      Sidebar
+    },
+    methods: {
+      GetSaves() {
+        getSaves()
+      },
+      saveSelect(event: Event ) {
+        console.log(event.value.id)
       }
     }
   }

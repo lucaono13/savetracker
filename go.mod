@@ -1,11 +1,15 @@
 module github.com/lucaono13/savetracker
 
-go 1.18
-
-require github.com/wailsapp/wails/v2 v2.2.0
+go 1.19
 
 require (
-	github.com/adrg/xdg v0.4.0 // indirect
+	github.com/adrg/xdg v0.4.0
+	github.com/mattn/go-sqlite3 v1.14.15
+	github.com/rs/zerolog v1.28.0
+	github.com/wailsapp/wails/v2 v2.3.1
+)
+
+require (
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.1.2 // indirect
@@ -20,7 +24,6 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rs/zerolog v1.28.0 // indirect
 	github.com/samber/lo v1.27.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -33,4 +36,4 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 )
 
-// replace github.com/wailsapp/wails/v2 v2.2.0 => Q:\Applications\Utilities\Go\pkg\mod
+// replace github.com/wailsapp/wails/v2 => Q:\Documents\wails\v2

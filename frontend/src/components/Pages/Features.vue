@@ -1,7 +1,7 @@
 <template>
   <div class="logos">
-    <img class="wails" src="../assets/images/wails.svg" alt="wails">
-    <img class="vue" src="../assets/images/vue.svg" alt="vue">
+    <img class="wails" src="../../assets/images/wails.svg" alt="wails">
+    <img class="vue" src="../../assets/images/vue.svg" alt="vue">
   </div>
   <h3>Features</h3>
   <div class="links overflow-auto">
@@ -22,7 +22,7 @@
 <script setup lang="ts">
 // This template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-  import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
+  import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 const link = (link: string) => {
   BrowserOpenURL(link)
 }

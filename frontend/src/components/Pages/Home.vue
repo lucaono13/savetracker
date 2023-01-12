@@ -1,8 +1,8 @@
 <template>
   <div class="grid">
     <div class=" logos">
-      <img class="wails" src="../assets/images/wails.svg" alt="wails" />
-      <img class="vue" src="../assets/images/vue.svg" alt="vue" />
+      <img class="wails" src="../../assets/images/wails.svg" alt="wails" />
+      <img class="vue" src="../../assets/images/vue.svg" alt="vue" />
     </div>
     <div class="">
       <h3>Home</h3>
@@ -18,10 +18,10 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { useCounterStore } from '../stores/counter'
-  import { useSavesStore } from '../stores/saves';
+  import { useCounterStore } from '../../stores/counter'
+  import { useSavesStore } from '../../stores/saves';
   import { reactive } from 'vue';
-  import { Greet } from '../../wailsjs/go/main/App';
+  import { Greet } from '../../../wailsjs/go/main/App';
 
   const counterStore = useCounterStore()
   const result = ref('Please enter your name below 👇')

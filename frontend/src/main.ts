@@ -20,6 +20,8 @@ import Dropdown from 'primevue/dropdown'
 import Card from 'primevue/card'
 import BlockUI from 'primevue/blockui'
 import OverlayPanel from 'primevue/overlaypanel'
+import CascadeSelect from 'primevue/cascadeselect'
+import VirtualScroller from 'primevue/virtualscroller'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -74,6 +76,8 @@ app.component('Dropdown', Dropdown)
 app.component('Card', Card)
 app.component('BlockUI', BlockUI)
 app.component('OverlayPanel', OverlayPanel)
+app.component('CascadeSelect', CascadeSelect)
+app.component('VirtualScroller', VirtualScroller)
 
 // Use Vue Router
 app.use(router)

@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from './components/Home.vue'
+import Home from './components/Pages/Home.vue'
 import { useCounterStore } from './stores/counter'
 import { useSavesStore } from './stores/saves'
 import { PrimeIcons } from 'primevue/api'
@@ -20,7 +20,7 @@ const routes = [
   {
     path: '/features',
     name: 'Features',
-    component: () => import('./components/Features.vue'),
+    component: () => import('./components/Pages/Features.vue'),
     meta: {
       icon: PrimeIcons.DISCORD,
       secondary: false,
@@ -29,7 +29,7 @@ const routes = [
   {
     path: '/start',
     name: 'Start',
-    component: () => import('./components/Start.vue'),
+    component: () => import('./components/Pages/Start.vue'),
     meta: {
       icon: PrimeIcons.SERVER,
       secondary: false,
@@ -38,7 +38,7 @@ const routes = [
   {
     path: '/',
     name: 'Tracker Features',
-    component: () => import('./components/TrackerFeatures.vue'),
+    component: () => import('./components/Pages/TrackerFeatures.vue'),
     meta: {
       icon: PrimeIcons.ANDROID,
       secondary: false,
@@ -51,18 +51,6 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 })
-
-
-
-// router.beforeEach((to, from, next) => {
-//   // const saves = localStorage.getItem('saveCount')
-//   if (localStorage.getItem('saves') == "0") next({ name: 'Tracker Features'})
-//   else next()
-  
-  
-//   // if (saves.saves == 1) return '/tracker-features'
-// })
-
 
 export default router 
 // export default routes
