@@ -42,11 +42,6 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
-	// _, err := gorm.Open(sqlite.Open("db.db"), &gorm.Config{})
-	// if err != nil {
-	// 	panic("failed to connect to DB")
-	// }
-
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Save Tracker",

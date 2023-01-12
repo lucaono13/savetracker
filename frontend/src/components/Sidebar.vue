@@ -1,7 +1,3 @@
-<!-- <script lang="ts" setup>
-
-</script> -->
-
 <template>
     <div class="col-fixed h-full" style="width:205px">
       <Menu :model="$router.getRoutes()" class="fixed align-content-evenly">
@@ -19,19 +15,3 @@
       </Menu>
     </div>
 </template>
-
-
-<!-- <script lang="ts">
-    let sidebarV = false
-    
-    
-    
-    
-    export default {
-        data() {
-            return {
-                sbVisible: sidebarV,
-            }
-        }
-    }
-</script> -->

@@ -126,14 +126,6 @@
                 //     elem?.ariaDisabled = true
                 // }
             }
-            // handleSubmit(isFormValid) {
-            //     this.submitted = true;
-
-            //     if (isFormValid) {
-            //         return;
-            //     }
-            //     this.blockDocument();
-            // }
         },
         // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
         validations() {

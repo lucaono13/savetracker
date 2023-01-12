@@ -21,12 +21,6 @@ func OpenDB(filePath string) error {
 		Logger.Error().Timestamp().Msg("DB Connection could not be made")
 	}
 	DB = db
-
-	// db, err := gorm.Open(sqlite.Open(filePath), &gorm.Config{})
-	// if err != nil {
-	// 	Logg	er.Error().Timestamp().Msg("DB Connection could not be made.")
-	// }
-	// DB = db
 	Logger.Info().Timestamp().Msg("DB has been opened.")
 	return nil
 }
@@ -37,7 +31,6 @@ func CloseDB() error {
 }
 
 func GetSaves() []Save {
-	// DB.AutoMigrate(&Save{})
 	q := `
 	select * from saves;
 	`
@@ -59,36 +52,7 @@ func GetSaves() []Save {
 		saves = append(saves, save)
 
 	}
-
-	// DB.Find(&saves)
 	return saves
-}
-
-func DeleteAllSaves() []Save {
-	// DB.Exec("DELETE * FROM saves")
-	// DB.Delete(&Save{})
-	var saves []Save
-	// DB.Find(&saves)
-	return saves
-}
-
-func CreateDummy() {
-	q := `
-	insert into saves (managerName, gameVersion) values ("Gianluca", 22)
-	`
-	result, err := DB.Exec(q)
-	if err != nil {
-		Logger.Error().Timestamp().Str("Error", err.Error())
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		Logger.Error().Timestamp().Str("Error", err.Error())
-	}
-	if rows != 1 {
-		Logger.Error().Timestamp().Msgf("Should have affected 1 row, affected %d rows", rows)
-	} else {
-		Logger.Info().Timestamp().Msg("Added Dummy entry")
-	}
 }
 
 func AddSave(managerName string, gameVersion int) {
