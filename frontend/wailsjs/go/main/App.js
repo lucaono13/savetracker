@@ -6,10 +6,6 @@ export function AddNewSave(arg1, arg2) {
   return window['go']['main']['App']['AddNewSave'](arg1, arg2);
 }
 
-export function DeleteSaves() {
-  return window['go']['main']['App']['DeleteSaves']();
-}
-
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }

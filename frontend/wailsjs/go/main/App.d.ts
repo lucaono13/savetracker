@@ -4,8 +4,6 @@ import {backend} from '../models';
 
 export function AddNewSave(arg1:string,arg2:number):Promise<void>;
 
-export function DeleteSaves():Promise<Array<backend.Save>>;
-
 export function Greet(arg1:string):Promise<string>;
 
 export function RetrieveSaves():Promise<Array<backend.Save>>;

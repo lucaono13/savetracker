@@ -44,17 +44,20 @@
   // TODO: when page is loaded, check
   import { nullLiteral } from '@babel/types'
   import { nextTick, ref } from 'vue'
-  import { RetrieveSaves, DeleteSaves } from '../wailsjs/go/main/App'
+  import { RetrieveSaves } from '../wailsjs/go/main/App'
   import { backend } from '../wailsjs/go/models'
   import Sidebar from './components/Sidebar.vue'
   // import 
 
 
   let sidebarV = false
-  let savesMap = new Map<number, {}[]>()
+  // let savesMap = new Map<number, {}[]>()
   let savesList: {}[] = []
   let finalSaves = ref(savesList)
   function getSaves(): void {
+    let savesMap = new Map<number, {}[]>()
+    let savesList: {}[] = []
+    // let finalSaves = ref(savesList)
     RetrieveSaves().then((response) => {
       for (var i in response) {
         if (!savesMap.has(response[i].gameVersion)) {
@@ -67,6 +70,7 @@
       }    
       finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
       nextTick()
+      localStorage.setItem("saves", finalSaves.value.length.toString())
     })
   }
   getSaves()
@@ -92,9 +96,10 @@
       GetSaves() {
         getSaves()
       },
-      saveSelect(event: Event ) {
-        console.log(event.value.id)
-      }
+      saveSelect(e: { originalEvent: Event; value : { id: number; name: string}}) {
+        console.log(e.value.id)
+        // console.log(typeof(e))
+      },
     }
   }
 

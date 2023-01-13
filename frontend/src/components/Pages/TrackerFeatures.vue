@@ -80,10 +80,12 @@
                 this.addSaveModal = true
             },
             addSave() {
-                AddNewSave(this.managerName, +this.gameVersion)
-                this.$emit('saveAdded')
-                this.resetForm()
-                this.addSaveModal = false;
+                AddNewSave(this.managerName, +this.gameVersion).then( () => {
+                    this.$emit('saveAdded')
+                    this.resetForm()
+                    this.addSaveModal = false;
+                })
+                
             },
             newSaveAdded(isFormValid: boolean) {
                 this.submitted = true;
