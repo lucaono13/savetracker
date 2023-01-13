@@ -3,6 +3,7 @@ package backend
 import (
 	"database/sql"
 
+	"github.com/adrg/xdg"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -14,15 +15,28 @@ type Save struct {
 
 var DB *sql.DB
 
-func OpenDB(filePath string) error {
+func OpenDB() {
+	dbFilePath, err := xdg.DataFile("Save Tracker/db/saveTracker.db")
+	if err != nil {
+		Logger.Error().Timestamp().Str("Error", err.Error())
+		return
+		// return err
+	}
 
-	db, err := sql.Open("sqlite3", filePath)
+	db, err := sql.Open("sqlite3", dbFilePath)
 	if err != nil {
 		Logger.Error().Timestamp().Msg("DB Connection could not be made")
+		return
 	}
+	_, err = db.Exec(CreateTables)
+	if err != nil {
+		Logger.Error().Timestamp().Str("Error", err.Error())
+		return
+	}
+
 	DB = db
 	Logger.Info().Timestamp().Msg("DB has been opened.")
-	return nil
+	// return nil
 }
 
 func CloseDB() error {
@@ -58,14 +72,15 @@ func GetSaves() []Save {
 func AddSave(managerName string, gameVersion int) {
 	result, err := DB.Exec(AddSaveQ, managerName, gameVersion)
 	if err != nil {
-		Logger.Error().Timestamp().Str("Error", err.Error())
+		Logger.Error().Timestamp().Msg(err.Error())
+		return
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
 		Logger.Error().Timestamp().Str("Error", err.Error())
 	}
 	if rows != 1 {
-		Logger.Error().Timestamp().Msgf("Should have affected 1 row, affected %d rows", rows)
+		Logger.Error().Timestamp().Msg("Did not create 1 save.")
 	} else {
 		Logger.Info().Timestamp().Msg("Created new save.")
 	}

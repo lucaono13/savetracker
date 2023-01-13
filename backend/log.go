@@ -12,7 +12,7 @@ import (
 
 var (
 	logFileHandler *os.File
-	logFile        = fmt.Sprintf("save-tracker/logs/%s.json", time.Now().Format("20060102"))
+	logFile        = fmt.Sprintf("Save Tracker/logs/%s.json", time.Now().Format("20060102"))
 	Logger         zerolog.Logger
 )
 

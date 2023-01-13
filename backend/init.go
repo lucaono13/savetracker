@@ -1,6 +1,6 @@
 package backend
 
-func StartBackend(dbPath string) {
+func StartBackend() {
 	StartLogger()
-	OpenDB(dbPath)
+	OpenDB()
 }
