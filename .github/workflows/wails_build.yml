@@ -1,4 +1,4 @@
-name: "example"
+name: "Build Mac/Windows App"
 on:
   workflow_dispatch:
   pull_request:
