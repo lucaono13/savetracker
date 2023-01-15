@@ -38,7 +38,7 @@ const routes = [
   {
     path: '/',
     name: 'Tracker Features',
-    component: () => import('./components/Pages/TrackerFeatures.vue'),
+    component: () => import('./components/Pages/NoSaves.vue'),
     meta: {
       icon: PrimeIcons.ANDROID,
       secondary: false,

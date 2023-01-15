@@ -16,21 +16,6 @@
   </Menubar>
   <div class="grid w-full h-full">
     <Sidebar v-if="sbVisible"/>
-    <!-- <div class="col-fixed h-full" v-if="sbVisible" style="width:205px">
-      <Menu :model="$router.getRoutes()" class="fixed align-content-evenly">
-        <template #item="{ item }">
-          <span :class="{ 'hidden': item.meta.secondary}">
-          <font-awesome-icon :icon="item.meta.icon" />
-          <router-link :to="item.path" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">            
-            <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
-              {{ route.name }}
-            </a>
-          </router-link>
-          </span>
-        </template>
-      </Menu>
-    </div> -->
-    
     <div class="col">
       <router-view @saveAdded="GetSaves" />
     </div>
@@ -46,11 +31,20 @@
   import { nextTick, ref } from 'vue'
   import { RetrieveSaves } from '../wailsjs/go/main/App'
   import { backend } from '../wailsjs/go/models'
-  import Sidebar from './components/Sidebar.vue'
+  import Sidebar from './components/Components/Sidebar.vue'
   // import 
 
-
+  var noOfSaves: null | string = localStorage.getItem("saves")
+  if (noOfSaves == null) {
+    noOfSaves = "0"
+  }
   let sidebarV = false
+  if (+noOfSaves > 0) {
+    let sidebarV = true
+  }
+  // let noOfSaves: number | 0 = +localStorage.getItem("saves")
+  
+  let showSidebar = ref(sidebarV)
   // let savesMap = new Map<number, {}[]>()
   let savesList: {}[] = []
   let finalSaves = ref(savesList)
@@ -71,6 +65,7 @@
       finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
       nextTick()
       localStorage.setItem("saves", finalSaves.value.length.toString())
+      showSidebar.value = true
     })
   }
   getSaves()
@@ -80,7 +75,7 @@
       return {
         finalSaves: finalSaves,
         selectedSave: null,
-        sbVisible : sidebarV,
+        sbVisible : showSidebar,
         items: [
           {
             label: "Test",
