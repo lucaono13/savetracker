@@ -28,12 +28,14 @@
   // Below is checking if there are any saves in database
   // TODO: when page is loaded, check
   import { nullLiteral } from '@babel/types'
+import { def } from '@vue/shared'
   import { nextTick, ref } from 'vue'
   import { RetrieveSaves } from '../wailsjs/go/main/App'
   import { backend } from '../wailsjs/go/models'
   import Sidebar from './components/Components/Sidebar.vue'
   // import 
 
+  // Setup for setting sidebar visibility (only if there are 1+ saves)
   var noOfSaves: null | string = localStorage.getItem("saves")
   if (noOfSaves == null) {
     noOfSaves = "0"
@@ -42,29 +44,44 @@
   if (+noOfSaves > 0) {
     let sidebarV = true
   }
-  // let noOfSaves: number | 0 = +localStorage.getItem("saves")
-  
   let showSidebar = ref(sidebarV)
-  // let savesMap = new Map<number, {}[]>()
+
+  // Setup for setting the default save
+  let defaultID : string | null = localStorage.getItem("defaultSave")
+  let defaultSaveObj : {id: number, name: string} | null
+  let defaultSave = ref({})
+
+  // Setup for getting all available saves
   let savesList: {}[] = []
   let finalSaves = ref(savesList)
+
+  // Function that gets all the saves in DB and sets the selection to the selected default save
   function getSaves(): void {
     let savesMap = new Map<number, {}[]>()
     let savesList: {}[] = []
     // let finalSaves = ref(savesList)
     RetrieveSaves().then((response) => {
       for (var i in response) {
+        let saveObj : {id: number, name: string, manager: string} = {id: response[i].id, name: response[i].saveName, manager: response[i].managerName}
         if (!savesMap.has(response[i].gameVersion)) {
-          savesMap.set(response[i].gameVersion, [{id: response[i].id, name: response[i].managerName}])
+          
+          savesMap.set(response[i].gameVersion, [saveObj])
         } else if (savesMap.has(response[i].gameVersion)){
           let newSave: {}[] = savesMap.get(response[i].gameVersion)!
-          newSave.push({id: response[i].id, name: response[i].managerName})
+          
+          newSave.push(saveObj)
           savesMap.set(response[i].gameVersion, newSave)
+        }
+        if (defaultID != null && saveObj.id == +defaultID) {
+          defaultSave.value = saveObj
         }
       }    
       finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
+      
+      // Changes to the next tick in order to change the variables in the frontend
       nextTick()
       localStorage.setItem("saves", finalSaves.value.length.toString())
+      
       showSidebar.value = true
     })
   }
@@ -74,7 +91,8 @@
     data() {
       return {
         finalSaves: finalSaves,
-        selectedSave: null,
+        
+        selectedSave: defaultSave,
         sbVisible : showSidebar,
         items: [
           {

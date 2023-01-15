@@ -43,6 +43,11 @@ const routes = [
       icon: PrimeIcons.ANDROID,
       secondary: false,
     },
+    // beforeCreate(to, from) {
+    //   if (localStorage.getItem("saves") != null ) {
+
+    //   }
+    // },
     
   },
 ]

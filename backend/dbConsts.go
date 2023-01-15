@@ -1,7 +1,7 @@
 package backend
 
 const (
-	AddSaveQ     = `INSERT INTO saves (managerName, gameVersion) VALUES (?, ?)`
+	AddSaveQ     = `INSERT INTO saves (saveName, managerName, gameVersion) VALUES (?, ?, ?)`
 	CreateTables = `
 	CREATE TABLE IF NOT EXISTS "competitions" (
 		"competitionID"	INTEGER NOT NULL UNIQUE,

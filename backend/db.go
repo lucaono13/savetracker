@@ -60,7 +60,7 @@ func GetSaves() []Save {
 		var (
 			save Save
 		)
-		err := rows.Scan(&save.SaveID, &save.ManagerName, &save.GameVersion)
+		err := rows.Scan(&save.SaveID, &save.ManagerName, &save.GameVersion, &save.SaveName)
 		if err != nil {
 			Logger.Error().Timestamp().Str("Error", err.Error())
 		}
@@ -71,7 +71,7 @@ func GetSaves() []Save {
 }
 
 func AddSave(saveName string, managerName string, gameVersion int) {
-	result, err := DB.Exec(AddSaveQ, managerName, gameVersion)
+	result, err := DB.Exec(AddSaveQ, saveName, managerName, gameVersion)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
 		return
