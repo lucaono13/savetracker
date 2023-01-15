@@ -68,7 +68,7 @@ export default {
             this.addSaveModal = true
         },
         addSave() {
-            AddNewSave(this.managerName, +this.gameVersion).then(() => {
+            AddNewSave(this.saveName, this.managerName, +this.gameVersion).then(() => {
                 this.$emit('saveAdded')
                 
                 // this.resetForm()

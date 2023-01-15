@@ -11,6 +11,7 @@ type Save struct {
 	SaveID      uint   `json:"id"`
 	ManagerName string `json:"managerName"`
 	GameVersion int    `json:"gameVersion"`
+	SaveName    string `json:"saveName"`
 }
 
 var DB *sql.DB
@@ -69,7 +70,7 @@ func GetSaves() []Save {
 	return saves
 }
 
-func AddSave(managerName string, gameVersion int) {
+func AddSave(saveName string, managerName string, gameVersion int) {
 	result, err := DB.Exec(AddSaveQ, managerName, gameVersion)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())

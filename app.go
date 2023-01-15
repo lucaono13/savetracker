@@ -45,8 +45,8 @@ func (a *App) RetrieveSaves() []backend.Save {
 	return backend.GetSaves()
 }
 
-func (a *App) AddNewSave(managerName string, gameVersion int) {
-	backend.AddSave(managerName, gameVersion)
+func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) {
+	backend.AddSave(saveName, managerName, gameVersion)
 }
 
 func Log(msg string) {
