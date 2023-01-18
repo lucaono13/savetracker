@@ -112,4 +112,5 @@ const (
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	`
+	SingleSave = `SELECT * FROM saves where saveID=?`
 )

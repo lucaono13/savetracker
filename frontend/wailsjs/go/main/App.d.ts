@@ -7,3 +7,5 @@ export function AddNewSave(arg1:string,arg2:string,arg3:number):Promise<void>;
 export function Greet(arg1:string):Promise<string>;
 
 export function RetrieveSaves():Promise<Array<backend.Save>>;
+
+export function SingleSave(arg1:number):Promise<backend.Save>;

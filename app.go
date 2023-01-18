@@ -52,3 +52,7 @@ func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) {
 func Log(msg string) {
 	backend.Logger.Info().Timestamp().Msg(msg)
 }
+
+func (a *App) SingleSave(id int) backend.Save {
+	return backend.GetSingleSave(id)
+}

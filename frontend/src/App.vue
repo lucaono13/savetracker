@@ -17,7 +17,9 @@
   <div class="grid w-full h-full">
     <Sidebar v-if="sbVisible"/>
     <div class="col">
-      <router-view @saveAdded="GetSaves" />
+      <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
+        <component :is="Component" :key="route.params.id"></component>
+      </router-view>
     </div>
   </div>
 </template>
@@ -28,12 +30,15 @@
   // Below is checking if there are any saves in database
   // TODO: when page is loaded, check
   import { nullLiteral } from '@babel/types'
-import { def } from '@vue/shared'
+  import { def } from '@vue/shared'
   import { nextTick, ref } from 'vue'
   import { RetrieveSaves } from '../wailsjs/go/main/App'
   import { backend } from '../wailsjs/go/models'
   import Sidebar from './components/Components/Sidebar.vue'
+  import { useRoute } from 'vue-router'
   // import 
+
+  const router = useRoute()
 
   // Setup for setting sidebar visibility (only if there are 1+ saves)
   var noOfSaves: null | string = localStorage.getItem("saves")
@@ -50,7 +55,7 @@ import { def } from '@vue/shared'
   let defaultID : string | null = localStorage.getItem("defaultSave")
   let defaultSaveObj : {id: number, name: string} | null
   let defaultSave = ref({})
-
+  // console.log(localStorage.getItem("defaultSave"), localStorage.getItem("saves"))
   // Setup for getting all available saves
   let savesList: {}[] = []
   let finalSaves = ref(savesList)
@@ -87,6 +92,7 @@ import { def } from '@vue/shared'
   }
   getSaves()
   
+  
   export default {
     data() {
       return {
@@ -110,10 +116,21 @@ import { def } from '@vue/shared'
         getSaves()
       },
       saveSelect(e: { originalEvent: Event; value : { id: number; name: string}}) {
-        console.log(e.value.id)
+        console.log(e.value.id, "changed")
+        console.log(this.$router.currentRoute)
+        this.$router.replace({name: 'save', params: { id: e.value.id } })
+        console.log(this.$router.currentRoute)
+        nextTick()
+
         // console.log(typeof(e))
       },
-    }
+    },
+    // watch: {
+    //   router()
+
+    //   }
+    // }
+
   }
 
 // This template is using Vue 3 <script setup> SFCs

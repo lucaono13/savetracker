@@ -52,7 +52,7 @@ func GetSaves() []Save {
 
 	rows, err := DB.Query(q)
 	if err != nil {
-		Logger.Error().Timestamp().Str("Error", err.Error())
+		Logger.Error().Timestamp().Msg(err.Error())
 	}
 	defer rows.Close()
 	var saves []Save
@@ -62,7 +62,7 @@ func GetSaves() []Save {
 		)
 		err := rows.Scan(&save.SaveID, &save.ManagerName, &save.GameVersion, &save.SaveName)
 		if err != nil {
-			Logger.Error().Timestamp().Str("Error", err.Error())
+			Logger.Error().Timestamp().Msg(err.Error())
 		}
 		saves = append(saves, save)
 
@@ -78,11 +78,28 @@ func AddSave(saveName string, managerName string, gameVersion int) {
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		Logger.Error().Timestamp().Str("Error", err.Error())
+		Logger.Error().Timestamp().Msg(err.Error())
 	}
 	if rows != 1 {
 		Logger.Error().Timestamp().Msg("Did not create 1 save.")
 	} else {
 		Logger.Info().Timestamp().Msg("Created new save.")
 	}
+}
+
+func GetSingleSave(id int) Save {
+	rows, err := DB.Query(SingleSave, id)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+	}
+	// Logger.Info().Timestamp().Msg(rows)
+	defer rows.Close()
+	var saveExport Save
+	for rows.Next() {
+		err := rows.Scan(&saveExport.SaveID, &saveExport.ManagerName, &saveExport.GameVersion, &saveExport.SaveName)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+		}
+	}
+	return saveExport
 }

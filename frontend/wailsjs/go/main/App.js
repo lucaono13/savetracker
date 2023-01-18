@@ -13,3 +13,7 @@ export function Greet(arg1) {
 export function RetrieveSaves() {
   return window['go']['main']['App']['RetrieveSaves']();
 }
+
+export function SingleSave(arg1) {
+  return window['go']['main']['App']['SingleSave'](arg1);
+}
