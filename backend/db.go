@@ -70,21 +70,29 @@ func GetSaves() []Save {
 	return saves
 }
 
-func AddSave(saveName string, managerName string, gameVersion int) {
+func AddSave(saveName string, managerName string, gameVersion int) (int, error) {
 	result, err := DB.Exec(AddSaveQ, saveName, managerName, gameVersion)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
-		return
+		return 0, err
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
 	}
 	if rows != 1 {
 		Logger.Error().Timestamp().Msg("Did not create 1 save.")
+		return 0, err
 	} else {
 		Logger.Info().Timestamp().Msg("Created new save.")
 	}
+	addedId, err := result.LastInsertId()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
+	}
+	return int(addedId), nil
 }
 
 func GetSingleSave(id int) Save {

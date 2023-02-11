@@ -1,32 +1,126 @@
 
 
 <template>
-  <Menubar class="w-full" :model="items">
+  <Menubar class="w-full" >
     <template #start>
-      <!-- <OverlayPanel ref="op" :showCloseIcon="true" >
-        
-      </OverlayPanel> -->
-      <CascadeSelect id="change" @change="saveSelect" v-model="selectedSave" :options="finalSaves" optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
-        
-      </CascadeSelect>
+      <CascadeSelect id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded" optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save" />
+      
     </template>
     <template #end>
-      <p>Save Tracker</p>
+      <!-- <p>Save Tracker</p> -->
+      <Button class="p-button-help p-button-outlined" @click="addSaveModal=true">New Save</Button>
+      <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="GetSaves" @closeDialog="addSaveModal=false"/>
     </template>
   </Menubar>
+  
   <div class="grid w-full h-full">
-    <Sidebar v-if="sbVisible"/>
-    <div class="col">
+    
+    <!-- <div class="col"> -->
       <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
-        <component :is="Component" :key="route.params.id"></component>
+        <!-- <Sidebar v-if="sbVisible" :id="route.params.id" /> -->
+        <!-- <div class="col"> -->
+          <component :is="Component" :key="route.params.id"></component>
+      <!-- </div> -->
       </router-view>
-    </div>
+    <!-- </div> -->
   </div>
 </template>
 
+<script lang="ts" async setup>
+    import { nextTick, ref, computed, reactive } from 'vue';
+    import { RetrieveSaves } from '../wailsjs/go/main/App';
+    import Sidebar from './components/Components/Sidebar.vue'
+    import AddSaveDialog from "./components/Components/AddSaveDialog.vue" ;
+    import { useRoute, useRouter } from 'vue-router';
 
+    const route = useRoute()
+    const router = useRouter()
+    let startup = ref(true)
+    let addSaveModal = ref(false)
 
-<script lang="ts">
+    // Getting number of saves, persists between opening of app
+    var noOfSaves: null | string = localStorage.getItem("saves")
+    if (noOfSaves == null) {
+        noOfSaves = "0"
+    }
+    console.log(localStorage)
+    // Sidebar Visibility (1+ saves)
+    let sbVisible = ref(false)
+    if (+noOfSaves > 0) {
+        sbVisible.value = true
+    }
+    let blank: string = 'hi'
+    // Default save
+    let defaultID : string | null = localStorage.getItem("defaultSave")
+    if (defaultID == null) {
+      defaultID = "0"
+    }
+    let selectedSave = ref({})
+    let savesList: {}[] = []
+    let finalSaves = ref(savesList)
+    let isDataLoaded = computed(
+      () => {
+        console.log(finalSaves.value.length)
+        return finalSaves.value.length > 0 ? finalSaves.value : []
+      }
+    )
+
+    const testing = reactive(finalSaves.value)
+    let isLoaded = ref(false)
+    
+
+    // Function to be called to retrieve the saves and add to the dropdown
+    // Occurs: first app open, new save added
+    function GetSaves(newID?: number): void {
+        RetrieveSaves().then( (response) => {
+            let savesMap = new Map<number, {}[]>()
+            // let savesList: {}[] = []
+            for (var save in response) {
+              let gV: number = response[save].gameVersion
+                let saveObj : { id: number, name: string, manager: string } = { id: response[save].id, name: response[save].saveName, manager: response[save].managerName }
+                if (!savesMap.has(gV)) {
+                    savesMap.set(gV, [saveObj])
+                } else if (savesMap.has(gV)) {
+                    let versionSaveList: {}[] = savesMap.get(gV)!
+                    versionSaveList.push(saveObj)
+                    savesMap.set(gV, versionSaveList)
+                }
+
+                if (startup.value == true && defaultID != null && saveObj.id == +defaultID) {
+                    selectedSave.value = saveObj
+                } else if (startup.value == false && saveObj.id == newID) {
+                    selectedSave.value = saveObj
+                }
+            }
+            startup.value = false
+            finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
+            localStorage.setItem("saves", finalSaves.value.length.toString())
+            
+            
+            isLoaded.value = true
+            nextTick()
+            if (newID != null) {
+              GoToSave(newID)
+            } else if (defaultID != null) {
+              GoToSave(+defaultID)
+            }
+        })
+    }
+
+    // Change path
+    function GoToSave(id: number) {
+        let newRoute: string = '/save/' + id
+        router.replace(newRoute)
+    }
+
+    // Function to be called when the dropdown changes selection
+    function SaveSelected(e: { originalEvent : Event; value : { id: number; name: string } } ) {
+        GoToSave(e.value.id)
+    }
+    GetSaves()
+</script>
+
+<!-- <script lang="ts">
   // Below is checking if there are any saves in database
   // TODO: when page is loaded, check
   import { nullLiteral } from '@babel/types'
@@ -87,6 +181,7 @@
       nextTick()
       localStorage.setItem("saves", finalSaves.value.length.toString())
       
+      
       showSidebar.value = true
     })
   }
@@ -121,21 +216,13 @@
         this.$router.replace({name: 'save', params: { id: e.value.id } })
         console.log(this.$router.currentRoute)
         nextTick()
-
-        // console.log(typeof(e))
       },
     },
-    // watch: {
-    //   router()
-
-    //   }
-    // }
-
   }
 
 // This template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-</script>
+</script> -->
 
 <style lang="scss">
 @font-face {

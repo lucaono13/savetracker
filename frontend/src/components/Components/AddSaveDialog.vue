@@ -68,9 +68,12 @@ export default {
             this.addSaveModal = true
         },
         addSave() {
-            AddNewSave(this.saveName, this.managerName, +this.gameVersion).then(() => {
-                this.$emit('saveAdded')
-                
+            AddNewSave(this.saveName, this.managerName, +this.gameVersion).then((response) => {
+                if (response == 0) {
+                    this.$emit('saveAdded')
+                } else {
+                    this.$emit('saveAdded', response)
+                }
                 // this.resetForm()
                 
             })
@@ -78,6 +81,9 @@ export default {
         },
         newSaveAdded(isFormValid: boolean) {
             this.submitted = true;
+            // const saveNo = localStorage.getItem("saves")
+            
+            
 
             if (!isFormValid) {
                 return;

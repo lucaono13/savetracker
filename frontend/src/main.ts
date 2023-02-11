@@ -16,6 +16,7 @@ import Menu from 'primevue/menu'
 import Dock from 'primevue/dock'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
+import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import Card from 'primevue/card'
 import BlockUI from 'primevue/blockui'
@@ -78,6 +79,7 @@ app.component('BlockUI', BlockUI)
 app.component('OverlayPanel', OverlayPanel)
 app.component('CascadeSelect', CascadeSelect)
 app.component('VirtualScroller', VirtualScroller)
+app.component('Checkbox', Checkbox)
 
 // Use Vue Router
 app.use(router)
