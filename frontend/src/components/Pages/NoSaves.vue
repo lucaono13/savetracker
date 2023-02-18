@@ -18,7 +18,7 @@
 
 </template>
 
-<script lang="ts">
+<!-- <script lang="ts">
     import { required } from "@vuelidate/validators";
     import { useVuelidate } from "@vuelidate/core";
     import { AddNewSave } from "../../../wailsjs/go/main/App";
@@ -53,5 +53,15 @@
         components: {
             AddSaveDialog
         }
+    }
+</script> -->
+
+<script setup lang="ts">
+    import { ref } from 'vue';
+    import AddSaveDialog from "../Components/AddSaveDialog.vue";
+    let addSaveModal = ref(false)
+    
+    function openAddSave() {
+        addSaveModal.value = true
     }
 </script>

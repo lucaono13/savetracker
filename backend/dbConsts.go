@@ -15,6 +15,7 @@ const (
 		"managerName"	TEXT NOT NULL,
 		"gameVersion"	INTEGER NOT NULL,
 		"saveName"	TEXT NOT NULL,
+		"saveImage" TEXT,
 		PRIMARY KEY("saveID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "teams" (

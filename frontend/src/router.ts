@@ -7,33 +7,41 @@ import { PrimeIcons } from 'primevue/api'
 // import TrackerFeatures from './components/TrackerFeatures.vue'
 
 const routes = [
-  {
-    path: '/home',
-    name: 'Home 2',
-    component: Home,
-    meta: {
-      icon: "fa-solid fa-mug-hot",
-      secondary: false
-    },
+  // {
+  //   path: '/home',
+  //   name: 'Home 2',
+  //   component: Home,
+  //   meta: {
+  //     icon: "fa-solid fa-mug-hot",
+  //     secondary: false
+  //   },
     
-  },
+  // },
+  // {
+  //   path: '/features',
+  //   name: 'Features',
+  //   component: () => import('./components/Pages/Features.vue'),
+  //   meta: {
+  //     icon: PrimeIcons.DISCORD,
+  //     secondary: false,
+  //   },
+  // },
+  // {
+  //   path: '/start',
+  //   name: 'Start',
+  //   component: () => import('./components/Pages/Start.vue'),
+  //   meta: {
+  //     icon: PrimeIcons.SERVER,
+  //     secondary: false,
+  //   },
+  // },
   {
-    path: '/features',
-    name: 'Features',
-    component: () => import('./components/Pages/Features.vue'),
+    path: '/noDefault',
+    name: 'No Default',
+    component: () => import('./components/Pages/NoDefaultSave.vue'),
     meta: {
-      icon: PrimeIcons.DISCORD,
       secondary: false,
-    },
-  },
-  {
-    path: '/start',
-    name: 'Start',
-    component: () => import('./components/Pages/Start.vue'),
-    meta: {
-      icon: PrimeIcons.SERVER,
-      secondary: false,
-    },
+    }
   },
   {
     path: '/',
@@ -49,8 +57,10 @@ const routes = [
       if (saves === null) {
         localStorage.setItem("saves", "0")
       }
+      if (saves !== null && defaultSave == null) {
+        return { path: 'No Default', replace: true}
+      }
       if (saves !== null && defaultSave != null) {
-        console.log(defaultSave.length !== 0)
         if (defaultSave.length !== 0) {
           if (defaultSave == "0") {
             return

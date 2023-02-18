@@ -23,6 +23,7 @@ import BlockUI from 'primevue/blockui'
 import OverlayPanel from 'primevue/overlaypanel'
 import CascadeSelect from 'primevue/cascadeselect'
 import VirtualScroller from 'primevue/virtualscroller'
+import Image from 'primevue/image'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -32,7 +33,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Import specific icons
-import { faMugHot } from '@fortawesome/free-solid-svg-icons'
+import { faMugHot, faList } from '@fortawesome/free-solid-svg-icons'
 
 
 
@@ -55,6 +56,7 @@ app.use(createPinia())
 
 // Add Icons to Library
 library.add(faMugHot)
+library.add(faList)
 
 // Add FontAwesome to app
 app.component('font-awesome-icon', FontAwesomeIcon)
@@ -80,6 +82,7 @@ app.component('OverlayPanel', OverlayPanel)
 app.component('CascadeSelect', CascadeSelect)
 app.component('VirtualScroller', VirtualScroller)
 app.component('Checkbox', Checkbox)
+    .component('Image', Image)
 
 // Use Vue Router
 app.use(router)

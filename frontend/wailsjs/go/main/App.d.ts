@@ -4,6 +4,8 @@ import {backend} from '../models';
 
 export function AddNewSave(arg1:string,arg2:string,arg3:number):Promise<number>;
 
+export function GetImage(arg1:string):Promise<string>;
+
 export function Greet(arg1:string):Promise<string>;
 
 export function RetrieveSaves():Promise<Array<backend.Save>>;

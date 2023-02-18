@@ -27,6 +27,7 @@ func NewFileLoader() *FileLoader {
 
 func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	var err error
+	fmt.Println(req.URL.Path, req.URL)
 	requestedFilename := strings.TrimPrefix(req.URL.Path, "/")
 	println("Requesting file:", requestedFilename)
 	fileData, err := os.ReadFile(requestedFilename)
@@ -55,7 +56,7 @@ func main() {
 		LogLevel:         logger.DEBUG,
 		OnStartup:        app.startup,
 		OnDomReady:       app.domReady,
-		OnShutdown:       app.shutdown,
+		OnBeforeClose:    app.shutdown,
 		Bind: []interface{}{
 			app,
 		},

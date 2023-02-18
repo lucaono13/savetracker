@@ -1,123 +1,148 @@
 
 
 <template>
-  <Menubar class="w-full" >
-    <template #start>
-      <CascadeSelect id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded" optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save" />
-      
+  <Menubar class="w-full">
+    <template #start style="width:100px">
+      <CascadeSelect style="width:75%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
+        optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
+        <template #option="slotProps">
+          <div class="flex align-items-center justify-content-center">
+            <img :src="slotProps.option.image" style="height: 30px;" v-if="slotProps.option.name">
+            <FontAwesomeIcon icon="fa-solid fa-list" v-if="slotProps.option.gameVersion" />
+            <!-- <i class="fa-solid fa-list"></i> -->
+            <span style="padding-left: 5px;" v-if="slotProps.option.gameVersion">{{
+              slotProps.option.gameVersion
+            }}</span>
+            <span style="padding-left: 5px;" v-if="slotProps.option.name">{{ slotProps.option.name }}</span>
+          </div>
+        </template>
+      </CascadeSelect>
+
     </template>
     <template #end>
       <!-- <p>Save Tracker</p> -->
-      <Button class="p-button-help p-button-outlined" @click="addSaveModal=true">New Save</Button>
-      <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="GetSaves" @closeDialog="addSaveModal=false"/>
+      <Button class="p-button-help p-button-outlined" @click="addSaveModal = true">New Save</Button>
+      <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="GetSaves" @closeDialog="addSaveModal = false" />
     </template>
   </Menubar>
-  
+
   <div class="grid w-full h-full">
-    
+
     <!-- <div class="col"> -->
-      <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
-        <!-- <Sidebar v-if="sbVisible" :id="route.params.id" /> -->
-        <!-- <div class="col"> -->
-          <component :is="Component" :key="route.params.id"></component>
+    <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
+      <!-- <Sidebar v-if="sbVisible" :id="route.params.id" /> -->
+      <!-- <div class="col"> -->
+      <component :is="Component" :key="route.params.id"></component>
       <!-- </div> -->
-      </router-view>
+    </router-view>
     <!-- </div> -->
   </div>
 </template>
 
 <script lang="ts" async setup>
-    import { nextTick, ref, computed, reactive } from 'vue';
-    import { RetrieveSaves } from '../wailsjs/go/main/App';
-    import Sidebar from './components/Components/Sidebar.vue'
-    import AddSaveDialog from "./components/Components/AddSaveDialog.vue" ;
-    import { useRoute, useRouter } from 'vue-router';
+import { nextTick, ref, computed, reactive } from 'vue';
+import { RetrieveSaves, GetImage } from '../wailsjs/go/main/App';
+import Sidebar from './components/Components/Sidebar.vue'
+import AddSaveDialog from "./components/Components/AddSaveDialog.vue";
+import { useRoute, useRouter } from 'vue-router';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-    const route = useRoute()
-    const router = useRouter()
-    let startup = ref(true)
-    let addSaveModal = ref(false)
 
-    // Getting number of saves, persists between opening of app
-    var noOfSaves: null | string = localStorage.getItem("saves")
-    if (noOfSaves == null) {
-        noOfSaves = "0"
-    }
-    console.log(localStorage)
-    // Sidebar Visibility (1+ saves)
-    let sbVisible = ref(false)
-    if (+noOfSaves > 0) {
-        sbVisible.value = true
-    }
-    let blank: string = 'hi'
-    // Default save
-    let defaultID : string | null = localStorage.getItem("defaultSave")
-    if (defaultID == null) {
-      defaultID = "0"
-    }
-    let selectedSave = ref({})
-    let savesList: {}[] = []
-    let finalSaves = ref(savesList)
-    let isDataLoaded = computed(
-      () => {
-        console.log(finalSaves.value.length)
-        return finalSaves.value.length > 0 ? finalSaves.value : []
+const route = useRoute()
+const router = useRouter()
+let startup = ref(true)
+let addSaveModal = ref(false)
+
+// Getting number of saves, persists between opening of app
+var noOfSaves: null | string = localStorage.getItem("saves")
+if (noOfSaves == null) {
+  noOfSaves = "0"
+}
+console.log(localStorage)
+// Sidebar Visibility (1+ saves)
+let sbVisible = ref(false)
+if (+noOfSaves > 0) {
+  sbVisible.value = true
+}
+let blank: string = 'hi'
+// Default save
+let defaultID: string | null = localStorage.getItem("defaultSave")
+if (defaultID == null) {
+  defaultID = "0"
+}
+let selectedSave = ref({})
+let savesList: {}[] = []
+let finalSaves = ref(savesList)
+let isDataLoaded = computed(
+  () => {
+    console.log(finalSaves.value.length)
+    return finalSaves.value.length > 0 ? finalSaves.value : []
+  }
+)
+
+const testing = reactive(finalSaves.value)
+let isLoaded = ref(false)
+
+
+// Function to be called to retrieve the saves and add to the dropdown
+// Occurs: first app open, new save added
+function GetSaves(newID?: number): void {
+  RetrieveSaves().then(async (response) => {
+    let savesMap = new Map<number, {}[]>()
+    // let savesList: {}[] = []
+    for (var save in response) {
+      let gV: number = response[save].gameVersion
+      // let image = await fetch(response[save].saveImage)
+      let saveObj: { id: number, name: string, manager: string, image: string | undefined } = { id: response[save].id, name: response[save].saveName, manager: response[save].managerName, image: response[save].saveImage }
+      if (!savesMap.has(gV)) {
+        savesMap.set(gV, [saveObj])
+      } else if (savesMap.has(gV)) {
+        let versionSaveList: {}[] = savesMap.get(gV)!
+        versionSaveList.push(saveObj)
+        savesMap.set(gV, versionSaveList)
       }
-    )
 
-    const testing = reactive(finalSaves.value)
-    let isLoaded = ref(false)
-    
-
-    // Function to be called to retrieve the saves and add to the dropdown
-    // Occurs: first app open, new save added
-    function GetSaves(newID?: number): void {
-        RetrieveSaves().then( (response) => {
-            let savesMap = new Map<number, {}[]>()
-            // let savesList: {}[] = []
-            for (var save in response) {
-              let gV: number = response[save].gameVersion
-                let saveObj : { id: number, name: string, manager: string } = { id: response[save].id, name: response[save].saveName, manager: response[save].managerName }
-                if (!savesMap.has(gV)) {
-                    savesMap.set(gV, [saveObj])
-                } else if (savesMap.has(gV)) {
-                    let versionSaveList: {}[] = savesMap.get(gV)!
-                    versionSaveList.push(saveObj)
-                    savesMap.set(gV, versionSaveList)
-                }
-
-                if (startup.value == true && defaultID != null && saveObj.id == +defaultID) {
-                    selectedSave.value = saveObj
-                } else if (startup.value == false && saveObj.id == newID) {
-                    selectedSave.value = saveObj
-                }
-            }
-            startup.value = false
-            finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
-            localStorage.setItem("saves", finalSaves.value.length.toString())
-            
-            
-            isLoaded.value = true
-            nextTick()
-            if (newID != null) {
-              GoToSave(newID)
-            } else if (defaultID != null) {
-              GoToSave(+defaultID)
-            }
+      if (saveObj.image != undefined) {
+        GetImage(saveObj.image).then(async (response) => {
+          // console.log(response)
+          // console.log('hi')
+          saveObj.image = response
         })
-    }
+      }
+      
 
-    // Change path
-    function GoToSave(id: number) {
-        let newRoute: string = '/save/' + id
-        router.replace(newRoute)
-    }
 
-    // Function to be called when the dropdown changes selection
-    function SaveSelected(e: { originalEvent : Event; value : { id: number; name: string } } ) {
-        GoToSave(e.value.id)
+      if (startup.value == true && defaultID != null && saveObj.id == +defaultID) {
+        selectedSave.value = saveObj
+      } else if (startup.value == false && saveObj.id == newID) {
+        selectedSave.value = saveObj
+      }
     }
-    GetSaves()
+    startup.value = false
+    finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({ gameVersion, saves }))
+    localStorage.setItem("saves", finalSaves.value.length.toString())
+
+    isLoaded.value = true
+    nextTick()
+    if (newID != null) {
+      GoToSave(newID)
+    } else if (defaultID != null) {
+      GoToSave(+defaultID)
+    }
+  })
+}
+
+// Change path
+function GoToSave(id: number) {
+  let newRoute: string = '/save/' + id
+  router.replace(newRoute)
+}
+
+// Function to be called when the dropdown changes selection
+function SaveSelected(e: { originalEvent: Event; value: { id: number; name: string } }) {
+  GoToSave(e.value.id)
+}
+GetSaves()
 </script>
 
 <!-- <script lang="ts">
@@ -265,30 +290,33 @@ h3 {
 }
 
 .p-menu {
-  height: 100%!important;
-  padding: .75rem!important;
+  height: 100% !important;
+  padding: .75rem !important;
   // width: 100%!important;
   // width:calc(max-content+25px)!important;
-  background: rgba(240, 248, 255, 0)!important;
-  border: rgba(240, 248, 255, 0)!important;
+  background: rgba(240, 248, 255, 0) !important;
+  border: rgba(240, 248, 255, 0) !important;
 }
 
 .p-menu-list {
-  justify-content:space-around!important;
+  justify-content: space-around !important;
 }
 
 .col-fixed {
-  padding: 0!important;
+  padding: 0 !important;
 }
 
 .active-link-exact {
-  color: fuchsia!important;
+  color: fuchsia !important;
 }
 
-.p-menubar{
-  background: rgba(240, 248, 255, 0)!important;
-  border: rgba(240, 248, 255, 0)!important;
+.p-menubar {
+  background: rgba(240, 248, 255, 0) !important;
+  border: rgba(240, 248, 255, 0) !important;
   // padding-right: 5px!important;
 }
 
+.p-menubar-start {
+  width: 250px;
+}
 </style>

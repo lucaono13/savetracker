@@ -2,7 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"strings"
+
+	"io/ioutil"
+	"net/http"
 
 	"github.com/lucaono13/savetracker/backend"
 )
@@ -29,10 +34,11 @@ func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) shutdown(ctx context.Context) {
+func (a *App) shutdown(ctx context.Context) bool {
 	backend.Logger.Info().Msg("Shutting down...")
-	backend.EndLogging()
 	backend.CloseDB()
+	backend.EndLogging()
+	return false
 }
 
 // Greet returns a greeting for the given name
@@ -59,4 +65,35 @@ func Log(msg string) {
 
 func (a *App) SingleSave(id int) backend.Save {
 	return backend.GetSingleSave(id)
+}
+
+func (a *App) GetImage(path string) string {
+	path = strings.TrimSpace(path)
+	backend.Logger.Debug().Timestamp().Msg(path)
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		backend.Logger.Error().Msg(err.Error())
+		return string(bytes)
+
+	}
+
+	var base64Encoding string
+
+	mimeType := http.DetectContentType(bytes)
+
+	backend.Logger.Debug().Msg(mimeType)
+
+	switch mimeType {
+	case "image/jpeg":
+		base64Encoding += "data:image/jpeg;base64,"
+	case "image/png":
+		base64Encoding += "data:image/png;base64,"
+	}
+
+	base64Encoding += toB64(bytes)
+	return base64Encoding
+}
+
+func toB64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
 }

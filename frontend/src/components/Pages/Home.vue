@@ -41,33 +41,7 @@
   }
   </script>
 
-<!-- <script lang="ts">
-// This template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref } from 'vue'
-import { useCounterStore, store } from '../store'
-import { defineComponent } from 'vue'
 
-export default defineComponent({
-  setup() {
-    const counter = useCounterStore()
-    counter.increment()
-    return { counter }
-  },
-})
-
-// const store = useStore()
-
-// const result = ref('Please enter your name below 👇')
-// const name = ref('')
-
-// const greet = () => {
-//   window.go.main.App.Greet(name.value).then((response) => {
-//     counterStore.commit('increment')
-//     result.value = `${counterStore.state.count}. ${response}`
-//   })
-// }
-</script> -->
 
 
 

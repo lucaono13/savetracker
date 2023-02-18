@@ -8,10 +8,11 @@ import (
 )
 
 type Save struct {
-	SaveID      uint   `json:"id"`
-	ManagerName string `json:"managerName"`
-	GameVersion int    `json:"gameVersion"`
-	SaveName    string `json:"saveName"`
+	SaveID      uint    `json:"id"`
+	ManagerName string  `json:"managerName"`
+	GameVersion int     `json:"gameVersion"`
+	SaveName    string  `json:"saveName"`
+	SaveImage   *string `json:"saveImage"`
 }
 
 var DB *sql.DB
@@ -60,7 +61,7 @@ func GetSaves() []Save {
 		var (
 			save Save
 		)
-		err := rows.Scan(&save.SaveID, &save.ManagerName, &save.GameVersion, &save.SaveName)
+		err := rows.Scan(&save.SaveID, &save.ManagerName, &save.GameVersion, &save.SaveName, &save.SaveImage)
 		if err != nil {
 			Logger.Error().Timestamp().Msg(err.Error())
 		}
@@ -104,7 +105,7 @@ func GetSingleSave(id int) Save {
 	defer rows.Close()
 	var saveExport Save
 	for rows.Next() {
-		err := rows.Scan(&saveExport.SaveID, &saveExport.ManagerName, &saveExport.GameVersion, &saveExport.SaveName)
+		err := rows.Scan(&saveExport.SaveID, &saveExport.ManagerName, &saveExport.GameVersion, &saveExport.SaveName, &saveExport.SaveImage)
 		if err != nil {
 			Logger.Error().Timestamp().Msg(err.Error())
 		}
