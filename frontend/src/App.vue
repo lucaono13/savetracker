@@ -7,7 +7,7 @@
         optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
         <template #option="slotProps">
           <div class="flex align-items-center justify-content-center">
-            <img :src="slotProps.option.image" style="height: 30px;" v-if="slotProps.option.name">
+            <!-- <img :src="slotProps.option.image" style="height: 30px;" v-if="slotProps.option.name"> -->
             <FontAwesomeIcon icon="fa-solid fa-list" v-if="slotProps.option.gameVersion" />
             <!-- <i class="fa-solid fa-list"></i> -->
             <span style="padding-left: 5px;" v-if="slotProps.option.gameVersion">{{
@@ -94,6 +94,24 @@ function GetSaves(newID?: number): void {
       let gV: number = response[save].gameVersion
       // let image = await fetch(response[save].saveImage)
       let saveObj: { id: number, name: string, manager: string, image: string | undefined } = { id: response[save].id, name: response[save].saveName, manager: response[save].managerName, image: response[save].saveImage }
+      
+      if (saveObj.image != undefined) {
+        GetImage(saveObj.image).then( (response) => {
+          saveObj.image = response
+        })
+        // try {
+        //   new URL(saveObj.image)
+        //   console.log(saveObj.image)
+        // } catch (e) {
+        //   GetImage(saveObj.image).then(async (response) => {
+        //   // console.log(response)
+        //   // console.log('hi')
+        //   saveObj.image = response
+        // })
+        // }
+        
+      }
+      
       if (!savesMap.has(gV)) {
         savesMap.set(gV, [saveObj])
       } else if (savesMap.has(gV)) {
@@ -102,13 +120,7 @@ function GetSaves(newID?: number): void {
         savesMap.set(gV, versionSaveList)
       }
 
-      if (saveObj.image != undefined) {
-        GetImage(saveObj.image).then(async (response) => {
-          // console.log(response)
-          // console.log('hi')
-          saveObj.image = response
-        })
-      }
+      
       
 
 

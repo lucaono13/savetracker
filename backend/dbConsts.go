@@ -113,5 +113,7 @@ const (
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	`
-	SingleSave = `SELECT * FROM saves where saveID=?`
+	SingleSave      = `SELECT * FROM saves where saveID=?`
+	SingleSaveImage = `SELECT saveImage FROM saves where saveID=?`
+	SaveImageUpdate = `UPDATE saves SET saveImage=? WHERE saveID=?`
 )

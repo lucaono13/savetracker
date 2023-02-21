@@ -10,4 +10,8 @@ export function Greet(arg1:string):Promise<string>;
 
 export function RetrieveSaves():Promise<Array<backend.Save>>;
 
+export function SingleImage(arg1:number):Promise<string>;
+
 export function SingleSave(arg1:number):Promise<backend.Save>;
+
+export function UploadSaveImage(arg1:number):Promise<string>;

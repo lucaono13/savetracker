@@ -1,8 +1,8 @@
 <template>
-    <Sidebar />
+    <Sidebar/>
     <div class="col w-full">
         <div class="grid">
-            <img class="col-2" :src="'' + save.image"  v-if="save.image" />
+            <!-- <img class="col-2" :src="save.image"  v-if="save.image" /> -->
 
             <!-- <Card class="col">
                 <template #header>
@@ -62,6 +62,8 @@ SingleSave(+route.params.id).then((response) => {
 
     nextTick()
 })
+
+
     // console.log(SingleSave(+route.params.id))
     // const save = SingleSave(+this.$route.params.id)
 </script>

@@ -2,6 +2,7 @@ package backend
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/adrg/xdg"
 	_ "github.com/mattn/go-sqlite3"
@@ -111,4 +112,41 @@ func GetSingleSave(id int) Save {
 		}
 	}
 	return saveExport
+}
+
+func GetSaveImage(id int) string {
+	rows, err := DB.Query(SingleSaveImage, id)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+	}
+	defer rows.Close()
+	var imagePath string
+	for rows.Next() {
+		err := rows.Scan(&imagePath)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+		}
+	}
+	return imagePath
+}
+
+func UpdateSaveImage(id int, filePath string) error {
+	result, err := DB.Exec(SaveImageUpdate, filePath, id)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	if rows != 1 {
+		Logger.Error().Timestamp().Msg("Did not create 1 save.")
+		return err
+	} else {
+		Logger.Info().Timestamp().Msg("Updated save image for ID = " + string(fmt.Sprintf("%d", id)) + ".")
+	}
+
+	return nil
 }

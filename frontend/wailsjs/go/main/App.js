@@ -18,6 +18,14 @@ export function RetrieveSaves() {
   return window['go']['main']['App']['RetrieveSaves']();
 }
 
+export function SingleImage(arg1) {
+  return window['go']['main']['App']['SingleImage'](arg1);
+}
+
 export function SingleSave(arg1) {
   return window['go']['main']['App']['SingleSave'](arg1);
+}
+
+export function UploadSaveImage(arg1) {
+  return window['go']['main']['App']['UploadSaveImage'](arg1);
 }
