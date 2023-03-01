@@ -99,10 +99,6 @@ func (a *App) GetImage(path string) string {
 	return base64Encoding
 }
 
-// func toB64(b []byte) string {
-// 	return base64.StdEncoding.EncodeToString(b)
-// }
-
 func (a *App) UploadSaveImage(id int) string {
 
 	// Open file dialog for just images
@@ -123,43 +119,4 @@ func (a *App) UploadSaveImage(id int) string {
 	// Have backend do the new image
 	return backend.NewImage(id, file)
 
-	// if strings.HasPrefix("\u0002_", file) {
-	// file = strings.ReplaceAll(file, "\u0002_", "")
-
-	// backend.Logger.Info().Timestamp().Msg(file)
-	// Open selected file
-	// source, err := os.Open(file)
-	// if err != nil {
-	// 	backend.Logger.Error().Timestamp().Msg(err.Error())
-	// 	return ""
-	// }
-	// defer source.Close()
-
-	// // Get info of opened image
-	// sourceInfo, err := source.Stat()
-	// if err != nil {
-	// 	backend.Logger.Error().Timestamp().Msg(err.Error())
-	// }
-
-	// newFilePath := string(fmt.Sprintf("%d", id)) + "_" + sourceInfo.Name()
-
-	// destination, err := os.Create(newFilePath)
-	// if err != nil {
-	// 	backend.Logger.Error().Timestamp().Msg(err.Error())
-	// 	return ""
-	// }
-	// defer destination.Close()
-
-	// _, err = io.Copy(destination, source)
-	// if err != nil {
-	// 	backend.Logger.Error().Timestamp().Msg(err.Error())
-	// 	return ""
-	// }
-
-	// err = backend.UpdateSaveImage(id, newFilePath)
-	// if err != nil {
-	// 	return ""
-	// }
-
-	// return newFilePath
 }
