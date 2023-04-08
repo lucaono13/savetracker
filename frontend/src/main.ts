@@ -24,6 +24,9 @@ import OverlayPanel from 'primevue/overlaypanel'
 import CascadeSelect from 'primevue/cascadeselect'
 import VirtualScroller from 'primevue/virtualscroller'
 import Image from 'primevue/image'
+import InputMask from 'primevue/inputmask'
+import Divider from 'primevue/divider'
+import Textarea from 'primevue/textarea'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -33,7 +36,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Import specific icons
-import { faMugHot, faList } from '@fortawesome/free-solid-svg-icons'
+import { faMugHot, faList, faQuestion } from '@fortawesome/free-solid-svg-icons'
 
 
 
@@ -57,6 +60,7 @@ app.use(createPinia())
 // Add Icons to Library
 library.add(faMugHot)
 library.add(faList)
+library.add(faQuestion)
 
 // Add FontAwesome to app
 app.component('font-awesome-icon', FontAwesomeIcon)
@@ -83,6 +87,9 @@ app.component('CascadeSelect', CascadeSelect)
 app.component('VirtualScroller', VirtualScroller)
 app.component('Checkbox', Checkbox)
     .component('Image', Image)
+    .component('InputMask', InputMask)
+    .component('Divider', Divider)
+    .component('Textarea', Textarea)
 
 // Use Vue Router
 app.use(router)

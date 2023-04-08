@@ -18,6 +18,18 @@ export function RetrieveSaves() {
   return window['go']['main']['App']['RetrieveSaves']();
 }
 
+export function SelectScheduleFile() {
+  return window['go']['main']['App']['SelectScheduleFile']();
+}
+
+export function SelectSquadFile() {
+  return window['go']['main']['App']['SelectSquadFile']();
+}
+
+export function SelectTransfersFile() {
+  return window['go']['main']['App']['SelectTransfersFile']();
+}
+
 export function SingleImage(arg1) {
   return window['go']['main']['App']['SingleImage'](arg1);
 }

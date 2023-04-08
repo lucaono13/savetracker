@@ -66,6 +66,7 @@
     if (isDefault.value == false) {
       localStorage.setItem("defaultSave", "")
     } else {
+      console.log(route.params.id.toString())
       localStorage.setItem("defaultSave", route.params.id.toString())
     }
   }

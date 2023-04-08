@@ -10,6 +10,12 @@ export function Greet(arg1:string):Promise<string>;
 
 export function RetrieveSaves():Promise<Array<backend.Save>>;
 
+export function SelectScheduleFile():Promise<string>;
+
+export function SelectSquadFile():Promise<string>;
+
+export function SelectTransfersFile():Promise<string>;
+
 export function SingleImage(arg1:number):Promise<string>;
 
 export function SingleSave(arg1:number):Promise<backend.Save>;

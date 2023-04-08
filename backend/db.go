@@ -2,44 +2,41 @@ package backend
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/adrg/xdg"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Save struct {
-	SaveID      uint    `json:"id"`
-	ManagerName string  `json:"managerName"`
-	GameVersion int     `json:"gameVersion"`
-	SaveName    string  `json:"saveName"`
-	SaveImage   *string `json:"saveImage"`
+	SaveID      NullInt64  `json:"id" db:"saveID"`
+	ManagerName string     `json:"managerName" db:"managerName"`
+	GameVersion int        `json:"gameVersion" db:"gameVersion"`
+	SaveName    string     `json:"saveName" db:"saveName"`
+	SaveImage   NullString `json:"saveImage" db:"saveImage"`
 }
 
-var DB *sql.DB
+// var DB *sql.DB
+var DB *sqlx.DB
 
 func OpenDB() {
 	dbFilePath, err := xdg.DataFile("Save Tracker/db/saveTracker.db")
 	if err != nil {
 		Logger.Error().Timestamp().Str("Error", err.Error())
 		return
-		// return err
 	}
-
-	db, err := sql.Open("sqlite3", dbFilePath)
+	db, err := sqlx.Open("sqlite3", dbFilePath)
 	if err != nil {
 		Logger.Error().Timestamp().Msg("DB Connection could not be made")
 		return
 	}
 	_, err = db.Exec(CreateTables)
 	if err != nil {
-		Logger.Error().Timestamp().Str("Error", err.Error())
+		Logger.Error().Timestamp().Msg(err.Error())
 		return
 	}
-
 	DB = db
 	Logger.Info().Timestamp().Msg("DB has been opened.")
-	// return nil
 }
 
 func CloseDB() error {
@@ -48,105 +45,50 @@ func CloseDB() error {
 }
 
 func GetSaves() []Save {
-	q := `
-	select * from saves;
-	`
-
-	rows, err := DB.Query(q)
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-	}
-	defer rows.Close()
 	var saves []Save
-	for rows.Next() {
-		var (
-			save Save
-		)
-		err := rows.Scan(&save.SaveID, &save.ManagerName, &save.GameVersion, &save.SaveName, &save.SaveImage)
-		if err != nil {
-			Logger.Error().Timestamp().Msg(err.Error())
-		}
-		saves = append(saves, save)
-
+	err := DB.Select(&saves, AllSaves)
+	switch {
+	case err == sql.ErrNoRows:
+		Logger.Info().Timestamp().Msg("No Saves Found")
+	case err != nil:
+		Logger.Error().Timestamp().Msg(err.Error())
 	}
 	return saves
 }
 
-func AddSave(saveName string, managerName string, gameVersion int) (int, error) {
-	result, err := DB.Exec(AddSaveQ, saveName, managerName, gameVersion)
+// func AddSave(saveName string, managerName string, gameVersion int) (int, error) {
+func AddSave(newSave Save) (int64, error) {
+	result, err := DB.NamedExec(NewSave, newSave)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
-		return 0, err
+		return 0, nil
 	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return 0, err
-	}
-	if rows != 1 {
-		Logger.Error().Timestamp().Msg("Did not create 1 save.")
-		return 0, err
-	} else {
-		Logger.Info().Timestamp().Msg("Created new save.")
-	}
-	addedId, err := result.LastInsertId()
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return 0, err
-	}
-	return int(addedId), nil
+	return result.LastInsertId()
 }
 
-func GetSingleSave(id int) Save {
-	rows, err := DB.Query(SingleSave, id)
+func GetSingleSave(ID int) Save {
+	var save Save
+	err := DB.QueryRowx(SingleSave, ID).StructScan(&save)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
 	}
-	// Logger.Info().Timestamp().Msg(rows)
-	defer rows.Close()
-	var saveExport Save
-	for rows.Next() {
-		err := rows.Scan(&saveExport.SaveID, &saveExport.ManagerName, &saveExport.GameVersion, &saveExport.SaveName, &saveExport.SaveImage)
-		if err != nil {
-			Logger.Error().Timestamp().Msg(err.Error())
-		}
-	}
-	return saveExport
+	return save
 }
 
-func GetSaveImage(id int) string {
-	rows, err := DB.Query(SingleSaveImage, id)
+func GetSaveImage(ID int) string {
+	var save Save
+	err := DB.QueryRowx(SingleSaveImage, ID).StructScan(&save)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
 	}
-	defer rows.Close()
-	var imagePath string
-	for rows.Next() {
-		err := rows.Scan(&imagePath)
-		if err != nil {
-			Logger.Error().Timestamp().Msg(err.Error())
-		}
-	}
-	return imagePath
+	return save.SaveImage.String
 }
 
 func UpdateSaveImage(id int, filePath string) error {
-	result, err := DB.Exec(SaveImageUpdate, filePath, id)
+	_, err := DB.Exec(SaveImageUpdate, filePath, id)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
-		return err
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return err
-	}
-	if rows != 1 {
-		Logger.Error().Timestamp().Msg("Did not create 1 save.")
-		return err
-	} else {
-		Logger.Info().Timestamp().Msg("Updated save image for ID = " + string(fmt.Sprintf("%d", id)) + ".")
-	}
 
-	return nil
+	}
+	return err
 }

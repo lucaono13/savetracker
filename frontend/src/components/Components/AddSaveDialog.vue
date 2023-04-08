@@ -70,7 +70,7 @@ export default {
         addSave() {
             AddNewSave(this.saveName, this.managerName, +this.gameVersion).then((response) => {
                 if (response == 0) {
-                    this.$emit('saveAdded')
+                    this.$emit('saveAdded', response)
                 } else {
                     this.$emit('saveAdded', response)
                 }

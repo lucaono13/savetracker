@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -38,7 +39,9 @@ func (a *App) domReady(ctx context.Context) {
 func (a *App) shutdown(ctx context.Context) bool {
 	backend.Logger.Info().Msg("Shutting down...")
 	backend.CloseDB()
+	// fmt.Println("written")
 	backend.EndLogging()
+
 	return false
 }
 
@@ -53,11 +56,22 @@ func (a *App) RetrieveSaves() []backend.Save {
 }
 
 func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) int {
-	addedID, err := backend.AddSave(saveName, managerName, gameVersion)
+	newSave := backend.Save{
+		SaveName:    saveName,
+		ManagerName: managerName,
+		GameVersion: gameVersion,
+		SaveID:      backend.NullInt64{NullInt64: sql.NullInt64{Valid: false}},
+		SaveImage:   backend.NullString{NullString: sql.NullString{Valid: false}},
+	}
+	// addedID, err := backend.AddSave(saveName, managerName, gameVersion)
+	// if err != nil {
+	// 	return 0
+	// }
+	addedID, err := backend.AddSave(newSave)
 	if err != nil {
 		return 0
 	}
-	return addedID
+	return int(addedID)
 }
 
 func Log(msg string) {
@@ -74,20 +88,13 @@ func (a *App) SingleImage(id int) string {
 
 func (a *App) GetImage(path string) string {
 	path = strings.TrimSpace(path)
-	backend.Logger.Debug().Timestamp().Msg(path)
 	bytes, err := os.ReadFile(path)
-	// bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		backend.Logger.Error().Timestamp().Msg(err.Error())
 		return string(bytes)
 	}
-
 	var base64Encoding string
-
 	mimeType := http.DetectContentType(bytes)
-
-	backend.Logger.Debug().Msg(mimeType)
-
 	switch mimeType {
 	case "image/jpeg":
 		base64Encoding += "data:image/jpeg;base64,"
@@ -100,7 +107,6 @@ func (a *App) GetImage(path string) string {
 }
 
 func (a *App) UploadSaveImage(id int) string {
-
 	// Open file dialog for just images
 	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select Save Image",
@@ -115,8 +121,37 @@ func (a *App) UploadSaveImage(id int) string {
 		backend.Logger.Error().Timestamp().Msg(err.Error())
 		return ""
 	}
-
-	// Have backend do the new image
+	// Have backend deal with the new image
 	return backend.NewImage(id, file)
 
+}
+
+func SelectExportedFile(ctx context.Context, exported string) string {
+	file, err := runtime.OpenFileDialog(ctx, runtime.OpenDialogOptions{
+		Title: "Select " + exported + " File",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "HTML File (*.html)",
+				Pattern:     "*.html",
+			},
+		},
+	})
+	if err != nil {
+		backend.Logger.Error().Timestamp().Msg(err.Error())
+		return ""
+	}
+	return file
+}
+
+// Selecting the files exported from the game.
+func (a *App) SelectSquadFile() string {
+	return SelectExportedFile(a.ctx, "Squad")
+}
+
+func (a *App) SelectScheduleFile() string {
+	return SelectExportedFile(a.ctx, "Schedule")
+}
+
+func (a *App) SelectTransfersFile() string {
+	return SelectExportedFile(a.ctx, "Transfers")
 }

@@ -21,6 +21,8 @@
     </template>
     <template #end>
       <!-- <p>Save Tracker</p> -->
+      <Button class="p-button-help p-button-outlined" @click="addSeasonModal=true">New Season</Button>
+      <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/>
       <Button class="p-button-help p-button-outlined" @click="addSaveModal = true">New Save</Button>
       <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="GetSaves" @closeDialog="addSaveModal = false" />
     </template>
@@ -44,6 +46,7 @@ import { nextTick, ref, computed, reactive } from 'vue';
 import { RetrieveSaves, GetImage } from '../wailsjs/go/main/App';
 import Sidebar from './components/Components/Sidebar.vue'
 import AddSaveDialog from "./components/Components/AddSaveDialog.vue";
+import AddSeasonDialog from './components/Components/AddSeasonDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
@@ -52,13 +55,13 @@ const route = useRoute()
 const router = useRouter()
 let startup = ref(true)
 let addSaveModal = ref(false)
+let addSeasonModal = ref(true)
 
 // Getting number of saves, persists between opening of app
 var noOfSaves: null | string = localStorage.getItem("saves")
 if (noOfSaves == null) {
   noOfSaves = "0"
 }
-console.log(localStorage)
 // Sidebar Visibility (1+ saves)
 let sbVisible = ref(false)
 if (+noOfSaves > 0) {
@@ -75,7 +78,7 @@ let savesList: {}[] = []
 let finalSaves = ref(savesList)
 let isDataLoaded = computed(
   () => {
-    console.log(finalSaves.value.length)
+    // console.log(finalSaves.value.length)
     return finalSaves.value.length > 0 ? finalSaves.value : []
   }
 )
@@ -133,11 +136,20 @@ function GetSaves(newID?: number): void {
     startup.value = false
     finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({ gameVersion, saves }))
     localStorage.setItem("saves", finalSaves.value.length.toString())
-
     isLoaded.value = true
     nextTick()
     if (newID != null) {
-      GoToSave(newID)
+      if (newID != 0) {
+        GoToSave(newID)
+      } else {
+        if (finalSaves.value.length > 0 && defaultID != null){
+          GoToSave(+defaultID)
+        } else {
+          router.replace("/")
+        }
+        // TODO: show notification that error occurred when adding save
+        // if 
+      }
     } else if (defaultID != null) {
       GoToSave(+defaultID)
     }
