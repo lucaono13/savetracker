@@ -43,3 +43,34 @@ export namespace backend {
 
 }
 
+export namespace main {
+	
+	export class NewSeason {
+	    teamName: string;
+	    shortName: string;
+	    season: string;
+	    country: string;
+	    trophiesWon: string;
+	    squadFile: string;
+	    scheduleFile: string;
+	    transfersFile: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NewSeason(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.teamName = source["teamName"];
+	        this.shortName = source["shortName"];
+	        this.season = source["season"];
+	        this.country = source["country"];
+	        this.trophiesWon = source["trophiesWon"];
+	        this.squadFile = source["squadFile"];
+	        this.scheduleFile = source["scheduleFile"];
+	        this.transfersFile = source["transfersFile"];
+	    }
+	}
+
+}
+

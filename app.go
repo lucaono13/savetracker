@@ -19,6 +19,17 @@ type App struct {
 	ctx context.Context
 }
 
+type NewSeason struct {
+	TeamName      string `json:"teamName"`
+	ShortName     string `json:"shortName"`
+	Season        string `json:"season"`
+	Country       string `json:"country"`
+	TrophiesWon   string `json:"trophiesWon"`
+	SquadFile     string `json:"squadFile"`
+	ScheduleFile  string `json:"scheduleFile"`
+	TransfersFile string `json:"transfersFile"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
@@ -154,4 +165,12 @@ func (a *App) SelectScheduleFile() string {
 
 func (a *App) SelectTransfersFile() string {
 	return SelectExportedFile(a.ctx, "Transfers")
+}
+
+func (a *App) SelectFileParse(fileType string) string {
+	return SelectExportedFile(a.ctx, fileType)
+}
+
+func (a *App) AddNewSeason(saveID int, season NewSeason) {
+	fmt.Println(season)
 }

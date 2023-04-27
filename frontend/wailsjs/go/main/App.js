@@ -6,6 +6,10 @@ export function AddNewSave(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddNewSave'](arg1, arg2, arg3);
 }
 
+export function AddNewSeason(arg1, arg2) {
+  return window['go']['main']['App']['AddNewSeason'](arg1, arg2);
+}
+
 export function GetImage(arg1) {
   return window['go']['main']['App']['GetImage'](arg1);
 }
@@ -16,6 +20,10 @@ export function Greet(arg1) {
 
 export function RetrieveSaves() {
   return window['go']['main']['App']['RetrieveSaves']();
+}
+
+export function SelectFileParse(arg1) {
+  return window['go']['main']['App']['SelectFileParse'](arg1);
 }
 
 export function SelectScheduleFile() {
