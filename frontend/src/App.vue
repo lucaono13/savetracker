@@ -1,6 +1,7 @@
 
 
 <template>
+  <Toast />
   <Menubar class="w-full">
     <template #start style="width:100px">
       <CascadeSelect style="width:75%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
@@ -21,15 +22,17 @@
     </template>
     <template #end>
       <!-- <p>Save Tracker</p> -->
-      <Button class="p-button-help p-button-outlined" @click="addSeasonModal=true">New Season</Button>
-      <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/>
+      <!-- <Button label="Toast" id="toastCheck" class="p-button-text p-button-outlined" @click="beError('Error adding transfers to DB.\nCheck log file for more details.')" >Toast Check</Button> -->
+      <Button class="p-button-help p-button-outlined mr-3" @click="addSeasonModal=true">New Season</Button>
+      
       <Button class="p-button-help p-button-outlined" @click="addSaveModal = true">New Save</Button>
-      <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="GetSaves" @closeDialog="addSaveModal = false" />
+      <AddSaveDialog v-model:visible="addSaveModal" @beError="beError" @saveAdded="GetSaves" @closeDialog="addSaveModal = false" />
+      <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/>
     </template>
   </Menubar>
 
   <div class="grid w-full h-full">
-
+    
     <!-- <div class="col"> -->
     <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
       <!-- <Sidebar v-if="sbVisible" :id="route.params.id" /> -->
@@ -49,13 +52,14 @@ import AddSaveDialog from "./components/Components/AddSaveDialog.vue";
 import AddSeasonDialog from './components/Components/AddSeasonDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { useToast } from 'primevue/usetoast';
 
-
+const toast = useToast()
 const route = useRoute()
 const router = useRouter()
 let startup = ref(true)
 let addSaveModal = ref(false)
-let addSeasonModal = ref(true)
+let addSeasonModal = ref(false)
 
 // Getting number of saves, persists between opening of app
 var noOfSaves: null | string = localStorage.getItem("saves")
@@ -86,17 +90,30 @@ let isDataLoaded = computed(
 const testing = reactive(finalSaves.value)
 let isLoaded = ref(false)
 
+function beError(error: string): void {
+  toast.add({
+    severity: 'error',
+    summary: 'Error!',
+    detail: error,
+    life: 3000,
+  })
+}
 
 // Function to be called to retrieve the saves and add to the dropdown
 // Occurs: first app open, new save added
 function GetSaves(newID?: number): void {
   RetrieveSaves().then(async (response) => {
+    if (response.Error != "") {
+      beError(response.Error)
+      return
+    }
+    let saveList = response.SaveList
     let savesMap = new Map<number, {}[]>()
     // let savesList: {}[] = []
-    for (var save in response) {
-      let gV: number = response[save].gameVersion
-      // let image = await fetch(response[save].saveImage)
-      let saveObj: { id: number, name: string, manager: string, image: string | undefined } = { id: response[save].id, name: response[save].saveName, manager: response[save].managerName, image: response[save].saveImage }
+    for (var save in saveList) {
+      let gV: number = saveList[save].gameVersion
+      // let image = await fetch(saveList[save].saveImage)
+      let saveObj: { id: number, name: string, manager: string, image: string | undefined } = { id: saveList[save].id, name: saveList[save].saveName, manager: saveList[save].managerName, image: saveList[save].saveImage }
       
       if (saveObj.image != undefined) {
         GetImage(saveObj.image).then( (response) => {
@@ -139,6 +156,7 @@ function GetSaves(newID?: number): void {
     isLoaded.value = true
     nextTick()
     if (newID != null) {
+      console.log(newID)
       if (newID != 0) {
         GoToSave(newID)
       } else {

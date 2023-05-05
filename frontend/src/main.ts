@@ -27,6 +27,8 @@ import Image from 'primevue/image'
 import InputMask from 'primevue/inputmask'
 import Divider from 'primevue/divider'
 import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast'
+import ToastService from 'primevue/toastservice'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -54,6 +56,7 @@ import 'primevue/resources/themes/lara-dark-teal/theme.css'
 
 const app = createApp(App)
 app.use(createPinia())
+app.use(ToastService)
 
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
@@ -70,26 +73,27 @@ app.use(PrimeVue)
 
 // PrimeVue components
 app.component('ProgressSpinner',ProgressSpinner)
-app.component('ProgressBar', ProgressBar)
-app.component('Sidebar',Sidebar)
-app.component('Menubar', Menubar)
-app.component('InputText', InputText)
-app.component('MegaMenu', MegaMenu)
-app.component('Menu', Menu)
-app.component('Dock', Dock)
-app.component('Button', Button)
-app.component('Dialog', Dialog)
-app.component('Dropdown', Dropdown)
-app.component('Card', Card)
-app.component('BlockUI', BlockUI)
-app.component('OverlayPanel', OverlayPanel)
-app.component('CascadeSelect', CascadeSelect)
-app.component('VirtualScroller', VirtualScroller)
-app.component('Checkbox', Checkbox)
+    .component('ProgressBar', ProgressBar)
+    .component('Sidebar',Sidebar)
+    .component('Menubar', Menubar)
+    .component('InputText', InputText)
+    .component('MegaMenu', MegaMenu)
+    .component('Menu', Menu)
+    .component('Dock', Dock)
+    .component('Button', Button)
+    .component('Dialog', Dialog)
+    .component('Dropdown', Dropdown)
+    .component('Card', Card)
+    .component('BlockUI', BlockUI)
+    .component('OverlayPanel', OverlayPanel)
+    .component('CascadeSelect', CascadeSelect)
+    .component('VirtualScroller', VirtualScroller)
+    .component('Checkbox', Checkbox)
     .component('Image', Image)
     .component('InputMask', InputMask)
     .component('Divider', Divider)
     .component('Textarea', Textarea)
+    .component('Toast', Toast)
 
 // Use Vue Router
 app.use(router)

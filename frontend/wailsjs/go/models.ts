@@ -45,12 +45,50 @@ export namespace backend {
 
 export namespace main {
 	
+	export class ErrorReturn {
+	    Error: string;
+	    String: string;
+	    Integer: number;
+	    Save: backend.Save;
+	    SaveList: backend.Save[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ErrorReturn(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Error = source["Error"];
+	        this.String = source["String"];
+	        this.Integer = source["Integer"];
+	        this.Save = this.convertValues(source["Save"], backend.Save);
+	        this.SaveList = this.convertValues(source["SaveList"], backend.Save);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class NewSeason {
 	    teamName: string;
 	    shortName: string;
 	    season: string;
 	    country: string;
-	    trophiesWon: string;
+	    trophiesWon: string[];
 	    squadFile: string;
 	    scheduleFile: string;
 	    transfersFile: string;

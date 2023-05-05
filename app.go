@@ -19,15 +19,23 @@ type App struct {
 	ctx context.Context
 }
 
+type ErrorReturn struct {
+	Error    string         `json:"Error"`
+	String   string         `json:"String"`
+	Integer  int            `json:"Integer"`
+	Save     backend.Save   `json:"Save"`
+	SaveList []backend.Save `json:"SaveList"`
+}
+
 type NewSeason struct {
-	TeamName      string `json:"teamName"`
-	ShortName     string `json:"shortName"`
-	Season        string `json:"season"`
-	Country       string `json:"country"`
-	TrophiesWon   string `json:"trophiesWon"`
-	SquadFile     string `json:"squadFile"`
-	ScheduleFile  string `json:"scheduleFile"`
-	TransfersFile string `json:"transfersFile"`
+	TeamName      string   `json:"teamName"`
+	ShortName     string   `json:"shortName"`
+	Season        string   `json:"season"`
+	Country       string   `json:"country"`
+	TrophiesWon   []string `json:"trophiesWon"`
+	SquadFile     string   `json:"squadFile"`
+	ScheduleFile  string   `json:"scheduleFile"`
+	TransfersFile string   `json:"transfersFile"`
 }
 
 // NewApp creates a new App application struct
@@ -61,12 +69,20 @@ func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
-func (a *App) RetrieveSaves() []backend.Save {
-
-	return backend.GetSaves()
+func (a *App) RetrieveSaves() ErrorReturn {
+	saves := backend.GetSaves()
+	if saves == nil {
+		return ErrorReturn{
+			Error: "Error retrieving all saves",
+		}
+	}
+	return ErrorReturn{
+		SaveList: saves,
+	}
+	// return backend.GetSaves()
 }
 
-func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) int {
+func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) ErrorReturn {
 	newSave := backend.Save{
 		SaveName:    saveName,
 		ManagerName: managerName,
@@ -78,19 +94,35 @@ func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) i
 	// if err != nil {
 	// 	return 0
 	// }
+	// toReturn := StringErrorReturn{}
 	addedID, err := backend.AddSave(newSave)
 	if err != nil {
-		return 0
+		return ErrorReturn{
+			Error: "Error adding save",
+		}
+		// return 0, "Error adding save."
 	}
-	return int(addedID)
+	return ErrorReturn{
+		Integer: int(addedID),
+	}
+	// return int(addedID), "something is here"
 }
 
 func Log(msg string) {
 	backend.Logger.Info().Timestamp().Msg(msg)
 }
 
-func (a *App) SingleSave(id int) backend.Save {
-	return backend.GetSingleSave(id)
+func (a *App) SingleSave(id int) ErrorReturn {
+	saveID, err := backend.GetSingleSave(id)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Could not retrieve save",
+		}
+		// return backend.Save{}
+	}
+	return ErrorReturn{
+		Save: saveID,
+	}
 }
 
 func (a *App) SingleImage(id int) string {
@@ -171,6 +203,95 @@ func (a *App) SelectFileParse(fileType string) string {
 	return SelectExportedFile(a.ctx, fileType)
 }
 
-func (a *App) AddNewSeason(saveID int, season NewSeason) {
-	fmt.Println(season)
+func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
+	// Order to add a new season
+	// Add team -> add Season -> add Players -> add Player Stats/Attributes ->
+	// Add Transfers/Results -> Add Trophies
+	team := backend.Team{
+		TeamName: season.TeamName,
+		Country:  season.Country,
+	}
+	if season.ShortName != "" {
+		team.ShortName.String = season.ShortName
+		team.ShortName.Valid = true
+	}
+	teamID, err := backend.AddTeam(team)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error adding team. Check log file for more details.",
+		}
+
+	}
+	seasonID, err := backend.AddSeason(saveID, int(teamID), season.Season)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error adding season. Check log file for more details.",
+		}
+	}
+
+	info, stats, err := backend.ParseStats(season.SquadFile, season.Season)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error parsing squad file. Check log file for more details.",
+		}
+	}
+	err = backend.AddPlayersInfo(saveID, info)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error adding player info to DB. Check log file for more details.",
+		}
+	}
+	err = backend.AddPlayersStats(saveID, int(seasonID), stats)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error adding player stats/attributes to DB. Check log file for more details.",
+		}
+	}
+
+	inTransfers, outTransfers, err := backend.ParseTransfers(season.TransfersFile, season.TeamName)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error parsing transfer file. Check log file for more details.",
+		}
+	}
+
+	err = backend.AddTransfers(inTransfers, outTransfers, int(seasonID))
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error adding transfers to DB. Check log file for more details.",
+		}
+	}
+
+	results, err := backend.ParseSchedule(season.ScheduleFile)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error parsing schedule file. Check log file for more details.",
+		}
+	}
+
+	err = backend.AddSchedule(results, int(seasonID))
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error adding schedule to DB. Check log file for more details.",
+		}
+	}
+
+	if len(season.TrophiesWon) > 0 {
+		trophies := []backend.Trophy{}
+		for _, trophy := range season.TrophiesWon {
+			trophies = append(trophies, backend.Trophy{
+				SeasonID:        int(seasonID),
+				CompetitionName: trophy,
+			})
+		}
+		backend.AddTrophies(trophies)
+		if err != nil {
+			return ErrorReturn{
+				Error: "Error adding trophies to DB. Check log file for more details.",
+			}
+		}
+	}
+
+	return ErrorReturn{}
+	// return
 }

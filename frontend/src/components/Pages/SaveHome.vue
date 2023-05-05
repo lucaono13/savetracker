@@ -42,18 +42,23 @@ import { backend } from '../../../wailsjs/go/models'
 //     saveID = +localStorage.getItem("defaultSave")
 // }
 const route = useRoute()
+const emit = defineEmits(['beError'])
 // console.log(route.params.id)
 let imgPlaceholder: string | undefined
 let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
 SingleSave(+route.params.id).then((response) => {
+    if (response.Error != "") {
+        emit('beError', response.Error)
+    }
+    let result = response.Save
     // let sessionVal: string = response.id.toString() + '_save_'
-    save.value.saveID = response.id
-    save.value.managerName = response.managerName
-    save.value.gameVersion = response.gameVersion
-    save.value.saveName = response.saveName
-    if (response.saveImage) {
-        GetImage(response.saveImage).then(async (response) => {
-            save.value.image = response
+    save.value.saveID = result.id
+    save.value.managerName = result.managerName
+    save.value.gameVersion = result.gameVersion
+    save.value.saveName = result.saveName
+    if (result.saveImage) {
+        GetImage(result.saveImage).then(async (result) => {
+            save.value.image = result
         })
     }
     // save.value.image =  response.saveImage

@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"database/sql"
+	"strconv"
 
 	"github.com/adrg/xdg"
 	"github.com/jmoiron/sqlx"
@@ -14,6 +14,12 @@ type Save struct {
 	GameVersion int        `json:"gameVersion" db:"gameVersion"`
 	SaveName    string     `json:"saveName" db:"saveName"`
 	SaveImage   NullString `json:"saveImage" db:"saveImage"`
+}
+
+type Trophy struct {
+	TrophyID        NullInt64 `json:"trophyID" db:"trophyWonID"`
+	SeasonID        int       `json:"seasonID" db:"seasonID"`
+	CompetitionName string    `json:"competitionName" db:"competitionName"`
 }
 
 // var DB *sql.DB
@@ -44,19 +50,57 @@ func CloseDB() error {
 	return DB.Close()
 }
 
+// func GetSaves() []Save {
+// 	var saves []Save
+// 	err := DB.Select(&saves, AllSaves)
+// 	switch {
+// 	case err == sql.ErrNoRows:
+// 		Logger.Info().Timestamp().Msg("No Saves Found")
+// 	case err != nil:
+// 		Logger.Error().Timestamp().Msg(err.Error())
+// 	}
+// 	return saves
+// }
+
+// Saves
 func GetSaves() []Save {
 	var saves []Save
 	err := DB.Select(&saves, AllSaves)
-	switch {
-	case err == sql.ErrNoRows:
-		Logger.Info().Timestamp().Msg("No Saves Found")
-	case err != nil:
+	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
+		return nil
 	}
 	return saves
 }
 
-// func AddSave(saveName string, managerName string, gameVersion int) (int, error) {
+func GetSingleSave(ID int) (Save, error) {
+	var save Save
+	err := DB.QueryRowx(SingleSave, ID).StructScan(&save)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return save, err
+	}
+	return save, nil
+}
+
+func GetSaveImage(ID int) string {
+	var save Save
+	err := DB.QueryRowx(SingleSaveImage, ID).StructScan(&save)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return ""
+	}
+	return save.SaveImage.String
+}
+
+func UpdateSaveImage(id int, filePath string) error {
+	_, err := DB.Exec(SaveImageUpdate, filePath, id)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+	}
+	return err
+}
+
 func AddSave(newSave Save) (int64, error) {
 	result, err := DB.NamedExec(NewSave, newSave)
 	if err != nil {
@@ -66,29 +110,287 @@ func AddSave(newSave Save) (int64, error) {
 	return result.LastInsertId()
 }
 
-func GetSingleSave(ID int) Save {
-	var save Save
-	err := DB.QueryRowx(SingleSave, ID).StructScan(&save)
+// Seasons
+func AddSeason(saveID int, teamID int, year string) (int64, error) {
+	result, err := DB.Exec(NewSeason, teamID, saveID, year)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
 	}
-	return save
+	seasonID, err := result.LastInsertId()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
+	}
+	return seasonID, nil
 }
 
-func GetSaveImage(ID int) string {
-	var save Save
-	err := DB.QueryRowx(SingleSaveImage, ID).StructScan(&save)
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-	}
-	return save.SaveImage.String
+// Teams
+func GetTeams() ([]Team, error) {
+	var teams []Team
+	err := DB.Select(&teams, AllTeams)
+	return teams, err
 }
 
-func UpdateSaveImage(id int, filePath string) error {
-	_, err := DB.Exec(SaveImageUpdate, filePath, id)
+func AddTeam(team Team) (int64, error) {
+	teams, err := GetTeams()
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
-
+		return 0, err
 	}
-	return err
+	teamsInDB := make(map[string]Team)
+	for _, team := range teams {
+		teamsInDB[team.TeamName] = team
+	}
+	if _, ok := teamsInDB[team.TeamName]; ok {
+		if teamsInDB[team.TeamName].Country == team.Country {
+			return teamsInDB[team.TeamName].TeamID.Int64, nil
+		}
+	}
+
+	result, err := DB.NamedExec(NewTeam, team)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
+	}
+	teamID, err := result.LastInsertId()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
+	}
+	return teamID, nil
+}
+
+// Player Season
+func addPlayerSeason(playerID int, seasonID int) (int64, error) {
+	result, err := DB.Exec(NewPlayerSeason, playerID, seasonID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
+	}
+	playerSeasonID, err := result.LastInsertId()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0, err
+	}
+	return playerSeasonID, nil
+}
+
+// Players
+func GetSavePlayers(saveID int) ([]PlayerInfo, error) {
+	var players []PlayerInfo
+	err := DB.Select(&players, SavePlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, err
+	}
+	return players, nil
+}
+
+func GetAllPlayers() ([]PlayerInfo, error) {
+	var players []PlayerInfo
+	err := DB.Select(&players, AllPlayers)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, err
+	}
+	return players, nil
+}
+
+// func GetSinglePlayer() (PlayerInfo, []PlayerSeason) {
+// 	var seasons []PlayerSeason
+// 	err := DB.Select(&seasons)
+// }
+
+func AddPlayersInfo(saveID int, info []PlayerInfo) error {
+	tx, err := DB.Beginx()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error starting transaction.\nCheck log file for more details."
+	}
+	defer tx.Rollback()
+	oneNat, err := tx.PrepareNamed(AddPlayer1Nat)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error preparing statement.\nCheck log file for more details."
+	}
+	twoNat, err := tx.PrepareNamed(AddPlayer2Nat)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error preparing statement.\nCheck log file for more details."
+	}
+
+	currentPlayers, err := GetSavePlayers(saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error getting players in save.\nCheck log file for more details."
+	}
+	playersMap := MakePlayersMap(currentPlayers)
+	for _, player := range info {
+		if _, ok := playersMap[player.UID]; !ok {
+			player.SaveID = saveID
+			// currentPlayers[player.UID] = int(player.PlayerID)
+			// fmt.Println(player, player.SecNat)
+			if player.SecNat.Valid {
+				_, err := twoNat.Exec(player)
+				if err != nil {
+					Logger.Error().Timestamp().Msg(err.Error())
+					return err
+					// return "Error executing adding player.\nCheck log file for more details."
+				}
+			} else {
+				_, err := oneNat.Exec(player)
+				if err != nil {
+					Logger.Error().Timestamp().Msg(err.Error())
+					return err
+					// return "Error executing adding player.\nCheck log file for more details."
+				}
+			}
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error committing transaction.\nCheck log file for more details."
+	}
+
+	return nil
+}
+
+func AddPlayersStats(saveID int, seasonID int, stats []PlayerSeason) error {
+	players, err := GetSavePlayers(saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error Getting Players for save " + strconv.Itoa(saveID) + ".\nCheck log file for more details."
+	}
+	playersMap := MakePlayersMap(players)
+	for _, player := range stats {
+		if playerID, ok := playersMap[player.UID]; ok {
+			playerSeasonID, err := addPlayerSeason(playerID, seasonID)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+				// return "Error adding Player Season.\nCheck log file for more details."
+			}
+			player.PlayerSeasonID = int(playerSeasonID)
+			_, err = DB.NamedExec(NewStats, player)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+				// return "Error executing stats INSERT.\nCheck log file for more details."
+			}
+			_, err = DB.NamedExec(NewAttrs, player)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+				// return "Error executing attribute INSERT.\nCheck log file for more details."
+			}
+		} else {
+			Logger.Error().Timestamp().Msg("Player with UID: " + strconv.Itoa(player.UID) + " does not exist in DB.")
+		}
+	}
+	return nil
+}
+
+// Transfers
+func AddTransfers(ins []Transfer, outs []Transfer, seasonID int) error {
+	tx, err := DB.Beginx()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+		// return "Error starting transaction.\nCheck log file for more details."
+	}
+	defer tx.Rollback()
+
+	transferStmt, err := tx.PrepareNamed(NewTransfer)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+
+	for _, transfer := range ins {
+		transfer.SeasonID = seasonID
+		// fmt.Println(transfer.PotentialFee.Int64)
+		_, err := transferStmt.Exec(transfer)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return err
+		}
+	}
+	for _, transfer := range outs {
+		transfer.SeasonID = seasonID
+		_, err := transferStmt.Exec(transfer)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+// Schedule
+func AddSchedule(results []Match, seasonID int) error {
+	tx, err := DB.Beginx()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareNamed(NewResult)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+
+	for _, result := range results {
+		result.SeasonID = seasonID
+		_, err := stmt.Exec(result)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return err
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	return nil
+}
+
+// Trophies
+func AddTrophies(trophies []Trophy) error {
+	tx, err := DB.Beginx()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareNamed(NewTrophy)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+
+	for _, trophy := range trophies {
+		_, err := stmt.Exec(trophy)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return err
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	return nil
 }
