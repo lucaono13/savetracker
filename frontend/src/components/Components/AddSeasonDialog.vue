@@ -10,6 +10,7 @@
                     <InputText v-model="v$.teamName.$model" class="w-full" id="teamName" type="text" 
                         placeholder="Borussia Mönchengladbach"
                         :class="{ 'p-invalid': v$.teamName.$invalid && submitted }"
+                        :disabled="addingToDB"
                     />
                     
                 </span>
@@ -19,6 +20,7 @@
                     <span class="p-inputgroup">
                         <InputText v-model="v$.shortName.$model" class="full" id="shortName" type="text" 
                             placeholder="Borussia M'gladbach" aria-describedby="shortOptional"
+                            :disabled="addingToDB"
                         />
                         <Button severity="info" @click="explainSN" ><font-awesome-icon icon="fa-solid fa-question"/></Button>
                         <OverlayPanel ref="explain">
@@ -34,6 +36,7 @@
                     <InputMask v-model="v$.season.$model" class="w-full" id="season" type="text"  
                         mask="9999-99" placeholder="2023-24"
                         :class="{ 'p-invalid': v$.season.$invalid && submitted }"
+                        :disabled="addingToDB"
                     />
                 </div>
                 <div class="field  w-8">
@@ -41,6 +44,7 @@
                     <InputText v-model="v$.country.$model" class="w-full" id="country" type="text" 
                         placeholder="Germany"
                         :class="{ 'p-invalid': v$.country.$invalid && submitted }"
+                        :disabled="addingToDB"
                     />
                     
                 </div>
@@ -52,6 +56,7 @@
                     <Textarea v-model="v$.trophies.$model" class="w-full fileText" id="trophiesWon" 
                         placeholder="Bundesliga, DFB-Pokal, Champions League" aria-describedby="separateBy"
                         :class="{ 'p-invalid': v$.trophies.$invalid && submitted }"
+                        :disabled="addingToDB"
                     />
                 </div>
             </div>
@@ -83,8 +88,12 @@
         <template #footer>
             <!-- <pre>{{ errors.country }}</pre> -->
             <div class="flex align-content-center justify-content-center">
-                <Button label="Cancel" id="cancelB" class="p-button-text" @click="$emit('closeDialog')" />
-                <Button label="Add" id="submitSeasonB"  form="addSave" type="submit"/>
+                <Button label="Cancel" id="cancelB" :disabled="addingToDB" class="p-button-text" @click="$emit('closeDialog')" />
+                <Button label="Add" id="submitSeasonB" :disabled="addingToDB" form="addSave" type="submit"/>
+            </div>
+            <div v-if="addingToDB" class="mt-3 justify-content-start">
+                <p class="mb-1">Adding...</p>
+                <ProgressBar style="height: 0.3em" mode="indeterminate" />
             </div>
         </template>
     </Dialog>
@@ -104,12 +113,11 @@ import InputText from 'primevue/inputtext';
 
 const route = useRoute()
 
+const addingToDB = ref(false)
 const value = ref()
 const explain = ref()
 const submitted = ref(false)
-const squadFileInput = ref<HTMLInputElement | null>()
-const scheduleFileInput = ref<InputText | null>()
-const transfersFileInput = ref<InputText | null>()
+const emit = defineEmits(['closeDialog'])
 
 const explainSN = (event: any) => {
     explain.value.toggle(event)
@@ -118,6 +126,7 @@ const openLink = (event: any, url: string) => {
     event.preventDefault();
     BrowserOpenURL(url)
 }
+
 
 function GetFile(textArea: string, fileType: string) {
     SelectFileParse(fileType).then( (response) => {
@@ -167,22 +176,39 @@ const rules = {
 const v$ = useVuelidate(rules, state)
 
 function addSeason(isValid: boolean) {
-    console.log(v$.value.squadFile.$model, v$.value.scheduleFile.$model, v$.value.transfersFile.$model)
+    
+    let trophies: string[] = []
+
+    if (v$.value.trophies.$model.length > 0 &&  (v$.value.trophies.$model.toLowerCase() != "n/a" || v$.value.trophies.$model.toLowerCase() != "n/a")) {
+        trophies = v$.value.trophies.$model.split(",")
+    }
+
     let season: main.NewSeason = {
         teamName: v$.value.teamName.$model,
         shortName: v$.value.shortName.$model,
         season: v$.value.season.$model,
         country: v$.value.country.$model,
-        trophiesWon: v$.value.trophies.$model,
+        trophiesWon: trophies,
         squadFile: v$.value.squadFile.$model,
         scheduleFile: v$.value.scheduleFile.$model,
         transfersFile: v$.value.transfersFile.$model,
     }
+    // if (season.trophiesWon.toLowerCase() == "n/a" || season.trophiesWon.toLowerCase() == "none") {
+    //     season.trophiesWon = ''
+    // }
     submitted.value = true
     // console.log(v$.value.teamName.$model)
     if (!isValid) {
         return;
     }
+    addingToDB.value = true
+    AddNewSeason(+route.params.id, season)
+    setTimeout( () => {
+        emit('closeDialog')
+        submitted.value = false
+        addingToDB.value = false
+    }, 2000)
+    
     // ADD NEW SEASON BACKEND FUNCTION
 }
 

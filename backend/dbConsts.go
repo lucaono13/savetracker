@@ -41,18 +41,17 @@ const (
 	);
 	CREATE TABLE IF NOT EXISTS "transfers" (
 		"transferID"	INTEGER NOT NULL UNIQUE,
-		"teamName"	TEXT,
-		"playerID"	INTEGER NOT NULL,
+		"teamName"	TEXT NOT NULL,
 		"date"	TEXT NOT NULL,
 		"fee"	INTEGER NOT NULL DEFAULT 0,
 		"potentialFee"	INTEGER,
 		"transferIn"	INTEGER NOT NULL,
 		"loan"	INTEGER NOT NULL,
-		"free"	INTEGER,
-		"saveID"	INTEGER NOT NULL,
+		"free"	INTEGER NOT NULL,
+		"seasonID"	INTEGER NOT NULL,
+		"playerName"	TEXT NOT NULL,
 		PRIMARY KEY("transferID" AUTOINCREMENT),
-		FOREIGN KEY("playerID") REFERENCES "players"("playerID") ON DELETE CASCADE,
-		FOREIGN KEY("saveID") REFERENCES "saves"("saveID") ON DELETE CASCADE
+		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE
 	);
 	CREATE TABLE IF NOT EXISTS "playerSeason" (
 		"playerSeasonID"	INTEGER NOT NULL UNIQUE,
@@ -84,23 +83,24 @@ const (
 	CREATE TABLE IF NOT EXISTS "results" (
 		"resultID"	INTEGER NOT NULL UNIQUE,
 		"seasonID"	INTEGER NOT NULL,
-		"opponentID"	INTEGER NOT NULL,
+		"opponentName"	TEXT NOT NULL,
 		"competition"	TEXT NOT NULL,
-		"awayScore"	INTEGER NOT NULL,
-		"homeScore"	INTEGER NOT NULL,
+		"goalsAgainst"	INTEGER NOT NULL,
+		"goalsFor"	INTEGER NOT NULL,
 		"date"	TEXT NOT NULL,
 		"stadium"	TEXT NOT NULL,
 		"venue"	TEXT NOT NULL,
 		"result"	TEXT NOT NULL,
 		"penalties"	INTEGER NOT NULL,
 		"extraTime"	INTEGER NOT NULL,
-		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
-		FOREIGN KEY("opponentID") REFERENCES "teams"("teamID") ON DELETE CASCADE,
+		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID"),
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "trophies" (
 		"trophyWonID"	INTEGER NOT NULL UNIQUE,
 		"seasonID"	INTEGER NOT NULL,
+		"competitionName"	TEXT NOT NULL,
+		"trophyImage"	TEXT,
 		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
 		PRIMARY KEY("trophyWonID" AUTOINCREMENT)
 	);
@@ -164,4 +164,29 @@ const (
 	SingleSaveImage = `SELECT saveImage FROM saves where saveID=?`
 	SaveImageUpdate = `UPDATE saves SET saveImage=? WHERE saveID=?`
 	AllTeams        = `SELECT * FROM teams`
+	NewStats        = `INSERT INTO playerStats (playerSeasonID, minutes, starts, goals, assists, yellowCards, redCards, avgRating, subs, playerOfTheMatch, passPerc, winPerc, shutouts, savePerc) 
+						VALUES (:playerSeasonID, :minutes, :starts, :goals, :assists, :yellowCards, :redCards, :avgRating, :subs, :playerOfTheMatch, :passPerc, :winPerc, :shutouts, :savePerc)`
+	NewAttrs = `INSERT INTO playerAttributes (playerSeasonID, corners, crossing, dribbling, finishing, firstTouch, freeKicks, heading, longShots, longThrows, marking, passing, penalties, tackling, technique, 
+						aggression, anticipation, bravery, composure, concentration, decisions, determination, flair, leadership, offTheBall, positioning, teamwork, vision, workRate,
+						acceleration, agility, balance, jumpingReach, naturalFitness, pace, stamina, strength,
+						aerialReach, commandOfArea, communication, eccentricity, handling, kicking, oneOnOnes, punchingTendency, reflexes, rushingOutTendency, throwing) VALUES
+						(:playerSeasonID, :cor, :cro, :dri, :fin, :fir, :fre, :hea, :lon, :lth, :mar, :pas, :pen, :tck, :tec,
+						:agg, :ant, :bra, :cmp, :cnt, :dec, :det, :fla, :ldr, :otb, :pos, :tea, :vis, :wor,
+						:acc, :agi, :bal, :jum, :nat, :pac, :sta, :str,
+						:aer, :cmd, :com, :ecc, :han, :kic, :ovo, :pun, :ref, :tro, :thr)`
+	NewResult = `INSERT INTO results (seasonID, date, opponentName, venue, stadium, competition, goalsAgainst, goalsFor, result, extraTime, penalties) VALUES
+					(:seasonID, :date, :opponentName, :venue, :stadium, :competition, :goalsAgainst, :goalsFor, :result, :extraTime, :penalties)`
+	NewTransfer = `INSERT INTO transfers (seasonID, date, playerName, teamName, fee, potentialFee, transferIn, loan, free) VALUEs
+					(:seasonID, :date, :playerName, :teamName, :fee, :potentialFee, :transferIn, :loan, :free)`
+	NewTeam          = `INSERT INTO teams (teamName, shortName, country) VALUES (:teamName, :shortName, :country)`
+	NewSeason        = `INSERT INTO seasons (teamID, saveID, year) VALUES (?, ?, ?)`
+	NewPlayerSeason  = `INSERT INTO playerSeason (playerID, seasonID) VALUES (?, ?)`
+	AddPlayer1Nat    = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality)`
+	AddPlayer2Nat    = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality, secondNationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality, :secondNationality)`
+	SavePlayers      = `SELECT * FROM players WHERE saveID=?`
+	AllPlayers       = `SELECT * FROM players`
+	PlayerSeasons    = `SELECT * FROM playerSeason`
+	SinglePlayer     = `SELECT * FROM players WHERE playerID=?`
+	OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
+	NewTrophy        = `INSERT INTO trophies VALUES (:seasonID, :competitionName)`
 )

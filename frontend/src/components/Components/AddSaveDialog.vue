@@ -29,6 +29,7 @@
         </form>
         <template #footer>
             <div class="flex align-content-center justify-content-center">
+                
                 <Button label="Cancel" id="cancelB" :disabled="addingToDB" class='p-button-text' @click="$emit('closeDialog')" />
                 <Button label="Add" id="submitB" :disabled="addingToDB" type="submit" form="addForm" />
             </div>
@@ -69,10 +70,17 @@ export default {
         },
         addSave() {
             AddNewSave(this.saveName, this.managerName, +this.gameVersion).then((response) => {
-                if (response == 0) {
-                    this.$emit('saveAdded', response)
+                // console.log(response)
+                // return
+                // response.Error = "just a quick test thanks\nwe're going multiple lines!"
+                // if (response.Error != "") {
+                //     console.log('we got here?')
+                //     this.$emit('beError', response.Error)
+                // }
+                if (response.Integer == 0) {
+                    this.$emit('saveAdded', response.Integer)
                 } else {
-                    this.$emit('saveAdded', response)
+                    this.$emit('saveAdded', response.Integer)
                 }
                 // this.resetForm()
                 

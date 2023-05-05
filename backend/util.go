@@ -75,3 +75,11 @@ func NewImage(id int, filePath string) string {
 
 	return newFilePath
 }
+
+func MakePlayersMap(players []PlayerInfo) map[int]int {
+	playersMap := make(map[int]int)
+	for _, player := range players {
+		playersMap[player.UID] = int(player.PlayerID)
+	}
+	return playersMap
+}
