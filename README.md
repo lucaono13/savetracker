@@ -11,7 +11,6 @@ A way to track your Saves by exporting with specific filters that will be in the
   - SQLite (Embedded database)
   - PrimeVue components
   
-  
 ### **Features:**
   - Attribute Tracking
   - Stats

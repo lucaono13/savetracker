@@ -6,3 +6,5 @@ db.sqbpro
 save-tracker-db-schema.png
 savetracker.exe
 *.lnk
+.vite
+frontend/src/App2.vue

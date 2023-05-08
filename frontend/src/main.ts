@@ -16,12 +16,19 @@ import Menu from 'primevue/menu'
 import Dock from 'primevue/dock'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
+import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import Card from 'primevue/card'
 import BlockUI from 'primevue/blockui'
 import OverlayPanel from 'primevue/overlaypanel'
 import CascadeSelect from 'primevue/cascadeselect'
 import VirtualScroller from 'primevue/virtualscroller'
+import Image from 'primevue/image'
+import InputMask from 'primevue/inputmask'
+import Divider from 'primevue/divider'
+import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast'
+import ToastService from 'primevue/toastservice'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -31,7 +38,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Import specific icons
-import { faMugHot } from '@fortawesome/free-solid-svg-icons'
+import { faMugHot, faList, faQuestion } from '@fortawesome/free-solid-svg-icons'
 
 
 
@@ -49,11 +56,14 @@ import 'primevue/resources/themes/lara-dark-teal/theme.css'
 
 const app = createApp(App)
 app.use(createPinia())
+app.use(ToastService)
 
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
 // Add Icons to Library
 library.add(faMugHot)
+library.add(faList)
+library.add(faQuestion)
 
 // Add FontAwesome to app
 app.component('font-awesome-icon', FontAwesomeIcon)
@@ -63,21 +73,27 @@ app.use(PrimeVue)
 
 // PrimeVue components
 app.component('ProgressSpinner',ProgressSpinner)
-app.component('ProgressBar', ProgressBar)
-app.component('Sidebar',Sidebar)
-app.component('Menubar', Menubar)
-app.component('InputText', InputText)
-app.component('MegaMenu', MegaMenu)
-app.component('Menu', Menu)
-app.component('Dock', Dock)
-app.component('Button', Button)
-app.component('Dialog', Dialog)
-app.component('Dropdown', Dropdown)
-app.component('Card', Card)
-app.component('BlockUI', BlockUI)
-app.component('OverlayPanel', OverlayPanel)
-app.component('CascadeSelect', CascadeSelect)
-app.component('VirtualScroller', VirtualScroller)
+    .component('ProgressBar', ProgressBar)
+    .component('Sidebar',Sidebar)
+    .component('Menubar', Menubar)
+    .component('InputText', InputText)
+    .component('MegaMenu', MegaMenu)
+    .component('Menu', Menu)
+    .component('Dock', Dock)
+    .component('Button', Button)
+    .component('Dialog', Dialog)
+    .component('Dropdown', Dropdown)
+    .component('Card', Card)
+    .component('BlockUI', BlockUI)
+    .component('OverlayPanel', OverlayPanel)
+    .component('CascadeSelect', CascadeSelect)
+    .component('VirtualScroller', VirtualScroller)
+    .component('Checkbox', Checkbox)
+    .component('Image', Image)
+    .component('InputMask', InputMask)
+    .component('Divider', Divider)
+    .component('Textarea', Textarea)
+    .component('Toast', Toast)
 
 // Use Vue Router
 app.use(router)
