@@ -1,6 +1,6 @@
 <template>
-    <div class="col-fixed h-full flex  justify-content-center flex-column relative" style="width:205px">
-      <div class="flex justify-content-center">
+    <div class="col-fixed flex almost-fh justify-content-center flex-column relative" style="width:205px">
+      <div class="flex justify-content-center ">
         <Button label="changeImage" class="saveImageButton my-3" @click="NewImage">
           <img :src="saveImage" style="width:175px" v-if="saveImage != ''"/>
           <div class="p-2 justify-content-center align-items-center" v-if="saveImage == ''">
@@ -11,7 +11,7 @@
         </Button>
       </div>
       <!-- <Button label="changeImage" style="flex-initial"><img :src="saveImage" style="width:100px" v-if="saveImage != ''"/></Button> -->
-      
+      <Button class="p-button-help p-button-outlined mx-5 justify-content-center" @click="addSeasonModal=true">New Season</Button>
       <Menu :model="$router.getRoutes()" class=" align-content-evenly">
         <template #start>
           <div>
@@ -31,7 +31,12 @@
           </router-link>
           </span>
         </template>
+        <template #end class="flex align-content-end">
+          
+        </template>
       </Menu>
+      
+        <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/>
     </div>
 </template>
 
@@ -39,11 +44,13 @@
   import { ref } from 'vue'
   import { useRoute } from 'vue-router';
   import { SingleImage, GetImage, UploadSaveImage } from '../../../wailsjs/go/main/App'
+  import AddSeasonDialog from '../Components/AddSeasonDialog.vue'
   interface Props {
     id?: string | string[]
   }
   const route = useRoute()
   let isDefault = ref(false)
+  const addSeasonModal = ref(false)
   const props = defineProps<Props>()
   let defaultSave: string | null = localStorage.getItem("defaultSave")
   console.log("default save ",defaultSave)
@@ -90,6 +97,10 @@
   padding: 0!important;
   border-radius: 0px!important;
   background-color: transparent!important;
+}
+
+.almost-fh {
+  height: calc(100vh - 63px);
 }
 
 </style>

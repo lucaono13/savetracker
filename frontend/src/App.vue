@@ -2,7 +2,7 @@
 
 <template>
   <Toast />
-  <Menubar class="w-full">
+  <Menubar class="w-full  top-0" >
     <template #start style="width:100px">
       <CascadeSelect style="width:75%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
         optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
@@ -23,15 +23,15 @@
     <template #end>
       <!-- <p>Save Tracker</p> -->
       <!-- <Button label="Toast" id="toastCheck" class="p-button-text p-button-outlined" @click="beError('Error adding transfers to DB.\nCheck log file for more details.')" >Toast Check</Button> -->
-      <Button class="p-button-help p-button-outlined mr-3" @click="addSeasonModal=true">New Season</Button>
+      <!-- <Button class="p-button-help p-button-outlined mr-3" @click="addSeasonModal=true">New Season</Button> -->
       
       <Button class="p-button-help p-button-outlined" @click="addSaveModal = true">New Save</Button>
       <AddSaveDialog v-model:visible="addSaveModal" @beError="beError" @saveAdded="GetSaves" @closeDialog="addSaveModal = false" />
-      <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/>
+      <!-- <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/> -->
     </template>
   </Menubar>
 
-  <div class="grid w-full h-full">
+  <div class="grid w-full mt-0">
     
     <!-- <div class="col"> -->
     <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
@@ -176,7 +176,7 @@ function GetSaves(newID?: number): void {
 
 // Change path
 function GoToSave(id: number) {
-  let newRoute: string = '/save/' + id
+  let newRoute: string = '/save/' + id + '/home'
   router.replace(newRoute)
 }
 

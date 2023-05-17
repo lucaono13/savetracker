@@ -365,6 +365,16 @@ func AddSchedule(results []Match, seasonID int) error {
 	return nil
 }
 
+func GetSaveResults(saveID int) ([]Match, error) {
+	var matches []Match
+	err := DB.Select(&matches, SaveResults, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, err
+	}
+	return matches, nil
+}
+
 // Trophies
 func AddTrophies(trophies []Trophy) error {
 	tx, err := DB.Beginx()

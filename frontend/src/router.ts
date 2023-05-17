@@ -7,40 +7,12 @@ import { PrimeIcons } from 'primevue/api'
 // import TrackerFeatures from './components/TrackerFeatures.vue'
 
 const routes = [
-  // {
-  //   path: '/home',
-  //   name: 'Home 2',
-  //   component: Home,
-  //   meta: {
-  //     icon: "fa-solid fa-mug-hot",
-  //     secondary: false
-  //   },
-    
-  // },
-  // {
-  //   path: '/features',
-  //   name: 'Features',
-  //   component: () => import('./components/Pages/Features.vue'),
-  //   meta: {
-  //     icon: PrimeIcons.DISCORD,
-  //     secondary: false,
-  //   },
-  // },
-  // {
-  //   path: '/start',
-  //   name: 'Start',
-  //   component: () => import('./components/Pages/Start.vue'),
-  //   meta: {
-  //     icon: PrimeIcons.SERVER,
-  //     secondary: false,
-  //   },
-  // },
   {
     path: '/noDefault',
     name: 'No Default',
     component: () => import('./components/Pages/NoDefaultSave.vue'),
     meta: {
-      secondary: false,
+      secondary: true,
     }
   },
   {
@@ -49,7 +21,7 @@ const routes = [
     component: () => import('./components/Pages/NoSaves.vue'),
     meta: {
       icon: PrimeIcons.ANDROID,
-      secondary: false,
+      secondary: true,
     },
     beforeEnter() {
       const saves: string | null = localStorage.getItem("saves")
@@ -65,29 +37,37 @@ const routes = [
           if (defaultSave == "0") {
             return
           }
-          return { path: '/save/' + defaultSave, replace: true}
+          return { path: '/save/' + defaultSave + '/home', replace: true}
         }
       }
     },
   },
   {
     path: '/save/:id',
-    name: 'Save Home',
-    component: () => import('./components/Pages/SaveHome.vue'),
+    name: 'Save',
+    component: () => import('./components/Pages/Save.vue'),
     meta: {
-      secondary: false,
+      secondary: true,
 
     },
-    // children: [
-    //   {
-    //     path: 'home',
-    //     name: 'Save Home',
-    //     component: () => import('./components/Pages/SaveHome.vue'),
-    //     meta: {
-    //       secondary: false,
-    //     }
-    //   }
-    // ]
+    children: [
+      {
+        path: 'home',
+        name: 'Home',
+        component: () => import('./components/Pages/SaveHome.vue'),
+        meta: {
+          secondary: false,
+        }
+      },
+      {
+        path: 'results',
+        name: 'Results',
+        component: () => import('./components/Pages/Results.vue'),
+        meta: {
+          secondary: false,
+        }
+      }
+    ]
   }
 ]
 

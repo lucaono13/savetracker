@@ -20,11 +20,12 @@ type App struct {
 }
 
 type ErrorReturn struct {
-	Error    string         `json:"Error"`
-	String   string         `json:"String"`
-	Integer  int            `json:"Integer"`
-	Save     backend.Save   `json:"Save"`
-	SaveList []backend.Save `json:"SaveList"`
+	Error    string          `json:"Error"`
+	String   string          `json:"String"`
+	Integer  int             `json:"Integer"`
+	Save     backend.Save    `json:"Save"`
+	SaveList []backend.Save  `json:"SaveList"`
+	Matches  []backend.Match `json:"Matches"`
 }
 
 type NewSeason struct {
@@ -127,6 +128,18 @@ func (a *App) SingleSave(id int) ErrorReturn {
 
 func (a *App) SingleImage(id int) string {
 	return backend.GetSaveImage(id)
+}
+
+func (a *App) GetSaveResults(saveID int) ErrorReturn {
+	matches, err := backend.GetSaveResults(saveID)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting results for save. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		Matches: matches,
+	}
 }
 
 func (a *App) GetImage(path string) string {
