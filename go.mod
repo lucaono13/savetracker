@@ -7,7 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/rs/zerolog v1.28.0
-	github.com/wailsapp/wails/v2 v2.4.1
+	github.com/wailsapp/wails/v2 v2.5.1
 	golang.org/x/net v0.7.0
 )
 
@@ -36,4 +36,4 @@ require (
 	golang.org/x/text v0.7.0 // indirect
 )
 
-replace github.com/wailsapp/wails/v2 => Q:\Documents\wails_2_4_1\wails\v2
+// replace github.com/wailsapp/wails/v2 => Q:\Documents\wails_2_4_1\wails\v2
