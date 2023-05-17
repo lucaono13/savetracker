@@ -1,7 +1,7 @@
 <template>
-    <Sidebar/>
-    <div class="col w-full">
-        <div class="grid">
+    <!-- <Sidebar/> -->
+    <!-- <div class="col w-full"> -->
+        <!-- <div class="grid"> -->
             <!-- <img class="col-2" :src="save.image"  v-if="save.image" /> -->
 
             <!-- <Card class="col">
@@ -12,13 +12,14 @@
                     {{ save.saveName }}
                 </template>
             </Card> -->
-            <div class="col-10 justify-content-center">
+            <!-- <div class="col-10 justify-content-center"> -->
                 <p>{{ save.saveName }}</p>
                 <p>{{ save.managerName }}</p>
-            </div>
-        </div>
+            <!-- </div> -->
+            <!-- <router-view></router-view> -->
+        <!-- </div> -->
 
-    </div>
+    <!-- </div> -->
 </template>
 
 <script lang="ts" setup>
@@ -42,14 +43,10 @@ import { backend } from '../../../wailsjs/go/models'
 //     saveID = +localStorage.getItem("defaultSave")
 // }
 const route = useRoute()
-const emit = defineEmits(['beError'])
 // console.log(route.params.id)
 let imgPlaceholder: string | undefined
 let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
 SingleSave(+route.params.id).then((response) => {
-    if (response.Error != "") {
-        emit('beError', response.Error)
-    }
     let result = response.Save
     // let sessionVal: string = response.id.toString() + '_save_'
     save.value.saveID = result.id
@@ -61,9 +58,6 @@ SingleSave(+route.params.id).then((response) => {
             save.value.image = result
         })
     }
-    // save.value.image =  response.saveImage
- 
-    // console.log(save.value.image)
 
     nextTick()
 })

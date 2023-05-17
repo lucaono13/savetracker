@@ -14,6 +14,10 @@ export function GetImage(arg1) {
   return window['go']['main']['App']['GetImage'](arg1);
 }
 
+export function GetSaveResults(arg1) {
+  return window['go']['main']['App']['GetSaveResults'](arg1);
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }

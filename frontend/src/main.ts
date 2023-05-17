@@ -29,6 +29,12 @@ import Divider from 'primevue/divider'
 import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
 import ToastService from 'primevue/toastservice'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Badge from 'primevue/badge'
+// import ColumnGroup from 'primevue/columngroup'
+// import Row from 'primevue/row'
+import MultiSelect from 'primevue/multiselect'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -94,6 +100,10 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('Divider', Divider)
     .component('Textarea', Textarea)
     .component('Toast', Toast)
+    .component('DataTable', DataTable)
+    .component('Column', Column)
+    .component('Badge', Badge)
+    .component('MultiSelect', MultiSelect)
 
 // Use Vue Router
 app.use(router)
