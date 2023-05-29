@@ -19,13 +19,23 @@
                 <small v-if="(v$.managerName.$invalid && submitted) || v$.managerName.$pending.$response"
                     class="p-error">{{ v$.managerName.required.$message.replace('Value', 'Manager Name') }}</small>
             </div>
-            <div class="field mt-4">
-                <Dropdown class="w-full" v-model="v$.gameVersion.$model" id="gVersion" :disabled="addingToDB"
-                    :options="versions" optionLabel="name" optionValue="name" placeholder="Select Game Version"
-                    :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" />
-                <small v-if="(v$.gameVersion.$invalid && submitted) || v$.gameVersion.$pending.$response"
-                    class="p-error">{{ v$.gameVersion.required.$message.replace('Value', 'Game Version') }}</small>
-            </div>
+            <!-- <div class="formgroup-inline grid"> -->
+                <div class="field mt-4">
+                    <Dropdown class="w-full" v-model="v$.gameVersion.$model" id="gVersion" :disabled="addingToDB"
+                        :options="versions" optionLabel="name" optionValue="name" placeholder="Select Game Version"
+                        :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" />
+                    <small v-if="(v$.gameVersion.$invalid && submitted) || v$.gameVersion.$pending.$response"
+                        class="p-error">{{ v$.gameVersion.required.$message.replace('Value', 'Game Version') }}</small>
+                </div>
+                <div class="field mt-4 p-float-label">
+                    <InputText class="w-full" v-model="v$.currency.$model" id="curr" :disabled="addingToDB"
+                        :class="{ 'p-invalid': v$.currency.$invalid && submitted }" />
+                    <label for="curr">Currency (i.e. $, €, £)</label>
+                    <small v-if="(v$.currency.$invalid && submitted) || v$.currency.$pending.$response"
+                    class="p-error">{{ v$.currency.required.$message.replace('Value', 'Currency') }}</small>
+                </div>
+            <!-- </div> -->
+            
         </form>
         <template #footer>
             <div class="flex align-content-center justify-content-center">
@@ -53,13 +63,11 @@ export default {
             saveName: '',
             gameVersion: '',
             managerName: '',
+            currency: '',
             blockedDocument: false,
             submitted: false,
             versions: [
                 { name: "2023" },
-                { name: "2022" },
-                { name: "2021" },
-                { name: "2020" }
             ],
             addingToDB: false,
         }
@@ -69,7 +77,7 @@ export default {
             this.addSaveModal = true
         },
         addSave() {
-            AddNewSave(this.saveName, this.managerName, +this.gameVersion).then((response) => {
+            AddNewSave(this.saveName, this.managerName, +this.gameVersion, this.currency).then((response) => {
                 // console.log(response)
                 // return
                 // response.Error = "just a quick test thanks\nwe're going multiple lines!"
@@ -127,6 +135,9 @@ export default {
                 required
             },
             gameVersion: {
+                required
+            },
+            currency: {
                 required
             }
 

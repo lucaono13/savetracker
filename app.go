@@ -83,13 +83,14 @@ func (a *App) RetrieveSaves() ErrorReturn {
 	// return backend.GetSaves()
 }
 
-func (a *App) AddNewSave(saveName string, managerName string, gameVersion int) ErrorReturn {
+func (a *App) AddNewSave(saveName string, managerName string, gameVersion int, currency string) ErrorReturn {
 	newSave := backend.Save{
 		SaveName:    saveName,
 		ManagerName: managerName,
 		GameVersion: gameVersion,
 		SaveID:      backend.NullInt64{NullInt64: sql.NullInt64{Valid: false}},
 		SaveImage:   backend.NullString{NullString: sql.NullString{Valid: false}},
+		Currency:    currency,
 	}
 	// addedID, err := backend.AddSave(saveName, managerName, gameVersion)
 	// if err != nil {

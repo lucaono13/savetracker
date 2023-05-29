@@ -14,6 +14,7 @@ type Save struct {
 	GameVersion int        `json:"gameVersion" db:"gameVersion"`
 	SaveName    string     `json:"saveName" db:"saveName"`
 	SaveImage   NullString `json:"saveImage" db:"saveImage"`
+	Currency    string     `json:"currency" db:"currency"`
 }
 
 type Trophy struct {

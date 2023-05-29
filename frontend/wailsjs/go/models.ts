@@ -64,6 +64,7 @@ export namespace backend {
 	    saveName: string;
 	    // Go type: NullString
 	    saveImage: any;
+	    currency: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Save(source);
@@ -76,6 +77,7 @@ export namespace backend {
 	        this.gameVersion = source["gameVersion"];
 	        this.saveName = source["saveName"];
 	        this.saveImage = this.convertValues(source["saveImage"], null);
+	        this.currency = source["currency"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

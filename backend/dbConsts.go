@@ -9,6 +9,7 @@ const (
 		"gameVersion"	INTEGER NOT NULL,
 		"saveName"	TEXT NOT NULL,
 		"saveImage"	TEXT,
+		"currency"	TEXT NOT NULL,
 		PRIMARY KEY("saveID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "teams" (
@@ -159,7 +160,7 @@ const (
 	);
 	`
 	AllSaves        = `SELECT * FROM saves`
-	NewSave         = `INSERT INTO saves (saveName, managerName, gameVersion) VALUES (:saveName, :managerName, :gameVersion)`
+	NewSave         = `INSERT INTO saves (saveName, managerName, gameVersion, currency) VALUES (:saveName, :managerName, :gameVersion, :currency)`
 	SingleSave      = `SELECT * FROM saves where saveID=?`
 	SingleSaveImage = `SELECT saveImage FROM saves where saveID=?`
 	SaveImageUpdate = `UPDATE saves SET saveImage=? WHERE saveID=?`
