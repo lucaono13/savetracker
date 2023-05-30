@@ -190,21 +190,37 @@ const (
 	SinglePlayer     = `SELECT * FROM players WHERE playerID=?`
 	OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
 	NewTrophy        = `INSERT INTO trophies VALUES (:seasonID, :competitionName)`
-	SaveResults      = `
-	SELECT saves.saveID,
-		results.date,
-		seasons.year,
-		results.competition,
-		results.stadium,
-		results.venue,
-		results.opponentName,
-		results.result,
-		results.goalsFor,
-		results.goalsAgainst,
-		results.penalties,
-		results.extraTime
-	FROM results
-	INNER JOIN seasons ON results.seasonID = seasons.seasonID
-	INNER JOIN saves ON seasons.saveID = saves.saveID
-	WHERE saves.saveID = ?`
+	SaveResults      = `SELECT saves.saveID,
+							results.date,
+							seasons.year,
+							results.competition,
+							results.stadium,
+							results.venue,
+							results.opponentName,
+							results.result,
+							results.goalsFor,
+							results.goalsAgainst,
+							results.penalties,
+							results.extraTime
+						FROM results
+						INNER JOIN seasons ON results.seasonID = seasons.seasonID
+						INNER JOIN saves ON seasons.saveID = saves.saveID
+						WHERE saves.saveID = ?
+						`
+	GetCurrency   = `SELECT currency FROM saves WHERE saveID=?`
+	SaveTransfers = `SELECT
+							transfers.date,
+							transfers.playerName,
+							transfers.fee,
+							transfers.potentialFee,
+							transfers.teamName,
+							transfers.free,
+							transfers.loan,
+							seasons.year
+						FROM
+							transfers
+						INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+						INNER JOIN saves ON seasons.saveID = saves.saveID
+						WHERE saves.saveID=? AND transfers.transferIn=?
+						`
 )

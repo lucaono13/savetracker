@@ -35,6 +35,9 @@ import Badge from 'primevue/badge'
 // import ColumnGroup from 'primevue/columngroup'
 // import Row from 'primevue/row'
 import MultiSelect from 'primevue/multiselect'
+import TabView from 'primevue/tabview'
+import TabPanel from 'primevue/tabpanel'
+import AutoComplete from 'primevue/autocomplete'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -104,6 +107,9 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('Column', Column)
     .component('Badge', Badge)
     .component('MultiSelect', MultiSelect)
+    .component('TabView', TabView)
+    .component('TabPanel', TabPanel)
+    .component('AutoComplete', AutoComplete)
 
 // Use Vue Router
 app.use(router)

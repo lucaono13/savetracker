@@ -98,6 +98,58 @@ export namespace backend {
 		    return a;
 		}
 	}
+	export class Transfer {
+	    transferID: number;
+	    seasonID: number;
+	    date: string;
+	    player: string;
+	    team: string;
+	    fee: number;
+	    // Go type: sql
+	    potentialFee: any;
+	    inTransfer: boolean;
+	    loan: number;
+	    free: number;
+	    // Go type: NullString
+	    year: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Transfer(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.transferID = source["transferID"];
+	        this.seasonID = source["seasonID"];
+	        this.date = source["date"];
+	        this.player = source["player"];
+	        this.team = source["team"];
+	        this.fee = source["fee"];
+	        this.potentialFee = this.convertValues(source["potentialFee"], null);
+	        this.inTransfer = source["inTransfer"];
+	        this.loan = source["loan"];
+	        this.free = source["free"];
+	        this.year = this.convertValues(source["year"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 
 }
 
@@ -110,6 +162,9 @@ export namespace main {
 	    Save: backend.Save;
 	    SaveList: backend.Save[];
 	    Matches: backend.Match[];
+	    InTransfers: backend.Transfer[];
+	    OutTransfers: backend.Transfer[];
+	    Currency: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ErrorReturn(source);
@@ -123,6 +178,9 @@ export namespace main {
 	        this.Save = this.convertValues(source["Save"], backend.Save);
 	        this.SaveList = this.convertValues(source["SaveList"], backend.Save);
 	        this.Matches = this.convertValues(source["Matches"], backend.Match);
+	        this.InTransfers = this.convertValues(source["InTransfers"], backend.Transfer);
+	        this.OutTransfers = this.convertValues(source["OutTransfers"], backend.Transfer);
+	        this.Currency = source["Currency"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

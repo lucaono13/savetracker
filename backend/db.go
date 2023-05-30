@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/adrg/xdg"
@@ -333,6 +334,24 @@ func AddTransfers(ins []Transfer, outs []Transfer, seasonID int) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func GetSaveTransfers(saveID int, transferIn int) ([]Transfer, string, error) {
+	var transfers []Transfer
+	err := DB.Select(&transfers, SaveTransfers, saveID, transferIn)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, "", err
+	}
+	fmt.Println(err)
+	var save Save
+	err = DB.QueryRowx(GetCurrency, saveID).StructScan(&save)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, "", err
+	}
+	// return save.SaveImage.String
+	return transfers, save.Currency, nil
 }
 
 // Schedule

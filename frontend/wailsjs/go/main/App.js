@@ -18,6 +18,10 @@ export function GetSaveResults(arg1) {
   return window['go']['main']['App']['GetSaveResults'](arg1);
 }
 
+export function GetSaveTransfers(arg1) {
+  return window['go']['main']['App']['GetSaveTransfers'](arg1);
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }

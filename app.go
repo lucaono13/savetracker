@@ -20,12 +20,15 @@ type App struct {
 }
 
 type ErrorReturn struct {
-	Error    string          `json:"Error"`
-	String   string          `json:"String"`
-	Integer  int             `json:"Integer"`
-	Save     backend.Save    `json:"Save"`
-	SaveList []backend.Save  `json:"SaveList"`
-	Matches  []backend.Match `json:"Matches"`
+	Error        string             `json:"Error"`
+	String       string             `json:"String"`
+	Integer      int                `json:"Integer"`
+	Save         backend.Save       `json:"Save"`
+	SaveList     []backend.Save     `json:"SaveList"`
+	Matches      []backend.Match    `json:"Matches"`
+	InTransfers  []backend.Transfer `json:"InTransfers"`
+	OutTransfers []backend.Transfer `json:"OutTransfers"`
+	Currency     string             `json:"Currency"`
 }
 
 type NewSeason struct {
@@ -140,6 +143,26 @@ func (a *App) GetSaveResults(saveID int) ErrorReturn {
 	}
 	return ErrorReturn{
 		Matches: matches,
+	}
+}
+
+func (a *App) GetSaveTransfers(saveID int) ErrorReturn {
+	inTransfers, currency, err := backend.GetSaveTransfers(saveID, 1)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting transfers for save. Check log file for more details.",
+		}
+	}
+	outTransfers, _, err := backend.GetSaveTransfers(saveID, 0)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting transfers for save. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		InTransfers:  inTransfers,
+		OutTransfers: outTransfers,
+		Currency:     currency,
 	}
 }
 

@@ -22,7 +22,19 @@ type Transfer struct {
 	InTransfer   bool          `db:"transferIn" json:"inTransfer"`
 	Loan         int           `db:"loan" json:"loan"`
 	Free         int           `db:"free" json:"free"`
+	Season       NullString    `db:"year" json:"year"`
 	// PlayerID     sql.NullInt64 `db:"playerID"`
+}
+
+type TransferQuery struct {
+	Date         string `db:"date" json:"date"`
+	PlayerName   string `db:"playerName" json:"playerName"`
+	Currency     string `db:"currency" json:"currency"`
+	Fee          int    `db:"fee" json:"fee"`
+	PotentialFee int    `db:"potentialFee" json:"potentialFee"`
+	TeamName     string `db:"teamName" json:"teamName"`
+	Loan         int    `db:"loan" json:"loan"`
+	Free         int    `db:"free" json:"free"`
 }
 
 type Match struct {

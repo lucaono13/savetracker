@@ -66,6 +66,14 @@ const routes = [
         meta: {
           secondary: false,
         }
+      },
+      {
+        path: 'transfers',
+        name: 'Transfers',
+        component: () => import('./components/Pages/Transfers.vue'),
+        meta: {
+          secondary: false,
+        }
       }
     ]
   }

@@ -53,6 +53,7 @@ SingleSave(+route.params.id).then((response) => {
     save.value.managerName = result.managerName
     save.value.gameVersion = result.gameVersion
     save.value.saveName = result.saveName
+    // localStorage.setItem("saveCurrency", result.currency)
     if (result.saveImage) {
         GetImage(result.saveImage).then(async (result) => {
             save.value.image = result

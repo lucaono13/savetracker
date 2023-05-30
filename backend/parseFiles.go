@@ -132,9 +132,9 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 							// log.Fatal().Err(err)
 						}
 						if numberSize == "K" {
-							transfer.Fee = int(floatFee * 100000)
+							transfer.Fee = int(floatFee * 1000)
 						} else if numberSize == "M" {
-							transfer.Fee = int(floatFee * 100000000)
+							transfer.Fee = int(floatFee * 1000000)
 						} else {
 							transfer.Fee = int(floatFee)
 						}
@@ -151,9 +151,9 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 						// log.Fatal().Err(err)
 					}
 					if numberSize == "K" {
-						transfer.Fee = int(floatFee * 100000)
+						transfer.Fee = int(floatFee * 1000)
 					} else if numberSize == "M" {
-						transfer.Fee = int(floatFee * 100000000)
+						transfer.Fee = int(floatFee * 1000000)
 					} else {
 						transfer.Fee = int(floatFee)
 					}

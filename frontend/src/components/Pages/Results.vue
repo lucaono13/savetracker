@@ -1,6 +1,6 @@
 <template>
     <div class="card dt-size pr-4 pb-4">
-        <DataTable stripedRows :rows="10" scrollable scrollHeight="flex" class="p-datatable-small"
+        <DataTable stripedRows :rows="10" scrollable scrollHeight="flex" class="p-datatable-sm"
             paginator :rowsPerPageOptions="[5, 10, 20, 30, 50]" :value="results"
             tableStyle="min-width: 906px" filterDisplay="menu" v-model:filters="filters" :lazy="false" v-on:filter="GetRecord"
             >
