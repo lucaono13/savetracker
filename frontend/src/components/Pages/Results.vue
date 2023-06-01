@@ -30,7 +30,7 @@
                 </template>
             </Column>
             <Column field="opposition" header="Opponent" class="min-w-min" >
-                <template #body="{ data }">{{ data.opposition }}</template>
+                <!-- <template #body="{ data }">{{ data.opposition }}</template> -->
                 <!-- <template #filter="{ filterModel }">
                     <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search Opposition" />
                 </template> -->
@@ -154,7 +154,7 @@ function GetRecord(e: {originalEvent: Event, filteredValue: backend.Match[]}) {
     // console.log(e.filteredValue)
     totalGames.value = e.filteredValue.length
     if (e.filteredValue.length > 0) {
-        console.log('1')
+        // console.log('1')
         wins.value = e.filteredValue.filter( (obj: backend.Match) => {
             return obj.result == "W"
         }).length

@@ -4,14 +4,29 @@
             <TabPanel header="Transfers In" class="">
                 <!-- <p>In Transfers</p> -->
                 <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
-                    paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="inTransfers"
-                    filterDisplay="menu" :rowClass="({ loan }) => loan === 1 ? 'font-italic' : null">
-                    <Column field="date" header="Date"></Column>
-                    <Column field="year" header="Year"></Column>
-                    <Column field="team" header="From"></Column>
-                    <Column field="player" header="Player"></Column>
-                    <Column header="Fee">
+                    paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="inTransfers" tableStyle="min-width: 906px"
+                    filterDisplay="menu" v-model:filters="filters" :rowClass="({loan}) => loan === 1 ? 'font-italic' : null!"
+                    v-on:filter="GetTotalSpent"  :lazy="false" removableSort>
+                    <template #header>Total Spent: {{ totalSpent }} ({{ totalPotSpent }})</template>
+                    <Column field="date" header="Date" class="min-w-min"></Column>
+                    <Column filterField="year" header="Year" class="min-w-min" :showFilterMatchModes="false">
+                        <template #filter="{ filterModel }">
+                            <MultiSelect v-model="filterModel.value" :options="uniqueYears" placeholder="Select Year" class="p-column-filter" />
+                        </template>
+                    </Column>
+                    <Column field="team" header="From" class="min-w-min">
+                        <template #filter="{ filterModel }">
+                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
+                        </template>
+                    </Column>
+                    <Column field="player" header="Player" class="min-w-min">
+                        <template #filter="{ filterModel }">
+                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
+                        </template>
+                    </Column>
+                    <Column header="Fee" class="min-w-min" sortable sortField="fee">
                         <template #body="slotProps">
+                            <p v-show="false">{{ slotProps.data.fee }}</p>
                             {{ formatFee(slotProps.data.fee, slotProps.data.potentialFee, slotProps.data.free, slotProps.data.loan) }}
                         </template>
                     </Column>
@@ -19,17 +34,31 @@
             </TabPanel>
             <TabPanel header="Transfers Out">
                 <!-- <p>Out Transfers</p> -->
-                <DataTable stripedRows :rows="10" scrollable scrollHeight="flex" class="p-datatable-sm "
-                    paginator :rowsPerPageOptions="[5,10,20,30,50]" :value="outTransfers"
-                    filterDisplay="menu" :rowClass="({ loan }) => loan === 1 ? 'font-italic' : null">
-                    <Column field="date" header="Date"></Column>
-                    <Column field="year" header="Year"></Column>
-                    <Column field="team" header="To"></Column>
-                    <Column field="player" header="Player"></Column>
-                    <Column header="Fee">
+                <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
+                    paginator :rowsPerPageOptions="[5,10,20,30,50]" :value="outTransfers" tableStyle="min-width: 906px"
+                    filterDisplay="menu" :rowClass="({loan}) => loan === 1 ? 'font-italic' : null!" v-model:filters="filters"
+                    v-on:filter="GetTotalReceived"  :lazy="false" removableSort>
+                    <template #header>Total Received: {{ totalReceived }} ({{ totalPotReceived }})</template>
+                    <Column field="date" header="Date" class="min-w-min"></Column>
+                    <Column field="year" header="Year" class="min-w-min">
+                        <template #filter="{ filterModel }">
+                            <MultiSelect v-model="filterModel.value" :options="uniqueYears" placeholder="Select Year" class="p-column-filter" />
+                        </template>
+                    </Column>
+                    <Column field="team" header="To" class="min-w-min">
+                        <template #filter="{ filterModel }">
+                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
+                        </template>
+                    </Column>
+                    <Column field="player" header="Player" class="min-w-min">
+                        <template #filter="{ filterModel }">
+                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
+                        </template>
+                    </Column>
+                    <Column header="Fee" class="min-w-min" sortable sortField="fee">
                         <template #body="slotProps">
+                            <p v-show="false">{{ slotProps.data.fee }}</p>
                             {{ formatFee(slotProps.data.fee, slotProps.data.potentialFee, slotProps.data.free, slotProps.data.loan) }}
-                            <!-- <span v-if="slotProps.data.loan == 0"> Loan</span> -->
                         </template>
                     </Column>
                     
@@ -49,6 +78,16 @@ import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
 import { ColumnFilterModelType } from 'primevue/column'
 
+const route = useRoute()
+const inTransfers = ref()
+const outTransfers = ref()
+const currency = ref()
+const filters = ref()
+const totalSpent = ref()
+const totalPotSpent = ref()
+const totalReceived = ref()
+const totalPotReceived = ref()
+const uniqueYears = ref()
 const emit = defineEmits(['beError'])
 // const currCode: string | null 
 let numberFormatterComp: Intl.NumberFormat 
@@ -58,7 +97,9 @@ let numberFormatterComp: Intl.NumberFormat
 //     notation: 'compact'
 // })
 
+
 onMounted( () => {
+    console.log('transfers mounted ' )
     GetSaveTransfers(+route.params.id).then( (response) => {
         if (response.Error != "") {
             emit('beError', response.Error)
@@ -67,6 +108,11 @@ onMounted( () => {
         console.log(response)
         inTransfers.value = response.InTransfers
         outTransfers.value = response.OutTransfers
+        uniqueYears.value = new Set(response.InTransfers.map((item: backend.Transfer) => item.year ))
+        let outYears = new Set(response.OutTransfers.map((item: backend.Transfer) => item.year ))
+        outYears.forEach(uniqueYears.value.add, uniqueYears.value)
+        uniqueYears.value = ([...new Set(uniqueYears.value)])
+        console.log(uniqueYears.value)
         currency.value = response.Currency
         numberFormatterComp = new Intl.NumberFormat(navigator.language, {
             style: 'currency',
@@ -75,6 +121,7 @@ onMounted( () => {
         })
     })
 })
+
 
 const formatFee = (fee: number, potFee: {Int64: number, Valid: boolean}, free: number, loan: number) => {
     if (free) {
@@ -91,16 +138,55 @@ const formatFee = (fee: number, potFee: {Int64: number, Valid: boolean}, free: n
         allFees = allFees + ' (Loan)'
     }
     return allFees
-
 }
 
+const initFilters = () => {
+    filters.value = {
+        year: { value: null, matchMode: FilterMatchMode.IN },
+        team: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  },
+        player: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  },
+    }
+}
 
+initFilters()
 
-const route = useRoute()
-const inTransfers = ref()
-const outTransfers = ref()
-const currency = ref()
-const filters = ref()
+const formatTotal = (total: number) => {
+    let formattedTot: string = numberFormatterComp.format(total)
+    return formattedTot
+    return total
+}
+
+function GetTotalSpent( e: {originalEvent: Event, filteredValue: backend.Transfer[]}) {
+    let spent = 0
+    let potSpent = 0
+    e.filteredValue.forEach(function (transfer) {
+        spent += transfer.fee
+        if (transfer.potentialFee.Valid) {
+            potSpent += transfer.potentialFee.Int64
+        } else {
+            potSpent += transfer.fee
+        }
+    })
+    totalSpent.value = numberFormatterComp.format(spent)
+    totalPotSpent.value = numberFormatterComp.format(potSpent)
+    
+}
+
+function GetTotalReceived( e: {originalEvent: Event, filteredValue: backend.Transfer[]}) {
+    let receieved = 0
+    let potReceived = 0
+    e.filteredValue.forEach(function (transfer) {
+        receieved += transfer.fee
+        if (transfer.potentialFee.Valid) {
+            potReceived += transfer.potentialFee.Int64
+        } else {
+            potReceived + transfer.fee
+        }
+    })
+    totalReceived.value = numberFormatterComp.format(receieved)
+    totalPotReceived.value = numberFormatterComp.format(potReceived)
+}
+
 
 
 </script>
