@@ -9,7 +9,7 @@
                     v-on:filter="GetTotalSpent"  :lazy="false" removableSort>
                     <template #header>Total Spent: {{ totalSpent }} ({{ totalPotSpent }})</template>
                     <Column field="date" header="Date" class="min-w-min"></Column>
-                    <Column filterField="year" header="Year" class="min-w-min" :showFilterMatchModes="false">
+                    <Column field="year" header="Year" class="min-w-min" :showFilterMatchModes="false">
                         <template #filter="{ filterModel }">
                             <MultiSelect v-model="filterModel.value" :options="uniqueYears" placeholder="Select Year" class="p-column-filter" />
                         </template>
@@ -26,7 +26,7 @@
                     </Column>
                     <Column header="Fee" class="min-w-min" sortable sortField="fee">
                         <template #body="slotProps">
-                            <p v-show="false">{{ slotProps.data.fee }}</p>
+                            <!-- <p v-show="false">{{ slotProps.data.fee }}</p> -->
                             {{ formatFee(slotProps.data.fee, slotProps.data.potentialFee, slotProps.data.free, slotProps.data.loan) }}
                         </template>
                     </Column>
@@ -35,12 +35,12 @@
             <TabPanel header="Transfers Out">
                 <!-- <p>Out Transfers</p> -->
                 <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
-                    paginator :rowsPerPageOptions="[5,10,20,30,50]" :value="outTransfers" tableStyle="min-width: 906px"
+                    paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="outTransfers" tableStyle="min-width: 906px"
                     filterDisplay="menu" :rowClass="({loan}) => loan === 1 ? 'font-italic' : null!" v-model:filters="filters"
                     v-on:filter="GetTotalReceived"  :lazy="false" removableSort>
                     <template #header>Total Received: {{ totalReceived }} ({{ totalPotReceived }})</template>
                     <Column field="date" header="Date" class="min-w-min"></Column>
-                    <Column field="year" header="Year" class="min-w-min">
+                    <Column field="year" header="Year" class="min-w-min" :showFilterMatchModes="false">
                         <template #filter="{ filterModel }">
                             <MultiSelect v-model="filterModel.value" :options="uniqueYears" placeholder="Select Year" class="p-column-filter" />
                         </template>
@@ -90,7 +90,7 @@ const totalPotReceived = ref()
 const uniqueYears = ref()
 const emit = defineEmits(['beError'])
 // const currCode: string | null 
-let numberFormatterComp: Intl.NumberFormat 
+let numberFormatterTR: Intl.NumberFormat 
 // = new Intl.NumberFormat(navigator.language, {
 //     style: 'currency',
 //     // currency: 
@@ -103,7 +103,7 @@ onMounted( () => {
     GetSaveTransfers(+route.params.id).then( (response) => {
         if (response.Error != "") {
             emit('beError', response.Error)
-            
+            return
         }
         console.log(response)
         inTransfers.value = response.InTransfers
@@ -114,7 +114,7 @@ onMounted( () => {
         uniqueYears.value = ([...new Set(uniqueYears.value)])
         console.log(uniqueYears.value)
         currency.value = response.Currency
-        numberFormatterComp = new Intl.NumberFormat(navigator.language, {
+        numberFormatterTR = new Intl.NumberFormat(navigator.language, {
             style: 'currency',
             currency: currency.value,
             notation: "compact"
@@ -124,15 +124,18 @@ onMounted( () => {
 
 
 const formatFee = (fee: number, potFee: {Int64: number, Valid: boolean}, free: number, loan: number) => {
+    if (fee == 0 && !free && !loan) {
+        return "Undisclosed"
+    }
     if (free) {
         if (loan) {
             return "Loan"
         }
         return "Free"
     } 
-    let allFees = numberFormatterComp.format(fee)
+    let allFees = numberFormatterTR.format(fee)
     if (potFee.Valid) {
-        allFees = allFees + ' (' + numberFormatterComp.format(potFee.Int64) + ')'
+        allFees = allFees + ' (' + numberFormatterTR.format(potFee.Int64) + ')'
     }
     if (loan) {
         allFees = allFees + ' (Loan)'
@@ -151,7 +154,7 @@ const initFilters = () => {
 initFilters()
 
 const formatTotal = (total: number) => {
-    let formattedTot: string = numberFormatterComp.format(total)
+    let formattedTot: string = numberFormatterTR.format(total)
     return formattedTot
     return total
 }
@@ -161,14 +164,14 @@ function GetTotalSpent( e: {originalEvent: Event, filteredValue: backend.Transfe
     let potSpent = 0
     e.filteredValue.forEach(function (transfer) {
         spent += transfer.fee
-        if (transfer.potentialFee.Valid) {
+        if (transfer.potentialFee.Valid == true) {
             potSpent += transfer.potentialFee.Int64
         } else {
             potSpent += transfer.fee
         }
     })
-    totalSpent.value = numberFormatterComp.format(spent)
-    totalPotSpent.value = numberFormatterComp.format(potSpent)
+    totalSpent.value = numberFormatterTR.format(spent)
+    totalPotSpent.value = numberFormatterTR.format(potSpent)
     
 }
 
@@ -177,21 +180,24 @@ function GetTotalReceived( e: {originalEvent: Event, filteredValue: backend.Tran
     let potReceived = 0
     e.filteredValue.forEach(function (transfer) {
         receieved += transfer.fee
-        if (transfer.potentialFee.Valid) {
+        
+        if (transfer.potentialFee.Valid == true) {
             potReceived += transfer.potentialFee.Int64
+            console.log('Potential Valid', transfer.potentialFee, transfer.fee, '=', potReceived)
         } else {
-            potReceived + transfer.fee
+            potReceived += transfer.fee
+            console.log('Potential Invalid', transfer.potentialFee, transfer.fee, '=', potReceived)
         }
     })
-    totalReceived.value = numberFormatterComp.format(receieved)
-    totalPotReceived.value = numberFormatterComp.format(potReceived)
+    totalReceived.value = numberFormatterTR.format(receieved)
+    totalPotReceived.value = numberFormatterTR.format(potReceived)
 }
 
 
 
 </script>
 
-<style>
+<style lang="scss">
     .comp-size {
         height: calc(100vh - 79px)!important;
         width: calc(100vw - 205px)!important;

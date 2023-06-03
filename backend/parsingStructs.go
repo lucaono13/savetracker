@@ -152,3 +152,23 @@ type PlayerGKAttr struct {
 	TRO int `db:"tro" json:"tro"`
 	Thr int `db:"thr" json:"thr"`
 }
+
+type PlayerSquadView struct {
+	Name     string     `db:"playerName" json:"playerName"`
+	TeamName string     `db:"teamName" json:"teamName"`
+	Season   NullString `db:"year" json:"year"`
+	Position string     `db:"position" json:"position"`
+	Apps     int        `db:"starts" json:"starts"`
+	Subs     int        `db:"subs" json:"subs"`
+	Gls      int        `db:"goals" json:"goals"`
+	Ast      int        `db:"assists" json:"assists"`
+	PoM      int        `db:"playerOfTheMatch" json:"playerOfTheMatch"`
+	PasP     int        `db:"passPerc" json:"passPerc"`
+	Yel      int        `db:"yellowCards" json:"yellowCards"`
+	Red      int        `db:"redCards" json:"redCards"`
+	AvgRat   float32    `db:"avgRating" json:"avgRating"`
+	Gwin     int        `db:"winPerc" json:"winPerc"`
+	Mins     int        `db:"minutes" json:"minutes"`
+	Shutouts int        `db:"shutouts" json:"shutouts"`
+	Sv       int        `db:"savePerc" json:"savePerc"`
+}

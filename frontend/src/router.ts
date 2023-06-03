@@ -74,6 +74,22 @@ const routes = [
         meta: {
           secondary: false,
         }
+      },
+      {
+        path: 'playerSeasons',
+        name: 'Player Seasons',
+        component: () => import('./components/Pages/IndivSquadSeasons.vue'),
+        meta: {
+          secondary: false,
+        }
+      },
+      {
+        path: 'playerTotals',
+        name: 'Player Totals',
+        component: () => import('./components/Pages/SquadTotals.vue'),
+        meta: {
+          secondary: false,
+        }
       }
     ]
   }

@@ -117,7 +117,8 @@ const addingToDB = ref(false)
 const value = ref()
 const explain = ref()
 const submitted = ref(false)
-const emit = defineEmits(['closeDialog'])
+const emit = defineEmits(['closeDialog', 'beError'])
+
 
 const explainSN = (event: any) => {
     explain.value.toggle(event)
@@ -202,11 +203,23 @@ function addSeason(isValid: boolean) {
         return;
     }
     addingToDB.value = true
-    AddNewSeason(+route.params.id, season)
+    AddNewSeason(+route.params.id, season).then( (response) => {
+        if (response.Error != "") {
+            emit('beError', response.Error)
+        }
+    })
     setTimeout( () => {
         emit('closeDialog')
         submitted.value = false
         addingToDB.value = false
+        v$.value.teamName.$model = ""
+        v$.value.shortName.$model = ""
+        v$.value.season.$model = ""
+        v$.value.country.$model = ""
+        v$.value.squadFile.$model = ""
+        v$.value.scheduleFile.$model = ""
+        v$.value.transfersFile.$model = ""
+        trophies = []
     }, 2000)
     
     // ADD NEW SEASON BACKEND FUNCTION

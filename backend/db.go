@@ -1,7 +1,6 @@
 package backend
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/adrg/xdg"
@@ -300,6 +299,22 @@ func AddPlayersStats(saveID int, seasonID int, stats []PlayerSeason) error {
 	return nil
 }
 
+func GetSavePlayersStats(saveID int) ([]PlayerSquadView, []PlayerSquadView, error) {
+	var players []PlayerSquadView
+	var goalies []PlayerSquadView
+	err := DB.Select(&players, SaveOutfieldPlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	err = DB.Select(&goalies, SaveGoaliePlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	return players, goalies, nil
+}
+
 // Transfers
 func AddTransfers(ins []Transfer, outs []Transfer, seasonID int) error {
 	tx, err := DB.Beginx()
@@ -343,7 +358,6 @@ func GetSaveTransfers(saveID int, transferIn int) ([]Transfer, string, error) {
 		Logger.Error().Timestamp().Msg(err.Error())
 		return nil, "", err
 	}
-	fmt.Println(err)
 	var save Save
 	err = DB.QueryRowx(GetCurrency, saveID).StructScan(&save)
 	if err != nil {

@@ -36,7 +36,7 @@
         </template>
       </Menu>
       
-        <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/>
+        <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="addSeasonModal=false"/>
     </div>
 </template>
 
@@ -44,10 +44,12 @@
   import { ref } from 'vue'
   import { useRoute } from 'vue-router';
   import { SingleImage, GetImage, UploadSaveImage } from '../../../wailsjs/go/main/App'
-  import AddSeasonDialog from '../Components/AddSeasonDialog.vue'
+  // import AddSeasonDialog from '../Components/AddSeasonDialog.vue'
+  import AddSeasonDialog from './AddSeasonDialog.vue';
   interface Props {
     id?: string | string[]
   }
+  const emit = defineEmits(['beError'])
   const route = useRoute()
   let isDefault = ref(false)
   const addSeasonModal = ref(false)
@@ -68,6 +70,10 @@
       
     })
   })
+
+  function beError(e: string) {
+    emit('beError', e)
+  }
 
   function ChangeDefault() {
     if (isDefault.value == false) {

@@ -56,6 +56,69 @@ export namespace backend {
 		    return a;
 		}
 	}
+	export class PlayerSquadView {
+	    playerName: string;
+	    teamName: string;
+	    // Go type: NullString
+	    year: any;
+	    position: string;
+	    starts: number;
+	    subs: number;
+	    goals: number;
+	    assists: number;
+	    playerOfTheMatch: number;
+	    passPerc: number;
+	    yellowCards: number;
+	    redCards: number;
+	    avgRating: number;
+	    winPerc: number;
+	    minutes: number;
+	    shutouts: number;
+	    savePerc: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlayerSquadView(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.playerName = source["playerName"];
+	        this.teamName = source["teamName"];
+	        this.year = this.convertValues(source["year"], null);
+	        this.position = source["position"];
+	        this.starts = source["starts"];
+	        this.subs = source["subs"];
+	        this.goals = source["goals"];
+	        this.assists = source["assists"];
+	        this.playerOfTheMatch = source["playerOfTheMatch"];
+	        this.passPerc = source["passPerc"];
+	        this.yellowCards = source["yellowCards"];
+	        this.redCards = source["redCards"];
+	        this.avgRating = source["avgRating"];
+	        this.winPerc = source["winPerc"];
+	        this.minutes = source["minutes"];
+	        this.shutouts = source["shutouts"];
+	        this.savePerc = source["savePerc"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Save {
 	    // Go type: NullInt64
 	    id: any;
@@ -165,6 +228,8 @@ export namespace main {
 	    InTransfers: backend.Transfer[];
 	    OutTransfers: backend.Transfer[];
 	    Currency: string;
+	    Outfielders: backend.PlayerSquadView[];
+	    Goalies: backend.PlayerSquadView[];
 	
 	    static createFrom(source: any = {}) {
 	        return new ErrorReturn(source);
@@ -181,6 +246,8 @@ export namespace main {
 	        this.InTransfers = this.convertValues(source["InTransfers"], backend.Transfer);
 	        this.OutTransfers = this.convertValues(source["OutTransfers"], backend.Transfer);
 	        this.Currency = source["Currency"];
+	        this.Outfielders = this.convertValues(source["Outfielders"], backend.PlayerSquadView);
+	        this.Goalies = this.convertValues(source["Goalies"], backend.PlayerSquadView);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

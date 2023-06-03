@@ -20,15 +20,17 @@ type App struct {
 }
 
 type ErrorReturn struct {
-	Error        string             `json:"Error"`
-	String       string             `json:"String"`
-	Integer      int                `json:"Integer"`
-	Save         backend.Save       `json:"Save"`
-	SaveList     []backend.Save     `json:"SaveList"`
-	Matches      []backend.Match    `json:"Matches"`
-	InTransfers  []backend.Transfer `json:"InTransfers"`
-	OutTransfers []backend.Transfer `json:"OutTransfers"`
-	Currency     string             `json:"Currency"`
+	Error        string                    `json:"Error"`
+	String       string                    `json:"String"`
+	Integer      int                       `json:"Integer"`
+	Save         backend.Save              `json:"Save"`
+	SaveList     []backend.Save            `json:"SaveList"`
+	Matches      []backend.Match           `json:"Matches"`
+	InTransfers  []backend.Transfer        `json:"InTransfers"`
+	OutTransfers []backend.Transfer        `json:"OutTransfers"`
+	Currency     string                    `json:"Currency"`
+	Outfielders  []backend.PlayerSquadView `json:"Outfielders"`
+	Goalies      []backend.PlayerSquadView `json:"Goalies"`
 }
 
 type NewSeason struct {
@@ -166,6 +168,19 @@ func (a *App) GetSaveTransfers(saveID int) ErrorReturn {
 	}
 }
 
+func (a *App) GetSavePlayers(saveID int) ErrorReturn {
+	outfielders, goalies, err := backend.GetSavePlayersStats(saveID)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting players for save. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		Outfielders: outfielders,
+		Goalies:     goalies,
+	}
+}
+
 func (a *App) GetImage(path string) string {
 	path = strings.TrimSpace(path)
 	bytes, err := os.ReadFile(path)
@@ -241,9 +256,14 @@ func (a *App) SelectFileParse(fileType string) string {
 }
 
 func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
+	// First parses files THEN adds to DB
 	// Order to add a new season
 	// Add team -> add Season -> add Players -> add Player Stats/Attributes ->
 	// Add Transfers/Results -> Add Trophies
+	var (
+		inTransfers  []backend.Transfer
+		outTransfers []backend.Transfer
+	)
 	team := backend.Team{
 		TeamName: season.TeamName,
 		Country:  season.Country,
@@ -252,6 +272,32 @@ func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
 		team.ShortName.String = season.ShortName
 		team.ShortName.Valid = true
 	}
+
+	info, stats, err := backend.ParseStats(season.SquadFile, season.Season)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error parsing squad file. Check log file for more details.",
+		}
+	}
+
+	if season.ShortName == "" {
+		inTransfers, outTransfers, err = backend.ParseTransfers(season.TransfersFile, season.TeamName)
+	} else {
+		inTransfers, outTransfers, err = backend.ParseTransfers(season.TransfersFile, season.ShortName)
+	}
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error parsing transfer file. Check log file for more details.",
+		}
+	}
+
+	results, err := backend.ParseSchedule(season.ScheduleFile)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error parsing schedule file. Check log file for more details.",
+		}
+	}
+
 	teamID, err := backend.AddTeam(team)
 	if err != nil {
 		return ErrorReturn{
@@ -266,12 +312,6 @@ func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
 		}
 	}
 
-	info, stats, err := backend.ParseStats(season.SquadFile, season.Season)
-	if err != nil {
-		return ErrorReturn{
-			Error: "Error parsing squad file. Check log file for more details.",
-		}
-	}
 	err = backend.AddPlayersInfo(saveID, info)
 	if err != nil {
 		return ErrorReturn{
@@ -285,24 +325,10 @@ func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
 		}
 	}
 
-	inTransfers, outTransfers, err := backend.ParseTransfers(season.TransfersFile, season.TeamName)
-	if err != nil {
-		return ErrorReturn{
-			Error: "Error parsing transfer file. Check log file for more details.",
-		}
-	}
-
 	err = backend.AddTransfers(inTransfers, outTransfers, int(seasonID))
 	if err != nil {
 		return ErrorReturn{
 			Error: "Error adding transfers to DB. Check log file for more details.",
-		}
-	}
-
-	results, err := backend.ParseSchedule(season.ScheduleFile)
-	if err != nil {
-		return ErrorReturn{
-			Error: "Error parsing schedule file. Check log file for more details.",
 		}
 	}
 
