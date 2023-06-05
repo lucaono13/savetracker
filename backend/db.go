@@ -14,12 +14,14 @@ type Save struct {
 	GameVersion int        `json:"gameVersion" db:"gameVersion"`
 	SaveName    string     `json:"saveName" db:"saveName"`
 	SaveImage   NullString `json:"saveImage" db:"saveImage"`
+	Currency    string     `json:"currency" db:"currency"`
 }
 
 type Trophy struct {
 	TrophyID        NullInt64 `json:"trophyID" db:"trophyWonID"`
 	SeasonID        int       `json:"seasonID" db:"seasonID"`
 	CompetitionName string    `json:"competitionName" db:"competitionName"`
+	TrophyImage     string    `json:"trophyImage" db:"trophyImage"`
 }
 
 // var DB *sql.DB
@@ -298,6 +300,43 @@ func AddPlayersStats(saveID int, seasonID int, stats []PlayerSeason) error {
 	return nil
 }
 
+func GetSavePlayersStats(saveID int) ([]PlayerSquadView, []PlayerSquadView, error) {
+	var (
+		players []PlayerSquadView
+		goalies []PlayerSquadView
+	)
+	err := DB.Select(&players, SaveOutfieldPlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	err = DB.Select(&goalies, SaveGoaliePlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	return players, goalies, nil
+}
+
+func GetSavePlayersTotals(saveID int) ([]PlayerTotalsView, []PlayerTotalsView, error) {
+	var (
+		players []PlayerTotalsView
+		goalies []PlayerTotalsView
+	)
+	err := DB.Select(&players, TotalsSaveOutfieldPlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	err = DB.Select(&goalies, TotalsSaveGoalies, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	return players, goalies, nil
+
+}
+
 // Transfers
 func AddTransfers(ins []Transfer, outs []Transfer, seasonID int) error {
 	tx, err := DB.Beginx()
@@ -332,6 +371,23 @@ func AddTransfers(ins []Transfer, outs []Transfer, seasonID int) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func GetSaveTransfers(saveID int, transferIn int) ([]Transfer, string, error) {
+	var transfers []Transfer
+	err := DB.Select(&transfers, SaveTransfers, saveID, transferIn)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, "", err
+	}
+	var save Save
+	err = DB.QueryRowx(GetCurrency, saveID).StructScan(&save)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, "", err
+	}
+	// return save.SaveImage.String
+	return transfers, save.Currency, nil
 }
 
 // Schedule

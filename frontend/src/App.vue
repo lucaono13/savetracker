@@ -37,7 +37,7 @@
     <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
       <!-- <Sidebar v-if="sbVisible" :id="route.params.id" /> -->
       <!-- <div class="col"> -->
-      <component :is="Component" :key="route.params.id"></component>
+      <component :is="Component" :key="route.params.id" @beError="beError"></component>
       <!-- </div> -->
     </router-view>
     <!-- </div> -->

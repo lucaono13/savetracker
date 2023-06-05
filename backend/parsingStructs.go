@@ -22,7 +22,19 @@ type Transfer struct {
 	InTransfer   bool          `db:"transferIn" json:"inTransfer"`
 	Loan         int           `db:"loan" json:"loan"`
 	Free         int           `db:"free" json:"free"`
+	Season       NullString    `db:"year" json:"year"`
 	// PlayerID     sql.NullInt64 `db:"playerID"`
+}
+
+type TransferQuery struct {
+	Date         string `db:"date" json:"date"`
+	PlayerName   string `db:"playerName" json:"playerName"`
+	Currency     string `db:"currency" json:"currency"`
+	Fee          int    `db:"fee" json:"fee"`
+	PotentialFee int    `db:"potentialFee" json:"potentialFee"`
+	TeamName     string `db:"teamName" json:"teamName"`
+	Loan         int    `db:"loan" json:"loan"`
+	Free         int    `db:"free" json:"free"`
 }
 
 type Match struct {
@@ -139,4 +151,46 @@ type PlayerGKAttr struct {
 	Ref int `db:"ref" json:"ref"`
 	TRO int `db:"tro" json:"tro"`
 	Thr int `db:"thr" json:"thr"`
+}
+
+type PlayerSquadView struct {
+	PlayerID int        `db:"playerID" json:"playerID"`
+	Name     string     `db:"playerName" json:"playerName"`
+	TeamName string     `db:"teamName" json:"teamName"`
+	Season   NullString `db:"year" json:"year"`
+	Position string     `db:"position" json:"position"`
+	Apps     int        `db:"starts" json:"starts"`
+	Subs     int        `db:"subs" json:"subs"`
+	Gls      int        `db:"goals" json:"goals"`
+	Ast      int        `db:"assists" json:"assists"`
+	PoM      int        `db:"playerOfTheMatch" json:"playerOfTheMatch"`
+	PasP     int        `db:"passPerc" json:"passPerc"`
+	Yel      int        `db:"yellowCards" json:"yellowCards"`
+	Red      int        `db:"redCards" json:"redCards"`
+	AvgRat   float32    `db:"avgRating" json:"avgRating"`
+	Gwin     int        `db:"winPerc" json:"winPerc"`
+	Mins     int        `db:"minutes" json:"minutes"`
+	Shutouts int        `db:"shutouts" json:"shutouts"`
+	Sv       int        `db:"savePerc" json:"savePerc"`
+}
+
+type PlayerTotalsView struct {
+	PlayerID int     `db:"playerID" json:"playerID"`
+	Name     string  `db:"playerName" json:"playerName"`
+	Position string  `db:"position" json:"position"`
+	TeamName string  `db:"teamName" json:"teamName"`
+	Seasons  int     `db:"numYears" json:"seasons"`
+	Mins     int     `db:"totMins" json:"minutes"`
+	Starts   int     `db:"totStarts" json:"starts"`
+	Subs     int     `db:"totSubs" json:"subs"`
+	Gls      int     `db:"totGoals" json:"goals"`
+	Ast      int     `db:"totAssists" json:"assists"`
+	Yel      int     `db:"totYellow" json:"yellowCards"`
+	Red      int     `db:"totRed" json:"redCards"`
+	AvgRat   float32 `db:"avgRating" json:"avgRating"`
+	PoM      int     `db:"totPOM" json:"playerOfTheMatch"`
+	PasP     float32 `db:"avgPass" json:"avgPassP"`
+	Gwin     float32 `db:"avgWin" json:"avgWinP"`
+	Shutouts int     `db:"totShutouts" json:"shutouts"`
+	Sv       float32 `db:"avgSaveP" json:"avgSaveP"`
 }

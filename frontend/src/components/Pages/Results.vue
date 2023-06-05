@@ -1,8 +1,8 @@
 <template>
     <div class="card dt-size pr-4 pb-4">
-        <DataTable stripedRows :rows="10" scrollable scrollHeight="flex" class="p-datatable-small"
-            paginator :rowsPerPageOptions="[5, 10, 20, 30, 50]" :value="results"
-            tableStyle="min-width: 906px" filterDisplay="menu" v-model:filters="filters" :lazy="false" v-on:filter="GetRecord"
+        <DataTable stripedRows :rows="30" scrollable scrollHeight="flex" class="p-datatable-sm "
+            paginator :rowsPerPageOptions="[5, 10, 20, 30, 50, 75]" :value="results"
+            tableStyle="min-width: 1000px" filterDisplay="menu" v-model:filters="filters" :lazy="false" v-on:filter="GetRecord"
             >
             <template #header>W-D-L: {{ wins }}-{{ draws }}-{{ losses }} ({{ totalGames }} GP) </template>
             <!-- <Column v-for="col of columns"  :key="col.field" :field="col.field" :header="col.header"></Column> -->
@@ -30,7 +30,7 @@
                 </template>
             </Column>
             <Column field="opposition" header="Opponent" class="min-w-min" >
-                <template #body="{ data }">{{ data.opposition }}</template>
+                <!-- <template #body="{ data }">{{ data.opposition }}</template> -->
                 <!-- <template #filter="{ filterModel }">
                     <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search Opposition" />
                 </template> -->
@@ -44,13 +44,12 @@
             <Column header="Score" filterField="result" class="min-w-min" :showFilterMatchModes="false">
                 <template #body="slotProps">
                     <Badge class="p-badge-dot" :severity="getResult(slotProps.data.result)"></Badge>
-                    <p>&nbsp;</p>
-                    <p v-show="false">{{ slotProps.data.result }}</p>
-                    <p v-if="slotProps.data.venue == 'H' || slotProps.data.venue == 'N'">{{ slotProps.data.goalsFor }} - {{ slotProps.data.goalsAgainst }}</p>
-                    <p v-if="slotProps.data.venue == 'A'">{{ slotProps.data.goalsAgainst }} - {{ slotProps.data.goalsFor }}</p>
-                    <p v-if="slotProps.data.penalties == 1 || slotProps.data.extraTime == 1"> &nbsp;</p>
-                    <p v-if="slotProps.data.penalties == 1">pens</p>
-                    <p v-if="slotProps.data.extraTime == 1">a.e.t</p>
+                    <span>&nbsp;</span>
+                    <span v-if="slotProps.data.venue == 'H' || slotProps.data.venue == 'N'">{{ slotProps.data.goalsFor }} - {{ slotProps.data.goalsAgainst }}</span>
+                    <span v-if="slotProps.data.venue == 'A'">{{ slotProps.data.goalsAgainst }} - {{ slotProps.data.goalsFor }}</span>
+                    <span v-if="slotProps.data.penalties == 1 || slotProps.data.extraTime == 1"> &nbsp;</span>
+                    <span v-if="slotProps.data.penalties == 1">pens</span>
+                    <span v-if="slotProps.data.extraTime == 1">a.e.t</span>
                 </template>
                 <template #filter="{ filterModel }" >
                     <MultiSelect v-model="filterModel.value" :options="resultType" placeholder="Select Result" class="p-column-filter" />
@@ -76,6 +75,7 @@ onMounted( () => {
         uniqueYears.value = ([...new Set(response.Matches.map((item: backend.Match ) => item.year))])
         // console.log(uniqueYears.value)
         results.value = response.Matches
+        // console.log(results.value)
         // GetRecord()
         // GetTotalRecords()
     })
@@ -154,7 +154,7 @@ function GetRecord(e: {originalEvent: Event, filteredValue: backend.Match[]}) {
     // console.log(e.filteredValue)
     totalGames.value = e.filteredValue.length
     if (e.filteredValue.length > 0) {
-        console.log('1')
+        // console.log('1')
         wins.value = e.filteredValue.filter( (obj: backend.Match) => {
             return obj.result == "W"
         }).length

@@ -116,6 +116,10 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 						transfer.Free = 1
 						break
 					}
+					if data == "Undisclosed" {
+						transfer.Fee = 0
+						break
+					}
 					// If data is just Loan or an empty String break switch
 					if data == "Loan" || data == "" {
 						break
@@ -132,9 +136,9 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 							// log.Fatal().Err(err)
 						}
 						if numberSize == "K" {
-							transfer.Fee = int(floatFee * 100000)
+							transfer.Fee = int(floatFee * 1000)
 						} else if numberSize == "M" {
-							transfer.Fee = int(floatFee * 100000000)
+							transfer.Fee = int(floatFee * 1000000)
 						} else {
 							transfer.Fee = int(floatFee)
 						}
@@ -151,9 +155,9 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 						// log.Fatal().Err(err)
 					}
 					if numberSize == "K" {
-						transfer.Fee = int(floatFee * 100000)
+						transfer.Fee = int(floatFee * 1000)
 					} else if numberSize == "M" {
-						transfer.Fee = int(floatFee * 100000000)
+						transfer.Fee = int(floatFee * 1000000)
 					} else {
 						transfer.Fee = int(floatFee)
 					}
@@ -175,10 +179,10 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 						}
 
 						if numberSize == "K" {
-							transfer.PotentialFee.Int64 = int64(floatFee * 100000)
+							transfer.PotentialFee.Int64 = int64(floatFee * 1000)
 
 						} else if numberSize == "M" {
-							transfer.PotentialFee.Int64 = int64(floatFee * 100000000)
+							transfer.PotentialFee.Int64 = int64(floatFee * 1000000)
 						} else {
 							transfer.PotentialFee.Int64 = int64(floatFee)
 						}
