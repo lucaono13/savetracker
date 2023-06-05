@@ -154,6 +154,7 @@ type PlayerGKAttr struct {
 }
 
 type PlayerSquadView struct {
+	PlayerID int        `db:"playerID" json:"playerID"`
 	Name     string     `db:"playerName" json:"playerName"`
 	TeamName string     `db:"teamName" json:"teamName"`
 	Season   NullString `db:"year" json:"year"`
@@ -171,4 +172,25 @@ type PlayerSquadView struct {
 	Mins     int        `db:"minutes" json:"minutes"`
 	Shutouts int        `db:"shutouts" json:"shutouts"`
 	Sv       int        `db:"savePerc" json:"savePerc"`
+}
+
+type PlayerTotalsView struct {
+	PlayerID int     `db:"playerID" json:"playerID"`
+	Name     string  `db:"playerName" json:"playerName"`
+	Position string  `db:"position" json:"position"`
+	TeamName string  `db:"teamName" json:"teamName"`
+	Seasons  int     `db:"numYears" json:"seasons"`
+	Mins     int     `db:"totMins" json:"minutes"`
+	Starts   int     `db:"totStarts" json:"starts"`
+	Subs     int     `db:"totSubs" json:"subs"`
+	Gls      int     `db:"totGoals" json:"goals"`
+	Ast      int     `db:"totAssists" json:"assists"`
+	Yel      int     `db:"totYellow" json:"yellowCards"`
+	Red      int     `db:"totRed" json:"redCards"`
+	AvgRat   float32 `db:"avgRating" json:"avgRating"`
+	PoM      int     `db:"totPOM" json:"playerOfTheMatch"`
+	PasP     float32 `db:"avgPass" json:"avgPassP"`
+	Gwin     float32 `db:"avgWin" json:"avgWinP"`
+	Shutouts int     `db:"totShutouts" json:"shutouts"`
+	Sv       float32 `db:"avgSaveP" json:"avgSaveP"`
 }

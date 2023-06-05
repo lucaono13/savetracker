@@ -57,6 +57,7 @@ export namespace backend {
 		}
 	}
 	export class PlayerSquadView {
+	    playerID: number;
 	    playerName: string;
 	    teamName: string;
 	    // Go type: NullString
@@ -82,6 +83,7 @@ export namespace backend {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.playerID = source["playerID"];
 	        this.playerName = source["playerName"];
 	        this.teamName = source["teamName"];
 	        this.year = this.convertValues(source["year"], null);
@@ -118,6 +120,52 @@ export namespace backend {
 		    }
 		    return a;
 		}
+	}
+	export class PlayerTotalsView {
+	    playerID: number;
+	    playerName: string;
+	    position: string;
+	    teamName: string;
+	    seasons: number;
+	    minutes: number;
+	    starts: number;
+	    subs: number;
+	    goals: number;
+	    assists: number;
+	    yellowCards: number;
+	    redCards: number;
+	    avgRating: number;
+	    playerOfTheMatch: number;
+	    avgPassP: number;
+	    avgWinP: number;
+	    shutouts: number;
+	    avgSaveP: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlayerTotalsView(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.playerID = source["playerID"];
+	        this.playerName = source["playerName"];
+	        this.position = source["position"];
+	        this.teamName = source["teamName"];
+	        this.seasons = source["seasons"];
+	        this.minutes = source["minutes"];
+	        this.starts = source["starts"];
+	        this.subs = source["subs"];
+	        this.goals = source["goals"];
+	        this.assists = source["assists"];
+	        this.yellowCards = source["yellowCards"];
+	        this.redCards = source["redCards"];
+	        this.avgRating = source["avgRating"];
+	        this.playerOfTheMatch = source["playerOfTheMatch"];
+	        this.avgPassP = source["avgPassP"];
+	        this.avgWinP = source["avgWinP"];
+	        this.shutouts = source["shutouts"];
+	        this.avgSaveP = source["avgSaveP"];
+	    }
 	}
 	export class Save {
 	    // Go type: NullInt64
@@ -230,6 +278,8 @@ export namespace main {
 	    Currency: string;
 	    Outfielders: backend.PlayerSquadView[];
 	    Goalies: backend.PlayerSquadView[];
+	    OutTotals: backend.PlayerTotalsView[];
+	    GKTotals: backend.PlayerTotalsView[];
 	
 	    static createFrom(source: any = {}) {
 	        return new ErrorReturn(source);
@@ -248,6 +298,8 @@ export namespace main {
 	        this.Currency = source["Currency"];
 	        this.Outfielders = this.convertValues(source["Outfielders"], backend.PlayerSquadView);
 	        this.Goalies = this.convertValues(source["Goalies"], backend.PlayerSquadView);
+	        this.OutTotals = this.convertValues(source["OutTotals"], backend.PlayerTotalsView);
+	        this.GKTotals = this.convertValues(source["GKTotals"], backend.PlayerTotalsView);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

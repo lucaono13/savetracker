@@ -54,7 +54,7 @@
                 <!-- <p>Goalies</p> -->
                 <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
                     paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="gks" tableStyle="min-width: 1552px"
-                    filterDisplay="menu" v-model:filters="filters" :lazy="false" removableSort sortMode="multiple" reorderableColumns>
+                    filterDisplay="menu" v-model:filters="GKfilters" :lazy="false" removableSort sortMode="multiple" reorderableColumns>
                     <Column field="playerName" header="Player" sortable class="min-w-min" style="min-width: 205px!important;" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
                             <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
@@ -62,12 +62,12 @@
                     </Column>
                     <Column field="position" header="Position" class="min-w-min" style="min-width: 150px!important;" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
-                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
+                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by position" />
                         </template>
                     </Column>
                     <Column field="teamName" header="Team" class="min-w-min" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
-                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
+                            <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by team" />
                         </template>
                     </Column>
                     <Column field="year" header="Year" class="min-w-min" :showFilterMatchModes="false" :reorderableColumn="false">
@@ -109,6 +109,7 @@ const route = useRoute()
 const gks = ref()
 const outfield = ref()
 const filters = ref()
+const GKfilters = ref()
 const uniqueYears = ref()
 const emit = defineEmits(['beError'])
 let numberFormatterSQ: Intl.NumberFormat 
@@ -132,6 +133,12 @@ onMounted( () => {
 
 const initFilters = () => {
     filters.value = {
+        year: { value: null, matchMode: FilterMatchMode.IN},
+        teamName: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  },
+        playerName: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  },
+        position: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  }
+    }
+    GKfilters.value = {
         year: { value: null, matchMode: FilterMatchMode.IN},
         teamName: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  },
         playerName: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],  },

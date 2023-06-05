@@ -219,6 +219,7 @@ function addSeason(isValid: boolean) {
         v$.value.squadFile.$model = ""
         v$.value.scheduleFile.$model = ""
         v$.value.transfersFile.$model = ""
+        v$.value.trophies.$model = ""
         trophies = []
     }, 2000)
     

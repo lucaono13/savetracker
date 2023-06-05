@@ -18,6 +18,10 @@ export function GetSavePlayers(arg1) {
   return window['go']['main']['App']['GetSavePlayers'](arg1);
 }
 
+export function GetSavePlayersTotals(arg1) {
+  return window['go']['main']['App']['GetSavePlayersTotals'](arg1);
+}
+
 export function GetSaveResults(arg1) {
   return window['go']['main']['App']['GetSaveResults'](arg1);
 }

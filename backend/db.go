@@ -21,6 +21,7 @@ type Trophy struct {
 	TrophyID        NullInt64 `json:"trophyID" db:"trophyWonID"`
 	SeasonID        int       `json:"seasonID" db:"seasonID"`
 	CompetitionName string    `json:"competitionName" db:"competitionName"`
+	TrophyImage     string    `json:"trophyImage" db:"trophyImage"`
 }
 
 // var DB *sql.DB
@@ -300,8 +301,10 @@ func AddPlayersStats(saveID int, seasonID int, stats []PlayerSeason) error {
 }
 
 func GetSavePlayersStats(saveID int) ([]PlayerSquadView, []PlayerSquadView, error) {
-	var players []PlayerSquadView
-	var goalies []PlayerSquadView
+	var (
+		players []PlayerSquadView
+		goalies []PlayerSquadView
+	)
 	err := DB.Select(&players, SaveOutfieldPlayers, saveID)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
@@ -313,6 +316,25 @@ func GetSavePlayersStats(saveID int) ([]PlayerSquadView, []PlayerSquadView, erro
 		return nil, nil, err
 	}
 	return players, goalies, nil
+}
+
+func GetSavePlayersTotals(saveID int) ([]PlayerTotalsView, []PlayerTotalsView, error) {
+	var (
+		players []PlayerTotalsView
+		goalies []PlayerTotalsView
+	)
+	err := DB.Select(&players, TotalsSaveOutfieldPlayers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	err = DB.Select(&goalies, TotalsSaveGoalies, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, err
+	}
+	return players, goalies, nil
+
 }
 
 // Transfers

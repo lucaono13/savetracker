@@ -45,7 +45,6 @@
                 <template #body="slotProps">
                     <Badge class="p-badge-dot" :severity="getResult(slotProps.data.result)"></Badge>
                     <span>&nbsp;</span>
-                    <span v-show="false">{{ slotProps.data.result }}</span>
                     <span v-if="slotProps.data.venue == 'H' || slotProps.data.venue == 'N'">{{ slotProps.data.goalsFor }} - {{ slotProps.data.goalsAgainst }}</span>
                     <span v-if="slotProps.data.venue == 'A'">{{ slotProps.data.goalsAgainst }} - {{ slotProps.data.goalsFor }}</span>
                     <span v-if="slotProps.data.penalties == 1 || slotProps.data.extraTime == 1"> &nbsp;</span>

@@ -10,6 +10,8 @@ export function GetImage(arg1:string):Promise<string>;
 
 export function GetSavePlayers(arg1:number):Promise<main.ErrorReturn>;
 
+export function GetSavePlayersTotals(arg1:number):Promise<main.ErrorReturn>;
+
 export function GetSaveResults(arg1:number):Promise<main.ErrorReturn>;
 
 export function GetSaveTransfers(arg1:number):Promise<main.ErrorReturn>;

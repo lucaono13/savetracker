@@ -189,101 +189,172 @@ const (
 	PlayerSeasons    = `SELECT * FROM playerSeason`
 	SinglePlayer     = `SELECT * FROM players WHERE playerID=?`
 	OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
-	NewTrophy        = `INSERT INTO trophies VALUES (:seasonID, :competitionName)`
-	SaveResults      = `SELECT saves.saveID,
-							results.date,
-							seasons.year,
-							results.competition,
-							results.stadium,
-							results.venue,
-							results.opponentName,
-							results.result,
-							results.goalsFor,
-							results.goalsAgainst,
-							results.penalties,
-							results.extraTime
-						FROM results
-						INNER JOIN seasons ON results.seasonID = seasons.seasonID
-						INNER JOIN saves ON seasons.saveID = saves.saveID
-						WHERE saves.saveID = ?
-						`
+	NewTrophy        = `INSERT INTO trophies (seasonID, competitionName, trophyImage) VALUES (:seasonID, :competitionName, :trophyImage)`
+	SaveResults      = `
+		SELECT saves.saveID,
+			results.date,
+			seasons.year,
+			results.competition,
+			results.stadium,
+			results.venue,
+			results.opponentName,
+			results.result,
+			results.goalsFor,
+			results.goalsAgainst,
+			results.penalties,
+			results.extraTime
+		FROM results
+		INNER JOIN seasons ON results.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?
+	`
 	GetCurrency   = `SELECT currency FROM saves WHERE saveID=?`
 	SaveTransfers = `	
-						SELECT
-							transfers.date,
-							transfers.playerName,
-							transfers.fee,
-							transfers.potentialFee,
-							transfers.teamName,
-							transfers.free,
-							transfers.loan,
-							seasons.year
-						FROM
-							transfers
-						INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
-						INNER JOIN saves ON seasons.saveID = saves.saveID
-						WHERE saves.saveID=? AND transfers.transferIn=?
-						`
+		SELECT
+			transfers.date,
+			transfers.playerName,
+			transfers.fee,
+			transfers.potentialFee,
+			transfers.teamName,
+			transfers.free,
+			transfers.loan,
+			seasons.year
+		FROM
+			transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID=? AND transfers.transferIn=?
+	`
 	SaveOutfieldPlayers = `
-							SELECT
-								players.playerName,
-								players.position,
-								teams.teamName,
-								seasons.year,
-								playerStats.minutes,
-								playerStats.starts,
-								playerStats.subs,
-								playerStats.goals,
-								playerStats.assists,
-								playerStats.yellowCards,
-								playerStats.redCards,
-								playerStats.avgRating,
-								playerStats.playerOfTheMatch,
-								playerStats.passPerc,
-								playerStats.winPerc,
-								playerStats.shutouts,
-								playerStats.savePerc
+		SELECT
+			players.playerID,
+			players.playerName,
+			players.position,
+			teams.teamName,
+			seasons.year,
+			playerStats.minutes,
+			playerStats.starts,
+			playerStats.subs,
+			playerStats.goals,
+			playerStats.assists,
+			playerStats.yellowCards,
+			playerStats.redCards,
+			playerStats.avgRating,
+			playerStats.playerOfTheMatch,
+			playerStats.passPerc,
+			playerStats.winPerc,
+			playerStats.shutouts,
+			playerStats.savePerc
 								
-							FROM
-								playerStats
-							INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
-							INNER JOIN players ON playerSeason.playerID = players.playerID
-							INNER JOIN saves ON players.saveID = saves.saveID
-							INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
-							INNER JOIN teams on seasons.teamID = teams.teamID
-							WHERE 
-								saves.saveID = ?
-							AND players.position != "GK"
-						`
+		FROM
+			playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE 
+			saves.saveID = ?
+			AND players.position != "GK"
+	`
 	SaveGoaliePlayers = `
-							SELECT
-								players.playerName,
-								players.position,
-								teams.teamName,
-								seasons.year,
-								playerStats.minutes,
-								playerStats.starts,
-								playerStats.subs,
-								playerStats.goals,
-								playerStats.assists,
-								playerStats.yellowCards,
-								playerStats.redCards,
-								playerStats.avgRating,
-								playerStats.playerOfTheMatch,
-								playerStats.passPerc,
-								playerStats.winPerc,
-								playerStats.shutouts,
-								playerStats.savePerc
+		SELECT
+			players.playerID,
+			players.playerName,
+			players.position,
+			teams.teamName,
+			seasons.year,
+			playerStats.minutes,
+			playerStats.starts,
+			playerStats.subs,
+			playerStats.goals,
+			playerStats.assists,
+			playerStats.yellowCards,
+			playerStats.redCards,
+			playerStats.avgRating,
+			playerStats.playerOfTheMatch,
+			playerStats.passPerc,
+			playerStats.winPerc,
+			playerStats.shutouts,
+			playerStats.savePerc
 								
-							FROM
-								playerStats
-							INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
-							INNER JOIN players ON playerSeason.playerID = players.playerID
-							INNER JOIN saves ON players.saveID = saves.saveID
-							INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
-							INNER JOIN teams on seasons.teamID = teams.teamID
-							WHERE 
-								saves.saveID = ?
-							AND players.position = "GK"
-`
+		FROM
+			playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE 
+			saves.saveID = ?
+			AND players.position = "GK"
+	`
+	TotalsSaveOutfieldPlayers = `
+		SELECT
+			players.playerID,
+			players.playerName,
+			players.position,
+			teams.teamName,
+			COUNT(seasons.year) numYears,
+			SUM(playerStats.minutes) totMins,
+			SUM(playerStats.starts) totStarts,
+			SUM(playerStats.subs) totSubs,
+			SUM(playerStats.goals) totGoals,
+			SUM(playerStats.assists) totAssists,
+			SUM(playerStats.yellowCards) totYellow,
+			SUM(playerStats.redCards) totRed,
+			AVG(playerStats.avgRating) avgRating,
+			SUM(playerStats.playerOfTheMatch) totPOM,
+			AVG(playerStats.passPerc) avgPass,
+			AVG(playerStats.winPerc) avgWin,
+			SUM(playerStats.shutouts) totShutouts,
+			AVG(playerStats.savePerc) avgSaveP
+			
+		FROM
+			playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE
+			saves.saveID = ?
+			AND players.position != "GK"
+		GROUP BY players.playerID
+		
+	`
+	TotalsSaveGoalies = `
+		SELECT
+			players.playerID,
+			players.playerName,
+			players.position,
+			teams.teamName,
+			COUNT(seasons.year) numYears,
+			SUM(playerStats.minutes) totMins,
+			SUM(playerStats.starts) totStarts,
+			SUM(playerStats.subs) totSubs,
+			SUM(playerStats.goals) totGoals,
+			SUM(playerStats.assists) totAssists,
+			SUM(playerStats.yellowCards) totYellow,
+			SUM(playerStats.redCards) totRed,
+			AVG(playerStats.avgRating) avgRating,
+			SUM(playerStats.playerOfTheMatch) totPOM,
+			AVG(playerStats.passPerc) avgPass,
+			AVG(playerStats.winPerc) avgWin,
+			SUM(playerStats.shutouts) totShutouts,
+			AVG(playerStats.savePerc) avgSaveP
+			
+		FROM
+			playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE
+			saves.saveID = ?
+			AND players.position = "GK"
+		GROUP BY players.playerID
+		
+	`
 )

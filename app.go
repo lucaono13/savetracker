@@ -20,17 +20,19 @@ type App struct {
 }
 
 type ErrorReturn struct {
-	Error        string                    `json:"Error"`
-	String       string                    `json:"String"`
-	Integer      int                       `json:"Integer"`
-	Save         backend.Save              `json:"Save"`
-	SaveList     []backend.Save            `json:"SaveList"`
-	Matches      []backend.Match           `json:"Matches"`
-	InTransfers  []backend.Transfer        `json:"InTransfers"`
-	OutTransfers []backend.Transfer        `json:"OutTransfers"`
-	Currency     string                    `json:"Currency"`
-	Outfielders  []backend.PlayerSquadView `json:"Outfielders"`
-	Goalies      []backend.PlayerSquadView `json:"Goalies"`
+	Error        string                     `json:"Error"`
+	String       string                     `json:"String"`
+	Integer      int                        `json:"Integer"`
+	Save         backend.Save               `json:"Save"`
+	SaveList     []backend.Save             `json:"SaveList"`
+	Matches      []backend.Match            `json:"Matches"`
+	InTransfers  []backend.Transfer         `json:"InTransfers"`
+	OutTransfers []backend.Transfer         `json:"OutTransfers"`
+	Currency     string                     `json:"Currency"`
+	Outfielders  []backend.PlayerSquadView  `json:"Outfielders"`
+	Goalies      []backend.PlayerSquadView  `json:"Goalies"`
+	OutTotals    []backend.PlayerTotalsView `json:"OutTotals"`
+	GKTotals     []backend.PlayerTotalsView `json:"GKTotals"`
 }
 
 type NewSeason struct {
@@ -178,6 +180,19 @@ func (a *App) GetSavePlayers(saveID int) ErrorReturn {
 	return ErrorReturn{
 		Outfielders: outfielders,
 		Goalies:     goalies,
+	}
+}
+
+func (a *App) GetSavePlayersTotals(saveID int) ErrorReturn {
+	outfielders, goalies, err := backend.GetSavePlayersTotals(saveID)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting players' totals for save. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		OutTotals: outfielders,
+		GKTotals:  goalies,
 	}
 }
 
@@ -338,16 +353,17 @@ func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
 			Error: "Error adding schedule to DB. Check log file for more details.",
 		}
 	}
-
 	if len(season.TrophiesWon) > 0 {
 		trophies := []backend.Trophy{}
 		for _, trophy := range season.TrophiesWon {
 			trophies = append(trophies, backend.Trophy{
 				SeasonID:        int(seasonID),
+				TrophyID:        backend.NullInt64{},
 				CompetitionName: trophy,
+				TrophyImage:     "",
 			})
 		}
-		backend.AddTrophies(trophies)
+		err := backend.AddTrophies(trophies)
 		if err != nil {
 			return ErrorReturn{
 				Error: "Error adding trophies to DB. Check log file for more details.",
