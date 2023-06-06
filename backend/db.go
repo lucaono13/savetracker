@@ -460,3 +460,49 @@ func AddTrophies(trophies []Trophy) error {
 	}
 	return nil
 }
+
+func GetTopPlayersX(saveID int) ([]TopResults, []TopResults, []TopResults, []TopResults, error) {
+	var goals, assists, apps, ratings []TopResults
+	err := DB.Select(&goals, Top5Gls, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, nil, nil, err
+	}
+	err = DB.Select(&assists, Top5Asts, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, nil, nil, err
+	}
+	err = DB.Select(&apps, Top5Apps, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, nil, nil, err
+	}
+	err = DB.Select(&ratings, TopRat, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, nil, nil, nil, err
+	}
+	return goals, assists, apps, ratings, nil
+}
+
+func GetNumSaves() int {
+	row := DB.QueryRow(NumSaves)
+	var numSaves int
+	err := row.Scan(&numSaves)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return 0
+	}
+	return numSaves
+}
+
+// func GetTopRatings(saveID int) ([]TopResults, error) {
+// 	var top []TopResults
+// 	err := DB.Select(&top, TopRat, saveID)
+// 	if err != nil {
+// 		Logger.Error().Timestamp().Msg(err.Error())
+// 		return nil, err
+// 	}
+// 	return top, nil
+// }

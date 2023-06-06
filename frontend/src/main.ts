@@ -46,8 +46,12 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 // Import Font Awesome icon component
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+import { config } from "@fortawesome/fontawesome-svg-core"
+
+import { fas } from "@fortawesome/free-solid-svg-icons"
+
 // Import specific icons
-import { faMugHot, faList, faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { faMugHot, faList, faQuestion, faHouseChimney } from '@fortawesome/free-solid-svg-icons'
 
 
 
@@ -70,12 +74,16 @@ app.use(ToastService)
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
 // Add Icons to Library
-library.add(faMugHot)
-library.add(faList)
-library.add(faQuestion)
+// library.add(faMugHot)
+// library.add(faList)
+// library.add(faQuestion)
+library.add(fas)
 
 // Add FontAwesome to app
 app.component('font-awesome-icon', FontAwesomeIcon)
+
+config.styleDefault = "solid"
+
 
 // Adding PrimeVue
 app.use(PrimeVue)

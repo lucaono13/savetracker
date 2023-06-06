@@ -209,6 +209,28 @@ export namespace backend {
 		    return a;
 		}
 	}
+	export class TopResults {
+	    playerID: number;
+	    playerName: string;
+	    goals: number;
+	    assists: number;
+	    apps: number;
+	    avgRating: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new TopResults(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.playerID = source["playerID"];
+	        this.playerName = source["playerName"];
+	        this.goals = source["goals"];
+	        this.assists = source["assists"];
+	        this.apps = source["apps"];
+	        this.avgRating = source["avgRating"];
+	    }
+	}
 	export class Transfer {
 	    transferID: number;
 	    seasonID: number;
@@ -280,6 +302,10 @@ export namespace main {
 	    Goalies: backend.PlayerSquadView[];
 	    OutTotals: backend.PlayerTotalsView[];
 	    GKTotals: backend.PlayerTotalsView[];
+	    TopGls: backend.TopResults[];
+	    TopAsts: backend.TopResults[];
+	    TopApps: backend.TopResults[];
+	    TopAvg: backend.TopResults[];
 	
 	    static createFrom(source: any = {}) {
 	        return new ErrorReturn(source);
@@ -300,6 +326,10 @@ export namespace main {
 	        this.Goalies = this.convertValues(source["Goalies"], backend.PlayerSquadView);
 	        this.OutTotals = this.convertValues(source["OutTotals"], backend.PlayerTotalsView);
 	        this.GKTotals = this.convertValues(source["GKTotals"], backend.PlayerTotalsView);
+	        this.TopGls = this.convertValues(source["TopGls"], backend.TopResults);
+	        this.TopAsts = this.convertValues(source["TopAsts"], backend.TopResults);
+	        this.TopApps = this.convertValues(source["TopApps"], backend.TopResults);
+	        this.TopAvg = this.convertValues(source["TopAvg"], backend.TopResults);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

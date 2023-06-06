@@ -357,4 +357,73 @@ const (
 		GROUP BY players.playerID
 		
 	`
+	Top5Gls = `
+	SELECT
+		players.playerID,
+		players.playerName,
+		SUM(playerStats.goals) goals
+	FROM
+		playerStats
+	INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN players ON playerSeason.playerID = players.playerID
+	INNER JOIN saves ON players.saveID = saves.saveID
+	INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+	INNER JOIN teams on seasons.teamID = teams.teamID
+	WHERE saves.saveID=?
+	GROUP BY players.playerID
+	ORDER BY goals DESC
+	LIMIT 5
+	`
+	Top5Asts = `
+	SELECT
+		players.playerID,
+		players.playerName,
+		SUM(playerStats.assists) assists
+	FROM
+		playerStats
+	INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN players ON playerSeason.playerID = players.playerID
+	INNER JOIN saves ON players.saveID = saves.saveID
+	INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+	INNER JOIN teams on seasons.teamID = teams.teamID
+	WHERE saves.saveID=?
+	GROUP BY players.playerID
+	ORDER BY assists DESC
+	LIMIT 5
+	`
+	Top5Apps = `
+	SELECT
+		players.playerID,
+		players.playerName,
+		SUM(playerStats.starts) starts
+	FROM
+		playerStats
+	INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN players ON playerSeason.playerID = players.playerID
+	INNER JOIN saves ON players.saveID = saves.saveID
+	INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+	INNER JOIN teams on seasons.teamID = teams.teamID
+	WHERE saves.saveID=?
+	GROUP BY players.playerID
+	ORDER BY starts DESC
+	LIMIT 5
+	`
+	TopRat = `
+	SELECT
+		players.playerID,
+		players.playerName,
+		AVG(playerStats.avgRating) avgRating
+	FROM
+		playerStats
+	INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN players ON playerSeason.playerID = players.playerID
+	INNER JOIN saves ON players.saveID = saves.saveID
+	INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+	INNER JOIN teams on seasons.teamID = teams.teamID
+	WHERE saves.saveID=?
+	GROUP BY players.playerID
+	ORDER BY avgRating DESC
+	LIMIT 5
+	`
+	NumSaves = `SELECT COUNT(1) FROM saves`
 )

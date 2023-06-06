@@ -1,5 +1,5 @@
 <template>
-<div class="flex align-items-center justify-content-center h-full">
+<div class="flex align-items-center align-content-center justify-content-center w-screen" style="height: calc(100vh - 79px)!important">
     <Card style="width:500px">
         <template #title>
             No Saves DB Found

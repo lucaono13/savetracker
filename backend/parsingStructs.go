@@ -194,3 +194,12 @@ type PlayerTotalsView struct {
 	Shutouts int     `db:"totShutouts" json:"shutouts"`
 	Sv       float32 `db:"avgSaveP" json:"avgSaveP"`
 }
+
+type TopResults struct {
+	PlayerID int     `db:"playerID" json:"playerID"`
+	Name     string  `db:"playerName" json:"playerName"`
+	Goals    int     `db:"goals" json:"goals"`
+	Assists  int     `db:"assists" json:"assists"`
+	Apps     int     `db:"starts" json:"apps"`
+	AvgRat   float32 `db:"avgRating" json:"avgRating"`
+}

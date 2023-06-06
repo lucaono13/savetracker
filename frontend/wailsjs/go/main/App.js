@@ -14,6 +14,14 @@ export function GetImage(arg1) {
   return window['go']['main']['App']['GetImage'](arg1);
 }
 
+export function GetNumSaves() {
+  return window['go']['main']['App']['GetNumSaves']();
+}
+
+export function GetSaveHomeRankings(arg1) {
+  return window['go']['main']['App']['GetSaveHomeRankings'](arg1);
+}
+
 export function GetSavePlayers(arg1) {
   return window['go']['main']['App']['GetSavePlayers'](arg1);
 }
@@ -32,6 +40,10 @@ export function GetSaveTransfers(arg1) {
 
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
+}
+
+export function LogPls(arg1) {
+  return window['go']['main']['App']['LogPls'](arg1);
 }
 
 export function RetrieveSaves() {

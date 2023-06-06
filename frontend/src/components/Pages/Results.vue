@@ -4,7 +4,8 @@
             paginator :rowsPerPageOptions="[5, 10, 20, 30, 50, 75]" :value="results"
             tableStyle="min-width: 1000px" filterDisplay="menu" v-model:filters="filters" :lazy="false" v-on:filter="GetRecord"
             >
-            <template #header>W-D-L: {{ wins }}-{{ draws }}-{{ losses }} ({{ totalGames }} GP) </template>
+            <template #header>W-D-L: {{ wins }}-{{ draws }}-{{ losses }} ({{ totalGames }} GP)  
+                GF: {{ NumberFormatterR.format(GF) }} (AVG: {{ NumberFormatterR.format(GF / totalGames) }}) GA: {{ NumberFormatterR.format(GA) }} (AVG: {{ NumberFormatterR.format(GA / totalGames) }})</template>
             <!-- <Column v-for="col of columns"  :key="col.field" :field="col.field" :header="col.header"></Column> -->
             <Column field="date" header="Date" class="min-w-min">
             </Column>
@@ -105,6 +106,12 @@ const resultType = ref(['W','D','L'])
 const venueType = ref(['H','A','N'])
 const filters = ref()
 const uniqueYears = ref()
+const GF = ref(0)
+const GA = ref(0)
+let NumberFormatterR: Intl.NumberFormat = new Intl.NumberFormat(navigator.language, {
+    style: "decimal",
+    maximumFractionDigits: 2
+})
 // GetSaveResults(+route.params.id).then( (response) => {
 //         const unique = ref([...new Set(response.Matches.map((item: backend.Match ) => item.year))])
 //         console.log('sure')
@@ -152,6 +159,8 @@ const getResult = (match: string) => {
 function GetRecord(e: {originalEvent: Event, filteredValue: backend.Match[]}) {
     // console.log(e)
     // console.log(e.filteredValue)
+    GF.value = 0
+    GA.value = 0
     totalGames.value = e.filteredValue.length
     if (e.filteredValue.length > 0) {
         // console.log('1')
@@ -165,6 +174,10 @@ function GetRecord(e: {originalEvent: Event, filteredValue: backend.Match[]}) {
             return obj.result == "D"
         }).length
     }
+    e.filteredValue.forEach( function (value) {
+        GF.value += value.goalsFor
+        GA.value += value.goalsAgainst
+    })
     
     // if (e != null) {
     //     console.log('2')
