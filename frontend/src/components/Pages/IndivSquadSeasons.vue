@@ -1,11 +1,15 @@
 <template>
-    <div class="comp-size pr-3 pb-4">
-        <TabView>
+    <div class="comp-size pr-4 pb-4">
+        <TabView >
             <TabPanel header="Outfield Players">
-                <!-- <p>Non-goalies</p> -->
                 <DataTable  stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm"
                     paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="outfield" tableStyle="min-width: 1812px"
                     filterDisplay="menu" v-model:filters="filters" :lazy="false" removableSort sortMode="multiple" reorderableColumns>
+                    <template #empty>
+                        <InlineMessage severity="warn">
+                            No data found! Add new season by clicking the "New Season" button to the left.
+                        </InlineMessage>
+                    </template>
                     <Column field="playerName" header="Player" sortable frozen class="min-w-min" style="min-width: 205px!important;" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
                             <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
@@ -51,10 +55,14 @@
                 </DataTable>
             </TabPanel>
             <TabPanel header="Goalies">
-                <!-- <p>Goalies</p> -->
                 <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
                     paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="gks" tableStyle="min-width: 1552px"
                     filterDisplay="menu" v-model:filters="GKfilters" :lazy="false" removableSort sortMode="multiple" reorderableColumns>
+                    <template #empty>
+                        <InlineMessage severity="warn">
+                            No data found! Add new season by clicking the "New Season" button to the left.
+                        </InlineMessage>
+                    </template>
                     <Column field="playerName" header="Player" sortable class="min-w-min" style="min-width: 205px!important;" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
                             <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
@@ -149,34 +157,34 @@ const initFilters = () => {
 initFilters()
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
     .comp-size {
         height: calc(100vh - 79px)!important;
         width: calc(100vw - 205px)!important;
     }
 
-    .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-        background: none!important;
+    .p-tabview :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+        color: #5eead4
     }
 
-    .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    .p-tabview :deep(.p-tabview-nav li .p-tabview-nav-link) {
         background: none!important;
         color:white;
     }
 
-    .p-tabview .p-tabview-panels {
+    .p-tabview :deep(.p-tabview-panels) {
         background: none!important;
         height:100%!important
     }
 
-    .p-tabview .p-tabview-nav {
+    .p-tabview :deep(.p-tabview-nav) {
         border: none!important;
     }
 
     /* .p-tabview .p-component {
         height: 100%!important
     } */
-    .p-tabview-panels {
+    :deep(.p-tabview-panels) {
         padding: 0%!important;
         height: 100%!important
     }
@@ -186,7 +194,7 @@ initFilters()
         width: calc(100vw - 205px)!important;
     }
 
-    .p-tabview-panel {
+    :deep(.p-tabview-panel) {
         height: calc(100vh - 79px - 56px - 16px)!important;
     }
 

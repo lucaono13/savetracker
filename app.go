@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"net/http"
@@ -33,6 +34,16 @@ type ErrorReturn struct {
 	Goalies      []backend.PlayerSquadView  `json:"Goalies"`
 	OutTotals    []backend.PlayerTotalsView `json:"OutTotals"`
 	GKTotals     []backend.PlayerTotalsView `json:"GKTotals"`
+	TopGls       []backend.TopResults       `json:"TopGls"`
+	TopAsts      []backend.TopResults       `json:"TopAsts"`
+	TopApps      []backend.TopResults       `json:"TopApps"`
+	TopRat       []backend.TopResults       `json:"TopAvg"`
+	TopTransfers []backend.TopTransfers     `json:"TopTrfs"`
+	AvgInFee     float32                    `json:"AvgInFee"`
+	AvgOutFee    float32                    `json:"AvgOutFee"`
+	Trophies     []backend.Trophy           `json:"Trophies"`
+	ImageFile    string                     `json:"ImageFile"`
+	ImageB64     string                     `json:"b64Image"`
 }
 
 type NewSeason struct {
@@ -78,8 +89,8 @@ func (a *App) Greet(name string) string {
 }
 
 func (a *App) RetrieveSaves() ErrorReturn {
-	saves := backend.GetSaves()
-	if saves == nil {
+	saves, err := backend.GetSaves()
+	if err != nil {
 		return ErrorReturn{
 			Error: "Error retrieving all saves",
 		}
@@ -196,12 +207,37 @@ func (a *App) GetSavePlayersTotals(saveID int) ErrorReturn {
 	}
 }
 
-func (a *App) GetImage(path string) string {
+func (a *App) GetTrophies(saveID int) ErrorReturn {
+	trophies, err := backend.GetSaveTrophies(saveID)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting save trophies. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		Trophies: trophies,
+	}
+}
+
+func (a *App) GetImage(path string) ErrorReturn {
 	path = strings.TrimSpace(path)
+	// file, err := os.Open(path)
+	// if err != nil {
+	// 	return ErrorReturn{
+	// 		Error: "Photo file not found.",
+	// 	}
+	// }
+	if filepath.Ext(path) != ".png" && filepath.Ext(path) != ".jpg" && filepath.Ext(path) != ".jpeg" {
+		return ErrorReturn{
+			Error: "Photo is not correct file type",
+		}
+	}
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		backend.Logger.Error().Timestamp().Msg(err.Error())
-		return string(bytes)
+		return ErrorReturn{
+			Error: "Photo file not found",
+		}
 	}
 	var base64Encoding string
 	mimeType := http.DetectContentType(bytes)
@@ -213,10 +249,12 @@ func (a *App) GetImage(path string) string {
 	}
 
 	base64Encoding += base64.StdEncoding.EncodeToString(bytes)
-	return base64Encoding
+	return ErrorReturn{
+		ImageB64: base64Encoding,
+	}
 }
 
-func (a *App) UploadSaveImage(id int) string {
+func (a *App) UploadSaveImage(id int) ErrorReturn {
 	// Open file dialog for just images
 	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select Save Image",
@@ -229,10 +267,21 @@ func (a *App) UploadSaveImage(id int) string {
 	})
 	if err != nil {
 		backend.Logger.Error().Timestamp().Msg(err.Error())
-		return ""
+		return ErrorReturn{
+			Error: "Error getting save image. Check log file for more details.",
+		}
 	}
 	// Have backend deal with the new image
-	return backend.NewImage(id, file)
+	// return backend.NewImage(id, file)
+	err = backend.UpdateSaveImage(id, file)
+	if err != nil {
+		return ErrorReturn{
+			Error: " Error updating save image. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		ImageFile: file,
+	}
 
 }
 
@@ -251,6 +300,34 @@ func SelectExportedFile(ctx context.Context, exported string) string {
 		return ""
 	}
 	return file
+}
+
+func (a *App) SelectNewTrophyImage(id int) ErrorReturn {
+	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select Trophy Image",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Images (*.png;*.jpg;*.jpeg)",
+				Pattern:     "*.png;*.jpg;*.jpeg",
+			},
+		},
+	})
+	if err != nil {
+		backend.Logger.Error().Timestamp().Msg(err.Error())
+		return ErrorReturn{
+			Error: "Error getting trophy image. Check log file for more details.",
+		}
+	}
+	err = backend.UpdateTrophyImage(id, file)
+	if err != nil {
+		backend.Logger.Error().Timestamp().Msg(err.Error())
+		return ErrorReturn{
+			Error: "Error updating trophy image. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		ImageFile: file,
+	}
 }
 
 // Selecting the files exported from the game.
@@ -357,13 +434,12 @@ func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
 		trophies := []backend.Trophy{}
 		for _, trophy := range season.TrophiesWon {
 			trophies = append(trophies, backend.Trophy{
-				SeasonID:        int(seasonID),
 				TrophyID:        backend.NullInt64{},
 				CompetitionName: trophy,
-				TrophyImage:     "",
+				TrophyImage:     backend.NullString{},
 			})
 		}
-		err := backend.AddTrophies(trophies)
+		err := backend.AddSeasonTrophies(trophies, int(seasonID))
 		if err != nil {
 			return ErrorReturn{
 				Error: "Error adding trophies to DB. Check log file for more details.",
@@ -372,5 +448,56 @@ func (a *App) AddNewSeason(saveID int, season NewSeason) ErrorReturn {
 	}
 
 	return ErrorReturn{}
-	// return
+}
+
+func (a *App) GetSaveHomeRankings(saveID int) ErrorReturn {
+	topRankings := a.GetSaveResults(saveID)
+	if topRankings.Error != "" {
+		return topRankings
+	}
+	topGoals, topAssists, topAppearances, topRatings, err := backend.GetTopPlayersX(saveID)
+	if err != nil {
+		topRankings.Error = "Error retrieving one of top goals, assists, starts, and ratings. Check log file for more details."
+		return topRankings
+	}
+
+	topTransfers, avgIn, avgOut, err := backend.GetTransersStats(saveID)
+	if err != nil {
+		topRankings.Error = "Error retrieving one of the transfer stats. Check log file for more details."
+		return topRankings
+	}
+	trophies, err := backend.GetSaveTrophies(saveID)
+	if err != nil {
+		topRankings.Error = "Error retrieving save trophies. Check log file for more details."
+		return topRankings
+	}
+	topRankings.TopTransfers = topTransfers
+	topRankings.AvgInFee = avgIn
+	topRankings.AvgOutFee = avgOut
+	topRankings.TopGls = topGoals
+	topRankings.TopAsts = topAssists
+	topRankings.TopApps = topAppearances
+	topRankings.TopRat = topRatings
+	topRankings.Trophies = trophies
+	return topRankings
+}
+
+func (a *App) GetNumSaves() int {
+	return backend.GetNumSaves()
+}
+
+func (a *App) GetNumSeasonsInSave(saveID int) bool {
+	return backend.CheckIfSeasonsInSave(saveID)
+}
+
+func (a *App) GetSaveStory(saveID int) backend.Story {
+	return backend.GetSaveStory(saveID)
+}
+
+func (a *App) UpdateSaveStory(updatedStory backend.Story) string {
+	err := backend.UpdateSaveStory(updatedStory)
+	if err != nil {
+		return "Error updating story. Check log file for more details."
+	}
+	return ""
 }

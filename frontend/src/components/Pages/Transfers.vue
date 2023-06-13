@@ -1,13 +1,17 @@
 <template>
-    <div class="comp-size pr-3 pb-4">
-        <TabView class="">
+    <div class="comp-size pr-4 pb-4">
+        <TabView>
             <TabPanel header="Transfers In" class="">
-                <!-- <p>In Transfers</p> -->
                 <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
                     paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="inTransfers" tableStyle="min-width: 906px"
-                    filterDisplay="menu" v-model:filters="filters" :rowClass="({loan}) => loan === 1 ? 'font-italic' : null!"
+                    filterDisplay="menu" v-model:filters="filters" :rowClass="(loan:number) => loan === 1 ? 'font-italic' : null!"
                     v-on:filter="GetTotalSpent"  :lazy="false" removableSort>
                     <template #header>Total Spent: {{ totalSpent }} ({{ totalPotSpent }})</template>
+                    <template #empty>
+                        <InlineMessage severity="warn">
+                            No data found! Add new season by clicking the "New Season" button to the left.
+                        </InlineMessage>
+                    </template>
                     <Column field="date" header="Date" class="min-w-min"></Column>
                     <Column field="year" header="Year" class="min-w-min" :showFilterMatchModes="false">
                         <template #filter="{ filterModel }">
@@ -26,19 +30,23 @@
                     </Column>
                     <Column header="Fee" class="min-w-min" sortable sortField="fee">
                         <template #body="slotProps">
-                            <!-- <p v-show="false">{{ slotProps.data.fee }}</p> -->
                             {{ formatFee(slotProps.data.fee, slotProps.data.potentialFee, slotProps.data.free, slotProps.data.loan) }}
                         </template>
                     </Column>
+                    
                 </DataTable>
             </TabPanel>
             <TabPanel header="Transfers Out">
-                <!-- <p>Out Transfers</p> -->
                 <DataTable stripedRows :rows="15" scrollable scrollHeight="flex" class="p-datatable-sm "
                     paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="outTransfers" tableStyle="min-width: 906px"
-                    filterDisplay="menu" :rowClass="({loan}) => loan === 1 ? 'font-italic' : null!" v-model:filters="filters"
+                    filterDisplay="menu" :rowClass="(loan: number) => loan === 1 ? 'font-italic' : null!" v-model:filters="filters"
                     v-on:filter="GetTotalReceived"  :lazy="false" removableSort>
                     <template #header>Total Received: {{ totalReceived }} ({{ totalPotReceived }})</template>
+                    <template #empty>
+                        <InlineMessage severity="warn">
+                            No data found! Add new season by clicking the "New Season" button to the left.
+                        </InlineMessage>
+                    </template>
                     <Column field="date" header="Date" class="min-w-min"></Column>
                     <Column field="year" header="Year" class="min-w-min" :showFilterMatchModes="false">
                         <template #filter="{ filterModel }">
@@ -89,30 +97,20 @@ const totalReceived = ref()
 const totalPotReceived = ref()
 const uniqueYears = ref()
 const emit = defineEmits(['beError'])
-// const currCode: string | null 
 let numberFormatterTR: Intl.NumberFormat 
-// = new Intl.NumberFormat(navigator.language, {
-//     style: 'currency',
-//     // currency: 
-//     notation: 'compact'
-// })
-
 
 onMounted( () => {
-    console.log('transfers mounted ' )
     GetSaveTransfers(+route.params.id).then( (response) => {
         if (response.Error != "") {
             emit('beError', response.Error)
             return
         }
-        console.log(response)
         inTransfers.value = response.InTransfers
         outTransfers.value = response.OutTransfers
         uniqueYears.value = new Set(response.InTransfers.map((item: backend.Transfer) => item.year ))
         let outYears = new Set(response.OutTransfers.map((item: backend.Transfer) => item.year ))
         outYears.forEach(uniqueYears.value.add, uniqueYears.value)
         uniqueYears.value = ([...new Set(uniqueYears.value)])
-        console.log(uniqueYears.value)
         currency.value = response.Currency
         numberFormatterTR = new Intl.NumberFormat(navigator.language, {
             style: 'currency',
@@ -183,10 +181,8 @@ function GetTotalReceived( e: {originalEvent: Event, filteredValue: backend.Tran
         
         if (transfer.potentialFee.Valid == true) {
             potReceived += transfer.potentialFee.Int64
-            console.log('Potential Valid', transfer.potentialFee, transfer.fee, '=', potReceived)
         } else {
             potReceived += transfer.fee
-            console.log('Potential Invalid', transfer.potentialFee, transfer.fee, '=', potReceived)
         }
     })
     totalReceived.value = numberFormatterTR.format(receieved)
@@ -197,34 +193,31 @@ function GetTotalReceived( e: {originalEvent: Event, filteredValue: backend.Tran
 
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
     .comp-size {
         height: calc(100vh - 79px)!important;
         width: calc(100vw - 205px)!important;
     }
 
-    .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-        background: none!important;
+    .p-tabview :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+        color: #5eead4
     }
 
-    .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    .p-tabview :deep(.p-tabview-nav li .p-tabview-nav-link) {
         background: none!important;
         color:white;
     }
 
-    .p-tabview .p-tabview-panels {
+    .p-tabview :deep(.p-tabview-panels) {
         background: none!important;
         height:100%!important
     }
 
-    .p-tabview .p-tabview-nav {
+    .p-tabview :deep(.p-tabview-nav) {
         border: none!important;
     }
 
-    /* .p-tabview .p-component {
-        height: 100%!important
-    } */
-    .p-tabview-panels {
+    :deep(.p-tabview-panels) {
         padding: 0%!important;
         height: 100%!important
     }
@@ -234,11 +227,8 @@ function GetTotalReceived( e: {originalEvent: Event, filteredValue: backend.Tran
         width: calc(100vw - 205px)!important;
     }
 
-    .p-tabview-panel {
+    :deep(.p-tabview-panel) {
         height: calc(100vh - 79px - 56px - 16px)!important;
     }
 
-    /* :deep .p-datatable-flex-scrollable .p-datatable-scrollable-wrapper {
-        overflow: hidden;
-    } */
 </style>

@@ -1,6 +1,3 @@
-
-<!-- import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'; -->
-
 <template>
     <Dialog header="Add Season" @hide="" :modal="true" :draggable="false" :closable="true" class="w-7">
         <form method="POST" id="addSave" @submit.prevent="addSeason(!v$.$invalid)" class="">
@@ -86,7 +83,6 @@
             
         </form>
         <template #footer>
-            <!-- <pre>{{ errors.country }}</pre> -->
             <div class="flex align-content-center justify-content-center">
                 <Button label="Cancel" id="cancelB" :disabled="addingToDB" class="p-button-text" @click="$emit('closeDialog')" />
                 <Button label="Add" id="submitSeasonB" :disabled="addingToDB" form="addSave" type="submit"/>
@@ -102,7 +98,7 @@
 <script setup lang="ts">
 import { nextTick, ref, reactive } from 'vue'
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { SelectSquadFile, SelectScheduleFile, SelectTransfersFile, SelectFileParse, AddNewSeason } from '../../../wailsjs/go/main/App'
 import { useForm, useField } from 'vee-validate';
 import { useVuelidate } from "@vuelidate/core"
@@ -112,6 +108,7 @@ import * as yup from 'yup';
 import InputText from 'primevue/inputtext';
 
 const route = useRoute()
+const router = useRouter()
 
 const addingToDB = ref(false)
 const value = ref()
@@ -194,11 +191,7 @@ function addSeason(isValid: boolean) {
         scheduleFile: v$.value.scheduleFile.$model,
         transfersFile: v$.value.transfersFile.$model,
     }
-    // if (season.trophiesWon.toLowerCase() == "n/a" || season.trophiesWon.toLowerCase() == "none") {
-    //     season.trophiesWon = ''
-    // }
     submitted.value = true
-    // console.log(v$.value.teamName.$model)
     if (!isValid) {
         return;
     }
@@ -221,6 +214,7 @@ function addSeason(isValid: boolean) {
         v$.value.transfersFile.$model = ""
         v$.value.trophies.$model = ""
         trophies = []
+        router.replace({path: '/save/' + route.params.id + '/home', replace: true})
     }, 2000)
     
     // ADD NEW SEASON BACKEND FUNCTION

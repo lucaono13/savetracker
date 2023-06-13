@@ -1,10 +1,9 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { RouteLocationNormalized, createRouter, createWebHashHistory } from 'vue-router'
 import Home from './components/Pages/Home.vue'
 import { useCounterStore } from './stores/counter'
 import { useSavesStore } from './stores/saves'
 import { PrimeIcons } from 'primevue/api'
-
-// import TrackerFeatures from './components/TrackerFeatures.vue'
+import { GetNumSaves } from '../wailsjs/go/main/App'
 
 const routes = [
   {
@@ -13,7 +12,7 @@ const routes = [
     component: () => import('./components/Pages/NoDefaultSave.vue'),
     meta: {
       secondary: true,
-    }
+    },
   },
   {
     path: '/',
@@ -23,24 +22,25 @@ const routes = [
       icon: PrimeIcons.ANDROID,
       secondary: true,
     },
-    beforeEnter() {
-      const saves: string | null = localStorage.getItem("saves")
-      const defaultSave: string | null = localStorage.getItem("defaultSave")
-      if (saves === null) {
-        localStorage.setItem("saves", "0")
+    beforeEnter: async (to: RouteLocationNormalized) => {
+      const numSaves: number = await GetNumSaves();
+
+      if (numSaves == 0) {
+        localStorage.setItem("saves", "0");
+        localStorage.setItem("defaultSave", "");
+        return;
       }
-      if (saves !== null && defaultSave == null) {
-        return { path: 'No Default', replace: true}
-      }
-      if (saves !== null && defaultSave != null) {
-        if (defaultSave.length !== 0) {
-          if (defaultSave == "0") {
-            return
-          }
-          return { path: '/save/' + defaultSave + '/home', replace: true}
+      // LogPls(("params" in to).toString())
+      // console.log(to)
+      const dSave: string | null = localStorage.getItem("defaultSave")
+      if (dSave != null) {
+        if (dSave != "0") {
+          return {path: "/save/" + dSave + "/home", replace: true}
         }
+      } else {
+        return {name: "No Default"}
       }
-    },
+    }
   },
   {
     path: '/save/:id',
@@ -48,8 +48,8 @@ const routes = [
     component: () => import('./components/Pages/Save.vue'),
     meta: {
       secondary: true,
-
     },
+
     children: [
       {
         path: 'home',
@@ -57,6 +57,13 @@ const routes = [
         component: () => import('./components/Pages/SaveHome.vue'),
         meta: {
           secondary: false,
+        },
+        beforeEnter: (to: RouteLocationNormalized) => {
+          if ("id" in to.params) {
+            if (to.params.id == "0") {
+              return { name: "No Default", replace: true}
+            }
+          }
         }
       },
       {

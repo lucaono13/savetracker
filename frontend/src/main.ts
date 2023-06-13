@@ -38,6 +38,13 @@ import MultiSelect from 'primevue/multiselect'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import AutoComplete from 'primevue/autocomplete'
+import Carousel from 'primevue/carousel'
+import Fieldset from 'primevue/fieldset'
+import DataView from 'primevue/dataview';
+import DataViewLayoutOptions from 'primevue/dataviewlayoutoptions'   // optional
+import InlineMessage from 'primevue/inlinemessage'
+import Tooltip from 'primevue/tooltip'
+import Editor from 'primevue/editor'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -46,8 +53,12 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 // Import Font Awesome icon component
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+import { config } from "@fortawesome/fontawesome-svg-core"
+
+import { fas } from "@fortawesome/free-solid-svg-icons"
+
 // Import specific icons
-import { faMugHot, faList, faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { faMugHot, faList, faQuestion, faHouseChimney } from '@fortawesome/free-solid-svg-icons'
 
 
 
@@ -70,12 +81,16 @@ app.use(ToastService)
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
 // Add Icons to Library
-library.add(faMugHot)
-library.add(faList)
-library.add(faQuestion)
+// library.add(faMugHot)
+// library.add(faList)
+// library.add(faQuestion)
+library.add(fas)
 
 // Add FontAwesome to app
 app.component('font-awesome-icon', FontAwesomeIcon)
+
+config.styleDefault = "solid"
+
 
 // Adding PrimeVue
 app.use(PrimeVue)
@@ -110,6 +125,13 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('TabView', TabView)
     .component('TabPanel', TabPanel)
     .component('AutoComplete', AutoComplete)
+    .component('Carousel', Carousel)
+    .component('Fieldset', Fieldset)
+    .component('DataView', DataView)
+    .component('DataViewLayoutOptions', DataViewLayoutOptions)
+    .component('InlineMessage', InlineMessage)
+    .component('Editor', Editor)
+    .directive('tooltip', Tooltip)
 
 // Use Vue Router
 app.use(router)
