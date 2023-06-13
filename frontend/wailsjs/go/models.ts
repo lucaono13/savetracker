@@ -209,6 +209,20 @@ export namespace backend {
 		    return a;
 		}
 	}
+	export class Story {
+	    saveID: number;
+	    story: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Story(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.saveID = source["saveID"];
+	        this.story = source["story"];
+	    }
+	}
 	export class TopResults {
 	    playerID: number;
 	    playerName: string;
@@ -229,6 +243,26 @@ export namespace backend {
 	        this.assists = source["assists"];
 	        this.apps = source["apps"];
 	        this.avgRating = source["avgRating"];
+	    }
+	}
+	export class TopTransfers {
+	    teamName: string;
+	    currency: string;
+	    avgFee: number;
+	    totFee: number;
+	    numTransfers: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new TopTransfers(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.teamName = source["teamName"];
+	        this.currency = source["currency"];
+	        this.avgFee = source["avgFee"];
+	        this.totFee = source["totFee"];
+	        this.numTransfers = source["numTransfers"];
 	    }
 	}
 	export class Transfer {
@@ -283,6 +317,44 @@ export namespace backend {
 		    return a;
 		}
 	}
+	export class Trophy {
+	    // Go type: NullInt64
+	    trophyID: any;
+	    trophyName: string;
+	    // Go type: NullString
+	    trophyImage: any;
+	    season: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Trophy(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.trophyID = this.convertValues(source["trophyID"], null);
+	        this.trophyName = source["trophyName"];
+	        this.trophyImage = this.convertValues(source["trophyImage"], null);
+	        this.season = source["season"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 
 }
 
@@ -306,6 +378,12 @@ export namespace main {
 	    TopAsts: backend.TopResults[];
 	    TopApps: backend.TopResults[];
 	    TopAvg: backend.TopResults[];
+	    TopTrfs: backend.TopTransfers[];
+	    AvgInFee: number;
+	    AvgOutFee: number;
+	    Trophies: backend.Trophy[];
+	    ImageFile: string;
+	    b64Image: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ErrorReturn(source);
@@ -330,6 +408,12 @@ export namespace main {
 	        this.TopAsts = this.convertValues(source["TopAsts"], backend.TopResults);
 	        this.TopApps = this.convertValues(source["TopApps"], backend.TopResults);
 	        this.TopAvg = this.convertValues(source["TopAvg"], backend.TopResults);
+	        this.TopTrfs = this.convertValues(source["TopTrfs"], backend.TopTransfers);
+	        this.AvgInFee = source["AvgInFee"];
+	        this.AvgOutFee = source["AvgOutFee"];
+	        this.Trophies = this.convertValues(source["Trophies"], backend.Trophy);
+	        this.ImageFile = source["ImageFile"];
+	        this.b64Image = source["b64Image"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

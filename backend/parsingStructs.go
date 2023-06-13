@@ -203,3 +203,11 @@ type TopResults struct {
 	Apps     int     `db:"starts" json:"apps"`
 	AvgRat   float32 `db:"avgRating" json:"avgRating"`
 }
+
+type TopTransfers struct {
+	TeamName     string  `db:"teamName" json:"teamName"`
+	Currency     string  `db:"currency" json:"currency"`
+	AvgFee       float32 `db:"avgFee" json:"avgFee"`
+	TotFee       int     `db:"totFee" json:"totFee"`
+	NumTransfers int     `db:"numTransfers" json:"numTransfers"`
+}

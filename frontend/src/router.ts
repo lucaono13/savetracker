@@ -3,9 +3,7 @@ import Home from './components/Pages/Home.vue'
 import { useCounterStore } from './stores/counter'
 import { useSavesStore } from './stores/saves'
 import { PrimeIcons } from 'primevue/api'
-import { GetNumSaves, LogPls } from '../wailsjs/go/main/App'
-
-// import TrackerFeatures from './components/TrackerFeatures.vue'
+import { GetNumSaves } from '../wailsjs/go/main/App'
 
 const routes = [
   {
@@ -15,9 +13,6 @@ const routes = [
     meta: {
       secondary: true,
     },
-    // beforeEnter: (to: RouteLocationNormalized) => {
-    //   console.log(to)
-    // }
   },
   {
     path: '/',
@@ -28,21 +23,16 @@ const routes = [
       secondary: true,
     },
     beforeEnter: async (to: RouteLocationNormalized) => {
-      // ...
-      // if (to.name == "No Default" || to.name == "No Saves") {
-      //   return;
-      // }
       const numSaves: number = await GetNumSaves();
 
       if (numSaves == 0) {
         localStorage.setItem("saves", "0");
         localStorage.setItem("defaultSave", "");
-        return { name: "No Saves", replace: true };
+        return;
       }
       // LogPls(("params" in to).toString())
       // console.log(to)
       const dSave: string | null = localStorage.getItem("defaultSave")
-      console.log(dSave)
       if (dSave != null) {
         if (dSave != "0") {
           return {path: "/save/" + dSave + "/home", replace: true}

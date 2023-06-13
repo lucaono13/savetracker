@@ -98,12 +98,18 @@ const (
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "trophies" (
+		"trophyID"	INTEGER NOT NULL UNIQUE,
+		"trophyName"	TEXT NOT NULL,
+		"trophyImage"	INTEGER,
+		PRIMARY KEY("trophyID" AUTOINCREMENT)
+	);
+	CREATE TABLE IF NOT EXISTS "trophiesWon" (
 		"trophyWonID"	INTEGER NOT NULL UNIQUE,
 		"seasonID"	INTEGER NOT NULL,
-		"competitionName"	TEXT NOT NULL,
-		"trophyImage"	TEXT,
+		"trophyID"	TEXT NOT NULL,
+		PRIMARY KEY("trophyWonID" AUTOINCREMENT),
 		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
-		PRIMARY KEY("trophyWonID" AUTOINCREMENT)
+		FOREIGN KEY("trophyID") REFERENCES "trophies"("trophyID") ON DELETE CASCADE
 	);
 	CREATE TABLE IF NOT EXISTS "playerAttributes" (
 		"playerAttrID"	INTEGER NOT NULL UNIQUE,
@@ -159,13 +165,14 @@ const (
 		PRIMARY KEY("playerAttrID" AUTOINCREMENT)
 	);
 	`
-	AllSaves        = `SELECT * FROM saves`
-	NewSave         = `INSERT INTO saves (saveName, managerName, gameVersion, currency) VALUES (:saveName, :managerName, :gameVersion, :currency)`
-	SingleSave      = `SELECT * FROM saves where saveID=?`
-	SingleSaveImage = `SELECT saveImage FROM saves where saveID=?`
-	SaveImageUpdate = `UPDATE saves SET saveImage=? WHERE saveID=?`
-	AllTeams        = `SELECT * FROM teams`
-	NewStats        = `INSERT INTO playerStats (playerSeasonID, minutes, starts, goals, assists, yellowCards, redCards, avgRating, subs, playerOfTheMatch, passPerc, winPerc, shutouts, savePerc) 
+	AllSaves          = `SELECT * FROM saves`
+	NewSave           = `INSERT INTO saves (saveName, managerName, gameVersion, currency) VALUES (:saveName, :managerName, :gameVersion, :currency)`
+	SingleSave        = `SELECT * FROM saves where saveID=?`
+	SingleSaveImage   = `SELECT saveImage FROM saves where saveID=?`
+	SaveImageUpdate   = `UPDATE saves SET saveImage=? WHERE saveID=?`
+	TrophyImageUpdate = `UPDATE trophies SET trophyImage=? WHERE trophyID=?`
+	AllTeams          = `SELECT * FROM teams`
+	NewStats          = `INSERT INTO playerStats (playerSeasonID, minutes, starts, goals, assists, yellowCards, redCards, avgRating, subs, playerOfTheMatch, passPerc, winPerc, shutouts, savePerc) 
 						VALUES (:playerSeasonID, :minutes, :starts, :goals, :assists, :yellowCards, :redCards, :avgRating, :subs, :playerOfTheMatch, :passPerc, :winPerc, :shutouts, :savePerc)`
 	NewAttrs = `INSERT INTO playerAttributes (playerSeasonID, corners, crossing, dribbling, finishing, firstTouch, freeKicks, heading, longShots, longThrows, marking, passing, penalties, tackling, technique, 
 						aggression, anticipation, bravery, composure, concentration, decisions, determination, flair, leadership, offTheBall, positioning, teamwork, vision, workRate,
@@ -179,18 +186,20 @@ const (
 					(:seasonID, :date, :opponentName, :venue, :stadium, :competition, :goalsAgainst, :goalsFor, :result, :extraTime, :penalties)`
 	NewTransfer = `INSERT INTO transfers (seasonID, date, playerName, teamName, fee, potentialFee, transferIn, loan, free) VALUEs
 					(:seasonID, :date, :playerName, :teamName, :fee, :potentialFee, :transferIn, :loan, :free)`
-	NewTeam          = `INSERT INTO teams (teamName, shortName, country) VALUES (:teamName, :shortName, :country)`
-	NewSeason        = `INSERT INTO seasons (teamID, saveID, year) VALUES (?, ?, ?)`
-	NewPlayerSeason  = `INSERT INTO playerSeason (playerID, seasonID) VALUES (?, ?)`
-	AddPlayer1Nat    = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality)`
-	AddPlayer2Nat    = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality, secondNationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality, :secondNationality)`
-	SavePlayers      = `SELECT * FROM players WHERE saveID=?`
-	AllPlayers       = `SELECT * FROM players`
-	PlayerSeasons    = `SELECT * FROM playerSeason`
-	SinglePlayer     = `SELECT * FROM players WHERE playerID=?`
-	OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
-	NewTrophy        = `INSERT INTO trophies (seasonID, competitionName, trophyImage) VALUES (:seasonID, :competitionName, :trophyImage)`
-	SaveResults      = `
+	NewTeam         = `INSERT INTO teams (teamName, shortName, country) VALUES (:teamName, :shortName, :country)`
+	NewSeason       = `INSERT INTO seasons (teamID, saveID, year) VALUES (?, ?, ?)`
+	NewPlayerSeason = `INSERT INTO playerSeason (playerID, seasonID) VALUES (?, ?)`
+	AddPlayer1Nat   = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality)`
+	AddPlayer2Nat   = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality, secondNationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality, :secondNationality)`
+	SavePlayers     = `SELECT * FROM players WHERE saveID=?`
+	AllPlayers      = `SELECT * FROM players`
+	PlayerSeasons   = `SELECT * FROM playerSeason`
+	SinglePlayer    = `SELECT * FROM players WHERE playerID=?`
+	// OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
+	NewTrophyWon = `INSERT INTO trophiesWon (seasonID, trophyID) VALUES (?, ?)`
+	NewTrophy    = `INSERT INTO trophies (trophyName) VALUES (?)`
+	AllTrophies  = `SELECT * FROM trophies`
+	SaveResults  = `
 		SELECT saves.saveID,
 			results.date,
 			seasons.year,
@@ -425,5 +434,53 @@ const (
 	ORDER BY avgRating DESC
 	LIMIT 5
 	`
-	NumSaves = `SELECT COUNT(1) FROM saves`
+	NumSaves         = `SELECT COUNT(1) FROM saves`
+	NumSeasonsToSave = `SELECT COUNT(1) FROM seasons INNER JOIN saves ON seasons.saveID = saves.saveID WHERE saves.saveID=?`
+	MostTransfers    = `
+	SELECT
+		transfers.teamName,
+		saves.currency,
+		AVG(transfers.fee) avgFee,
+		SUM(transfers.fee) totFee,
+		COUNT(transfers.fee) numTransfers
+	FROM
+		transfers
+	INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+	INNER JOIN saves ON seasons.saveID = saves.saveID
+	WHERE saves.saveID = ?  AND transfers.loan = false AND transfers.free = false
+	GROUP BY transfers.teamName
+	ORDER BY numTransfers DESC
+	LIMIT 5
+	`
+	AvgTransfersOut = `
+	SELECT
+		AVG(transfers.fee)
+	FROM
+		transfers
+	INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+	INNER JOIN saves ON seasons.saveID = saves.saveID
+	WHERE saves.saveID = ? AND transfers.transferIn = false AND transfers.free = false 
+	`
+	AvgTransfersIn = `
+	SELECT
+		AVG(transfers.fee)
+	FROM
+		transfers
+	INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+	INNER JOIN saves ON seasons.saveID = saves.saveID
+	WHERE saves.saveID = ? AND transfers.transferIn = true AND transfers.free = false 
+	`
+	SaveTrophies = `
+	SELECT
+		trophies.trophyID,
+		trophies.trophyName,
+		trophies.trophyImage,
+		seasons.year
+	FROM
+		trophiesWon
+	INNER JOIN trophies ON trophiesWon.trophyID = trophies.trophyID
+	INNER JOIN seasons ON trophiesWon.seasonID = seasons.seasonID
+	INNER JOIN saves ON seasons.saveID = saves.saveID
+	WHERE saves.saveID = ?
+	`
 )

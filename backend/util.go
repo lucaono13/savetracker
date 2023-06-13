@@ -1,79 +1,20 @@
 package backend
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/adrg/xdg"
 )
 
-func NewImage(id int, filePath string) string {
-	// Open source image
-	source, err := os.Open(filePath)
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-	}
-	defer source.Close()
+var (
+	stories *[]*Story
+)
 
-	// Get image info, specifically to get the base name
-	// sourceInfo, err := source.Stat()
-	// if err != nil {
-	// 	Logger.Error().Timestamp().Msg(err.Error())
-	// 	return ""
-	// }
-
-	newFileType := filepath.Ext(filePath)
-	newFilePath, err := xdg.DataFile("Save Tracker/images/" + fmt.Sprintf("%d", id) + "_picture" + newFileType)
-	// newFilePath, err := xdg.DataFile("Save Tracker/images/" + fmt.Sprintf("%d", id) + "_" + sourceInfo.Name())
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return ""
-	}
-
-	files, err := os.ReadDir(xdg.DataHome + "\\Save Tracker\\images")
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return ""
-	}
-	for _, file := range files {
-		if strings.HasPrefix(file.Name(), fmt.Sprintf("%d", id)+"_picture") {
-			fileName, err := xdg.DataFile("Save Tracker/images/" + file.Name())
-			if err != nil {
-				Logger.Error().Timestamp().Msg(err.Error())
-				return ""
-			}
-			err = os.Remove(fileName)
-			if err != nil {
-				Logger.Error().Timestamp().Msg(err.Error())
-			}
-		}
-	}
-
-	// Create destination image in correct location
-	destination, err := os.Create(newFilePath)
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return ""
-	}
-	defer destination.Close()
-
-	// Copy image
-	_, err = io.Copy(destination, source)
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return ""
-	}
-
-	// Add to database
-	err = UpdateSaveImage(id, newFilePath)
-	if err != nil {
-		return ""
-	}
-
-	return newFilePath
+type Story struct {
+	SaveID int    `json:"saveID"`
+	Story  string `json:"story"`
 }
 
 func MakePlayersMap(players []PlayerInfo) map[int]int {
@@ -82,4 +23,94 @@ func MakePlayersMap(players []PlayerInfo) map[int]int {
 		playersMap[player.UID] = int(player.PlayerID)
 	}
 	return playersMap
+}
+
+func MakeTrophiesMap(trophies []Trophy) map[string]int {
+	trophiesMap := make(map[string]int)
+	for _, trophy := range trophies {
+		trophiesMap[trophy.CompetitionName] = int(trophy.TrophyID.Int64)
+	}
+	return trophiesMap
+}
+
+func GetStoriesFromFile() {
+	storyFilePath, err := xdg.DataFile("Save Tracker/stories.json")
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return
+	}
+	if _, err := os.Stat(storyFilePath); err != nil {
+		if os.IsNotExist(err) {
+			_, err := os.Create(storyFilePath)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return
+			}
+		} else {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return
+		}
+	}
+	file, err := os.ReadFile(storyFilePath)
+	// Logger.Info().Timestamp().Msg(string(file))
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return
+	}
+	if len(file) > 0 {
+		err = json.Unmarshal(file, &stories)
+		if err != nil {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return
+		}
+	}
+
+}
+
+func WriteStoriesToFile(stories *[]*Story) error {
+	// fmt.Println(stories)
+	storyFilePath, err := xdg.DataFile("Save Tracker/stories.json")
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	jsonedStories, err := json.Marshal(stories)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	err = os.WriteFile(storyFilePath, jsonedStories, 0666)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	return nil
+}
+
+func GetSaveStory(saveID int) Story {
+	// fmt.Println(stories)
+	var saveStory Story = Story{SaveID: saveID, Story: ""}
+	for _, story := range *stories {
+		if story.SaveID == saveID {
+			saveStory.Story = story.Story
+		}
+	}
+	return saveStory
+}
+
+func UpdateSaveStory(updatedStory Story) error {
+	fmt.Println(updatedStory)
+	var updated bool = false
+	for _, story := range *stories {
+		if story.SaveID == updatedStory.SaveID {
+			*story = updatedStory
+			updated = true
+
+		}
+	}
+	if !updated {
+		*stories = append(*stories, &updatedStory)
+	}
+	fmt.Println(stories, updated)
+	return WriteStoriesToFile(stories)
 }

@@ -45,9 +45,11 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "Save Tracker",
-		Width:  1024,
-		Height: 768,
+		Title:     "Save Tracker",
+		Width:     1024,
+		Height:    768,
+		MinWidth:  1150,
+		MinHeight: 950,
 		AssetServer: &assetserver.Options{
 			Assets:  assets,
 			Handler: NewFileLoader(),

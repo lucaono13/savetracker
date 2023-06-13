@@ -41,10 +41,10 @@
                     :class="{ 'p-invalid': v$.currency.$invalid && submitted }">
                         <template #value="slotProps">
                             <div v-if="slotProps.value">{{ slotProps.value.name }} - {{ slotProps.value.symbol }}</div>
-                            <span v-else>{{ slotProps.placeholder }}</span>
+                            <!-- <span v-else>{{ slotProps.placeholder }}</span> -->
                         </template>
                         <template #option="slotProps">
-                            <div>{{ slotProps.option.name }} - {{ slotProps.option.symbol }}</div>
+                            <div >{{ slotProps.option.name }} - {{ slotProps.option.symbol }}</div>
                         </template>
                     </Dropdown>
                     <label for="currency">Currency</label>
@@ -109,29 +109,18 @@ export default {
         },
         addSave() {
             AddNewSave(this.saveName, this.managerName, +this.gameVersion, this.currency.code).then((response) => {
-                // console.log(response)
-                // return
-                // response.Error = "just a quick test thanks\nwe're going multiple lines!"
-                // if (response.Error != "") {
-                //     console.log('we got here?')
-                //     this.$emit('beError', response.Error)
-                // }
-                if (response.Integer == 0) {
-                    this.$emit('saveAdded', response.Integer)
-                } else {
-                    this.$emit('saveAdded', response.Integer)
-                }
-                // this.resetForm()
-                
+                setTimeout(() => {
+                    if (response.Integer == 0) {
+                        this.$emit('saveAdded', response.Integer)
+                    } else {
+                        this.$emit('saveAdded', response.Integer)
+                    }
+                }, 3000)
             })
 
         },
         newSaveAdded(isFormValid: boolean) {
             this.submitted = true;
-            // const saveNo = localStorage.getItem("saves")
-            
-            console.log(this.currency.code)
-
             if (!isFormValid) {
                 return;
             }

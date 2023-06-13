@@ -18,6 +18,10 @@ export function GetNumSaves() {
   return window['go']['main']['App']['GetNumSaves']();
 }
 
+export function GetNumSeasonsInSave(arg1) {
+  return window['go']['main']['App']['GetNumSeasonsInSave'](arg1);
+}
+
 export function GetSaveHomeRankings(arg1) {
   return window['go']['main']['App']['GetSaveHomeRankings'](arg1);
 }
@@ -34,16 +38,20 @@ export function GetSaveResults(arg1) {
   return window['go']['main']['App']['GetSaveResults'](arg1);
 }
 
+export function GetSaveStory(arg1) {
+  return window['go']['main']['App']['GetSaveStory'](arg1);
+}
+
 export function GetSaveTransfers(arg1) {
   return window['go']['main']['App']['GetSaveTransfers'](arg1);
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
+export function GetTrophies(arg1) {
+  return window['go']['main']['App']['GetTrophies'](arg1);
 }
 
-export function LogPls(arg1) {
-  return window['go']['main']['App']['LogPls'](arg1);
+export function Greet(arg1) {
+  return window['go']['main']['App']['Greet'](arg1);
 }
 
 export function RetrieveSaves() {
@@ -52,6 +60,10 @@ export function RetrieveSaves() {
 
 export function SelectFileParse(arg1) {
   return window['go']['main']['App']['SelectFileParse'](arg1);
+}
+
+export function SelectNewTrophyImage(arg1) {
+  return window['go']['main']['App']['SelectNewTrophyImage'](arg1);
 }
 
 export function SelectScheduleFile() {
@@ -72,6 +84,10 @@ export function SingleImage(arg1) {
 
 export function SingleSave(arg1) {
   return window['go']['main']['App']['SingleSave'](arg1);
+}
+
+export function UpdateSaveStory(arg1) {
+  return window['go']['main']['App']['UpdateSaveStory'](arg1);
 }
 
 export function UploadSaveImage(arg1) {

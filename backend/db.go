@@ -18,10 +18,16 @@ type Save struct {
 }
 
 type Trophy struct {
-	TrophyID        NullInt64 `json:"trophyID" db:"trophyWonID"`
-	SeasonID        int       `json:"seasonID" db:"seasonID"`
-	CompetitionName string    `json:"competitionName" db:"competitionName"`
-	TrophyImage     string    `json:"trophyImage" db:"trophyImage"`
+	TrophyID        NullInt64  `json:"trophyID" db:"trophyID"`
+	CompetitionName string     `json:"trophyName" db:"trophyName"`
+	TrophyImage     NullString `json:"trophyImage" db:"trophyImage"`
+	Season          string     `json:"season" db:"year"`
+}
+
+type TrophiesWon struct {
+	TrophyWon   NullInt64 `json:"trophyID" db:"trophyID"`
+	TrophyName  string    `json:"trophyName" db:"trophyName"`
+	TrophyImage string    `json:"trophyImage" db:"trophyImage"`
 }
 
 // var DB *sql.DB
@@ -65,14 +71,14 @@ func CloseDB() error {
 // }
 
 // Saves
-func GetSaves() []Save {
+func GetSaves() ([]Save, error) {
 	var saves []Save
 	err := DB.Select(&saves, AllSaves)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
-		return nil
+		return nil, err
 	}
-	return saves
+	return saves, nil
 }
 
 func GetSingleSave(ID int) (Save, error) {
@@ -432,33 +438,97 @@ func GetSaveResults(saveID int) ([]Match, error) {
 }
 
 // Trophies
-func AddTrophies(trophies []Trophy) error {
-	tx, err := DB.Beginx()
+func AddSeasonTrophies(trophies []Trophy, seasonID int) error {
+	allTrophies, err := GetTrophies()
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
 		return err
 	}
-	defer tx.Rollback()
-
-	stmt, err := tx.PrepareNamed(NewTrophy)
-	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
-		return err
-	}
-
+	trophiesMap := MakeTrophiesMap(allTrophies)
 	for _, trophy := range trophies {
-		_, err := stmt.Exec(trophy)
-		if err != nil {
-			Logger.Error().Timestamp().Msg(err.Error())
-			return err
+		if _, ok := trophiesMap[trophy.CompetitionName]; !ok {
+			row, err := DB.Exec(NewTrophy, trophy.CompetitionName)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+			}
+			newTrophyID, err := row.LastInsertId()
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+			}
+			_, err = DB.Exec(NewTrophyWon, seasonID, newTrophyID)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+			}
+		} else {
+			_, err := DB.Exec(NewTrophyWon, seasonID, trophiesMap[trophy.CompetitionName])
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return err
+			}
 		}
 	}
-	err = tx.Commit()
+	return nil
+	// tx, err := DB.Beginx()
+	// if err != nil {
+	// 	Logger.Error().Timestamp().Msg(err.Error())
+	// 	return err
+	// }
+	// defer tx.Rollback()
+
+	// stmt, err := tx.PrepareNamed(NewTrophy)
+	// if err != nil {
+	// 	Logger.Error().Timestamp().Msg(err.Error())
+	// 	return err
+	// }
+
+	// for _, trophy := range trophies {
+	// 	_, err := stmt.Exec(trophy)
+	// 	if err != nil {
+	// 		Logger.Error().Timestamp().Msg(err.Error())
+	// 		return err
+	// 	}
+	// }
+	// err = tx.Commit()
+	// if err != nil {
+	// 	Logger.Error().Timestamp().Msg(err.Error())
+	// 	return err
+	// }
+	// return nil
+}
+
+// func addTrophyWon(seasonID int, trophyID int) error {
+// 	return nil
+// }
+
+func GetTrophies() ([]Trophy, error) {
+	var trophies []Trophy
+	err := DB.Select(&trophies, AllTrophies)
 	if err != nil {
 		Logger.Error().Timestamp().Msg(err.Error())
-		return err
+		return nil, err
 	}
-	return nil
+	return trophies, nil
+}
+
+func GetSaveTrophies(saveID int) ([]Trophy, error) {
+	var trophies []Trophy
+	err := DB.Select(&trophies, SaveTrophies, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, err
+	}
+	return trophies, nil
+}
+
+func UpdateTrophyImage(id int, filePath string) error {
+	_, err := DB.Exec(TrophyImageUpdate, filePath, id)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+	}
+	return err
 }
 
 func GetTopPlayersX(saveID int) ([]TopResults, []TopResults, []TopResults, []TopResults, error) {
@@ -497,12 +567,42 @@ func GetNumSaves() int {
 	return numSaves
 }
 
-// func GetTopRatings(saveID int) ([]TopResults, error) {
-// 	var top []TopResults
-// 	err := DB.Select(&top, TopRat, saveID)
-// 	if err != nil {
-// 		Logger.Error().Timestamp().Msg(err.Error())
-// 		return nil, err
-// 	}
-// 	return top, nil
-// }
+func GetTransersStats(saveID int) ([]TopTransfers, float32, float32, error) {
+	var (
+		topTransfers  []TopTransfers
+		avgOut, avgIn float32
+	)
+	err := DB.Select(&topTransfers, MostTransfers, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, 0.0, 0.0, err
+	}
+	row := DB.QueryRow(AvgTransfersOut, saveID)
+	err = row.Scan(&avgOut)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, 0.0, 0.0, err
+	}
+	row = DB.QueryRow(AvgTransfersIn, saveID)
+	err = row.Scan(&avgIn)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, 0.0, 0.0, err
+	}
+	return topTransfers, avgIn, avgOut, nil
+}
+
+func CheckIfSeasonsInSave(saveID int) bool {
+	row := DB.QueryRow(NumSeasonsToSave, saveID)
+	var numSeasons int
+	err := row.Scan(&numSeasons)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return false
+	}
+	if numSeasons == 0 {
+		return false
+	}
+	return true
+
+}

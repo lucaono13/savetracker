@@ -38,6 +38,13 @@ import MultiSelect from 'primevue/multiselect'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import AutoComplete from 'primevue/autocomplete'
+import Carousel from 'primevue/carousel'
+import Fieldset from 'primevue/fieldset'
+import DataView from 'primevue/dataview';
+import DataViewLayoutOptions from 'primevue/dataviewlayoutoptions'   // optional
+import InlineMessage from 'primevue/inlinemessage'
+import Tooltip from 'primevue/tooltip'
+import Editor from 'primevue/editor'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -118,6 +125,13 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('TabView', TabView)
     .component('TabPanel', TabPanel)
     .component('AutoComplete', AutoComplete)
+    .component('Carousel', Carousel)
+    .component('Fieldset', Fieldset)
+    .component('DataView', DataView)
+    .component('DataViewLayoutOptions', DataViewLayoutOptions)
+    .component('InlineMessage', InlineMessage)
+    .component('Editor', Editor)
+    .directive('tooltip', Tooltip)
 
 // Use Vue Router
 app.use(router)
