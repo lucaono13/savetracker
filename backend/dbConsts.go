@@ -194,7 +194,7 @@ const (
 	SavePlayers     = `SELECT * FROM players WHERE saveID=?`
 	AllPlayers      = `SELECT * FROM players`
 	PlayerSeasons   = `SELECT * FROM playerSeason`
-	SinglePlayer    = `SELECT * FROM players WHERE playerID=?`
+	// SinglePlayer    = `SELECT * FROM players WHERE playerID=?`
 	// OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
 	NewTrophyWon = `INSERT INTO trophiesWon (seasonID, trophyID) VALUES (?, ?)`
 	NewTrophy    = `INSERT INTO trophies (trophyName) VALUES (?)`
@@ -482,5 +482,124 @@ const (
 	INNER JOIN seasons ON trophiesWon.seasonID = seasons.seasonID
 	INNER JOIN saves ON seasons.saveID = saves.saveID
 	WHERE saves.saveID = ?
+	`
+	SinglePlayer = `
+	SELECT 
+		seasons.year,
+		teams.teamName,
+		playerSeason.playerSeasonID,
+		playerAttributes.corners cor,
+		playerAttributes.crossing cro,
+		playerAttributes.dribbling dri,
+		playerAttributes.finishing fin,
+		playerAttributes.firstTouch fir,
+		playerAttributes.freeKicks fre,
+		playerAttributes.heading hea,
+		playerAttributes.longShots lon,
+		playerAttributes.longThrows lth,
+		playerAttributes.marking mar,
+		playerAttributes.passing pas,
+		playerAttributes.penalties pen,
+		playerAttributes.tackling tck,
+		playerAttributes.technique tec,
+		playerAttributes.aggression agg,
+		playerAttributes.anticipation ant,
+		playerAttributes.bravery bra,
+		playerAttributes.composure cmp,
+		playerAttributes.concentration cnt,
+		playerAttributes.decisions dec,
+		playerAttributes.determination det,
+		playerAttributes.flair fla,
+		playerAttributes.leadership ldr,
+		playerAttributes.offTheBall otb,
+		playerAttributes.positioning pos,
+		playerAttributes.teamwork tea,
+		playerAttributes.vision vis,
+		playerAttributes.workRate wor,
+		playerAttributes.acceleration acc,
+		playerAttributes.agility agi,
+		playerAttributes.balance bal,
+		playerAttributes.jumpingReach jum,
+		playerAttributes.naturalFitness nat,
+		playerAttributes.pace pac,
+		playerAttributes.stamina sta,
+		playerAttributes.strength str,
+		playerAttributes.aerialReach aer,
+		playerAttributes.commandOfArea cmd,
+		playerAttributes.communication com,
+		playerAttributes.eccentricity ecc,
+		playerAttributes.handling han,
+		playerAttributes.kicking kic,
+		playerAttributes.oneOnOnes ovo,
+		playerAttributes.punchingTendency pun,
+		playerAttributes.reflexes ref,
+		playerAttributes.rushingOutTendency tro,
+		playerAttributes.throwing thr,
+		playerStats.minutes,
+		playerStats.starts,
+		playerStats.subs,
+		playerStats.goals,
+		playerStats.assists,
+		playerStats.yellowCards,
+		playerStats.redCards,
+		playerStats.avgRating,
+		playerStats.playerOfTheMatch,
+		playerStats.passPerc,
+		playerStats.winPerc,
+		playerStats.shutouts,
+		playerStats.savePerc
+	FROM playerStats
+	INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN playerAttributes ON playerAttributes.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN players ON playerSeason.playerID = players.playerID
+	INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+	INNER JOIN teams on seasons.teamID = teams.teamID
+	INNER JOIN saves ON players.saveID = saves.saveID
+	WHERE players.playerID = ?
+	`
+	SinglePlayerSumsAvgs = `
+	SELECT
+		players.playerID,
+		saves.saveID,
+		saves.saveName,
+		COUNT(seasons.year) years,
+		saves.gameVersion,
+		teams.teamName,
+		players.playerName,
+		players.uniqueID,
+		players.birthdate,
+		players.nationality,
+		players.secondNationality,
+		players.position, 
+		AVG(playerStats.minutes) avgMin,
+		SUM(playerStats.minutes) totMin,
+		AVG(playerStats.starts) avgStart,
+		SUM(playerStats.starts) totStart,
+		AVG(playerStats.subs) avgSubs,
+		SUM(playerStats.subs) totSubs,
+		AVG(playerStats.goals) avgGls,
+		SUM(playerStats.goals) totGls,
+		AVG(playerStats.assists) avgAst,
+		SUM(playerStats.assists) totAst,
+		AVG(playerStats.yellowCards) avgYel,
+		SUM(playerStats.yellowCards) totYel,
+		AVG(playerStats.redCards) avgRed,
+		SUM(playerStats.redCards) totRed,
+		AVG(playerStats.avgRating) avgRat,
+		AVG(playerStats.playerOfTheMatch) avgPOM,
+		SUM(playerStats.playerOfTheMatch) totPOM,
+		AVG(playerStats.passPerc) avgPasP,
+		AVG(playerStats.winPerc) avgWinP,
+		AVG(playerStats.shutouts) avgShutouts,
+		SUM(playerStats.shutouts) totShutouts,
+		AVG(playerStats.savePerc) avgSaveP
+	FROM playerStats
+	INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN playerAttributes ON playerAttributes.playerSeasonID = playerSeason.playerSeasonID
+	INNER JOIN players ON playerSeason.playerID = players.playerID
+	INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+	INNER JOIN teams on seasons.teamID = teams.teamID
+	INNER JOIN saves ON players.saveID = saves.saveID
+	WHERE players.playerID = ?
 	`
 )

@@ -1,7 +1,7 @@
 <template>
     <div class="pr-4 pb-4" >
         <div class="mt-3 ml-1">
-            <span class="text-5xl" style="font-family: Didot;">{{ save.saveName }} -&nbsp;{{ save.managerName }}</span>
+            <span class="text-5xl" style="font-family: Didot;">{{ save.saveName }} -{{ save.managerName }}</span>
         </div>
         <Divider class="fullWidth topDiv" style=""/>
         <div class="grid fullWidth mr-0 gap-0" >
@@ -77,7 +77,7 @@
                             <TabPanel header="Gls.">
                                 <table class="statTable">
                                     <tr v-for="player in topGls">
-                                        <td>{{ player.playerName }}</td>
+                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
                                         <td class="stat">{{ player.goals }}</td>
                                     </tr>
                                 </table>
@@ -85,7 +85,7 @@
                             <TabPanel header="Ast.">
                                 <table class="statTable">
                                     <tr v-for="player in topAsts">
-                                        <td>{{ player.playerName }}</td>
+                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
                                         <td class="stat">{{ player.assists }}</td>
                                     </tr>
                                 </table>
@@ -93,7 +93,7 @@
                             <TabPanel header="Apps">
                                 <table class="statTable">
                                     <tr v-for="player in topApps">
-                                        <td>{{ player.playerName }}</td>
+                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
                                         <td class="stat">{{ player.apps }}</td>
                                     </tr>
                                 </table>
@@ -101,7 +101,7 @@
                             <TabPanel header="Rating">
                                 <table class="statTable">
                                     <tr v-for="player in topRat">
-                                        <td>{{ player.playerName }}</td>
+                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
                                         <td class="stat">{{ numberFormmaterDec.format(player.avgRating) }}</td>
                                     </tr>
                                 </table>
@@ -114,6 +114,7 @@
         </div>
     </div>
     <EditStoryDialog :visible="editDialog" v-if="editDialog" :story="saveStory.story" @updateStory="updateStory" @closeDialog="editDialog = false"/>
+    <PlayerDialog :visible="playerDialog" v-if="playerDialog" :playerID="playerDialogID" @closeDialog="playerDialog = false"/>
 </template>
 
 <script lang="ts" async setup>
@@ -122,10 +123,13 @@ import { useRoute } from 'vue-router';
 import { nextTick, ref, onMounted } from 'vue';
 import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
 import EditStoryDialog  from '../../../src/components/Components/EditStoryDialog.vue'
+import PlayerDialog from '../Components/PlayerDialog.vue';
 import { backend, main } from '../../../wailsjs/go/models'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const editDialog = ref(false)
+const playerDialog = ref(false)
+const playerDialogID = ref(0)
 const route = useRoute()
 const sortedResults = ref()
 const topGls = ref()
@@ -140,6 +144,7 @@ const dataAdded = ref()
 const saveStory = ref({saveID: 0, story:""})
 const hoverTest = ref("")
 const currency = ref()
+
 let imgPlaceholder: string | undefined
 let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
 const emit = defineEmits(['beError'])
@@ -153,6 +158,11 @@ function updateStory(story: string) {
     let updated : backend.Story = { saveID: saveStory.value.saveID, story: story}
     UpdateSaveStory(updated)
     saveStory.value.story = story
+}
+
+function openPlayerDialog(playerID: number) {
+    playerDialogID.value = playerID
+    playerDialog.value = true
 }
 
 function newTrophyImage(trophyData: {0: string, 1: {"id": number, "image": string, "years": string[], "b64": string}}) {
@@ -345,11 +355,15 @@ onMounted( async () => {
 .transfer {
     width: 6rem!important;
 }
-.statTable tr:nth-child(even) {
-    background-color: var(--surface-100);
-}
-.statTable tr:nth-child(odd) {
-    background-color: var(--surface-50);
+// .statTable tr:nth-child(even) {
+//     background-color: var(--surface-100);
+// }
+// .statTable tr:nth-child(odd) {
+//     background-color: var(--surface-50);
+// }
+
+.statTable tr {
+    border-bottom: 1px solid var(--surface-200);
 }
 
 .playerStatView .p-tabview-panels, .p-tabview-nav, .p-tabview-nav-link {

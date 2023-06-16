@@ -46,6 +46,10 @@ export function GetSaveTransfers(arg1) {
   return window['go']['main']['App']['GetSaveTransfers'](arg1);
 }
 
+export function GetSinglePlayer(arg1) {
+  return window['go']['main']['App']['GetSinglePlayer'](arg1);
+}
+
 export function GetTrophies(arg1) {
   return window['go']['main']['App']['GetTrophies'](arg1);
 }

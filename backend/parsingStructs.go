@@ -211,3 +211,46 @@ type TopTransfers struct {
 	TotFee       int     `db:"totFee" json:"totFee"`
 	NumTransfers int     `db:"numTransfers" json:"numTransfers"`
 }
+
+type PlayerPageInfo struct {
+	// PlayerInfo
+	PlayerStats
+	PlayerGKAttr
+	PlayerTechAttr
+	PlayerMentalAttr
+	PlayerPhysAttr
+	SaveName       string `db:"saveName" json:"saveName"`
+	Season         string `db:"year" json:"season"`
+	Team           string `db:"teamName" json:"teamName"`
+	PlayerSeasonID int    `db:"playerSeasonID" json:"playerSeasonID"`
+}
+
+type PlayerSumsAvgs struct {
+	PlayerInfo
+	SaveName    string  `db:"saveName" json:"saveName"`
+	GameVersion int     `db:"gameVersion" json:"gameVersion"`
+	Seasons     string  `db:"years" json:"seasons"`
+	Team        string  `db:"teamName" json:"teamName"`
+	AvgMin      float32 `db:"avgMin" json:"avgMin"`
+	TotMin      int     `db:"totMin" json:"totMin"`
+	AvgStart    float32 `db:"avgStart" json:"avgStart"`
+	TotStart    int     `db:"totStart" json:"totStart"`
+	AvgSubs     float32 `db:"avgSubs" json:"avgSubs"`
+	TotSubs     int     `db:"totSubs" json:"totSubs"`
+	AvgGls      float32 `db:"avgGls" json:"avgGls"`
+	TotGls      int     `db:"totGls" json:"totGls"`
+	AvgAst      float32 `db:"avgAst" json:"avgAst"`
+	TotAst      int     `db:"totAst" json:"totAst"`
+	AvgYel      float32 `db:"avgYel" json:"avgYel"`
+	TotYel      int     `db:"totYel" json:"totYel"`
+	AvgRed      float32 `db:"avgRed" json:"avgRed"`
+	TotRed      int     `db:"totRed" json:"totRed"`
+	AvgRat      float32 `db:"avgRat" json:"avgRat"`
+	AvgPOM      float32 `db:"avgPOM" json:"avgPOM"`
+	TotPOM      int     `db:"totPOM" json:"totPOM"`
+	AvgPasP     float32 `db:"avgPasP" json:"avgPasP"`
+	AvgWinP     float32 `db:"avgWinP" json:"avgWinP"`
+	AvgShutouts float32 `db:"avgShutouts" json:"avgShutouts"`
+	TotShutouts int     `db:"totShutouts" json:"totShutouts"`
+	AvgSaveP    float32 `db:"avgSaveP" json:"avgSaveP"`
+}

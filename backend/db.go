@@ -556,6 +556,25 @@ func GetTopPlayersX(saveID int) ([]TopResults, []TopResults, []TopResults, []Top
 	return goals, assists, apps, ratings, nil
 }
 
+func GetSinglePlayer(playerID int) ([]PlayerPageInfo, PlayerSumsAvgs, error) {
+	var (
+		player   []PlayerPageInfo
+		sumsAvgs PlayerSumsAvgs
+	)
+
+	err := DB.Select(&player, SinglePlayer, playerID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, PlayerSumsAvgs{}, err
+	}
+	err = DB.QueryRowx(SinglePlayerSumsAvgs, playerID).StructScan(&sumsAvgs)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return nil, PlayerSumsAvgs{}, err
+	}
+	return player, sumsAvgs, nil
+}
+
 func GetNumSaves() int {
 	row := DB.QueryRow(NumSaves)
 	var numSaves int

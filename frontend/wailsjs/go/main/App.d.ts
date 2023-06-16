@@ -25,6 +25,8 @@ export function GetSaveStory(arg1:number):Promise<backend.Story>;
 
 export function GetSaveTransfers(arg1:number):Promise<main.ErrorReturn>;
 
+export function GetSinglePlayer(arg1:number):Promise<main.ErrorReturn>;
+
 export function GetTrophies(arg1:number):Promise<main.ErrorReturn>;
 
 export function Greet(arg1:string):Promise<string>;
