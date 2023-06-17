@@ -46,6 +46,7 @@ import InlineMessage from 'primevue/inlinemessage'
 import Tooltip from 'primevue/tooltip'
 import Editor from 'primevue/editor'
 import Chart from 'primevue/chart'
+import InputSwitch from 'primevue/inputswitch'
 
 // Flags
 // @ts-ignore
@@ -143,6 +144,8 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('DataViewLayoutOptions', DataViewLayoutOptions)
     .component('InlineMessage', InlineMessage)
     .component('Editor', Editor)
+    .component('Chart',Chart)
+    .component('InputSwitch', InputSwitch)
     .directive('tooltip', Tooltip)
 
 // app.use(Flag)

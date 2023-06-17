@@ -77,7 +77,7 @@
                             <TabPanel header="Gls.">
                                 <table class="statTable">
                                     <tr v-for="player in topGls">
-                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
+                                        <td><Button class="playerButton" :label="player.playerName" link @click="openPlayerDialog(player.playerID)"/></td>
                                         <td class="stat">{{ player.goals }}</td>
                                     </tr>
                                 </table>
@@ -85,7 +85,7 @@
                             <TabPanel header="Ast.">
                                 <table class="statTable">
                                     <tr v-for="player in topAsts">
-                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
+                                        <td><Button class="playerButton" :label="player.playerName" link @click="openPlayerDialog(player.playerID)"/></td>
                                         <td class="stat">{{ player.assists }}</td>
                                     </tr>
                                 </table>
@@ -93,7 +93,7 @@
                             <TabPanel header="Apps">
                                 <table class="statTable">
                                     <tr v-for="player in topApps">
-                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
+                                        <td><Button class="playerButton" :label="player.playerName" link @click="openPlayerDialog(player.playerID)"/></td>
                                         <td class="stat">{{ player.apps }}</td>
                                     </tr>
                                 </table>
@@ -101,7 +101,7 @@
                             <TabPanel header="Rating">
                                 <table class="statTable">
                                     <tr v-for="player in topRat">
-                                        <td><a href="#" @click="openPlayerDialog(player.playerID)">{{ player.playerName }}</a></td>
+                                        <td><Button class="playerButton" :label="player.playerName" link @click="openPlayerDialog(player.playerID)"/></td>
                                         <td class="stat">{{ numberFormmaterDec.format(player.avgRating) }}</td>
                                     </tr>
                                 </table>
@@ -424,6 +424,11 @@ onMounted( async () => {
 
 .editButton {
     height: 1rem!important;
+}
+
+.playerButton {
+    padding: 0%!important;
+    color: var(--surface-900)!important
 }
 
 </style>

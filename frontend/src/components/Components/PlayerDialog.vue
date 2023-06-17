@@ -1,5 +1,5 @@
 <template>
-    <Dialog   modal :draggable="false" :closable="true" header="" showHeader class="w-11" @update:visible="emit('closeDialog')" style="height:fit-content">
+    <Dialog modal :draggable="false" :closable="true" header="" showHeader class="w-11" @update:visible="emit('closeDialog')" style="height:fit-content">
     <div class=" grid" v-if="dataLoaded">
             <!-- <div class="grid"> -->
             <div class="ml-6 col" style="font-family: Didot;">
@@ -30,19 +30,18 @@
                 
             </div>
         </div>
-        
-        <div style="font-family: Didot">
+        <div style="font-family: Didot" v-if="dataLoaded">
             <table class="totalsTable">
                     <thead>
                          <tr class="justify-content-center">
                             <th class="firstCol"></th>
                             <th class="statCell" v-tooltip.top="'Appearances (Subs)'">Apps.</th>
                             <th class="statCell" v-tooltip.top="'Minutes'">Mins.</th>
-                            <th class="statCell" v-if="playerAvgs.position != 'GK'" v-tooltip.top="'Goals'">Gls.</th>
-                            <th class="statCell" v-if="playerAvgs.position != 'GK'" v-tooltip.top="'Assists'">Asts.</th>
-                            <th class="statCell" v-if="playerAvgs.position != 'GK'" v-tooltip.top="'Yellow Cards'">Yell.</th>
-                            <th class="statCell" v-if="playerAvgs.position != 'GK'" v-tooltip.top="'Red Cards'">Red</th>
-                            <th class="statCell" v-if="playerAvgs.position == 'GK'" >Shutouts</th>
+                            <th class="statCell" v-if="isGK" v-tooltip.top="'Goals'">Gls.</th>
+                            <th class="statCell" v-if="isGK" v-tooltip.top="'Assists'">Asts.</th>
+                            <th class="statCell" v-if="isGK" v-tooltip.top="'Yellow Cards'">Yell.</th>
+                            <th class="statCell" v-if="isGK" v-tooltip.top="'Red Cards'">Red</th>
+                            <th class="statCell" v-if="!isGK" >Shutouts</th>
                             <th class="statCell" v-tooltip.top="'Average Rating'">Avg.</th>
                             <th class="statCell" v-tooltip.top="'Player of the Match'">P.o.M.</th>
                         </tr>
@@ -52,11 +51,11 @@
                             <td class="firstCol">Total:</td>
                             <td class="statCell">{{ playerAvgs.totStart }} ({{ playerAvgs.totSubs }})</td>
                             <td class="statCell">{{ playerAvgs.totMin }}</td>
-                            <td class="statCell" v-if="playerAvgs.position != 'GK'">{{ playerAvgs.totGls }}</td>
-                            <td class="statCell" v-if="playerAvgs.position != 'GK'">{{ playerAvgs.totAst }}</td>
-                            <td class="statCell" v-if="playerAvgs.position != 'GK'">{{ playerAvgs.totYel }}</td>
-                            <td class="statCell" v-if="playerAvgs.position != 'GK'">{{ playerAvgs.totRed }}</td>
-                            <td class="statCell" v-if="playerAvgs.position == 'GK'" v-tooltip.top="'Shutouts'">{{ playerAvgs.totShutouts }}</td>
+                            <td class="statCell" v-if="isGK">{{ playerAvgs.totGls }}</td>
+                            <td class="statCell" v-if="isGK">{{ playerAvgs.totAst }}</td>
+                            <td class="statCell" v-if="isGK">{{ playerAvgs.totYel }}</td>
+                            <td class="statCell" v-if="isGK">{{ playerAvgs.totRed }}</td>
+                            <td class="statCell" v-if="!isGK" v-tooltip.top="'Shutouts'">{{ playerAvgs.totShutouts }}</td>
                             <td class="statCell">{{ numberFormatterSQ.format(playerAvgs.avgRat) }}</td>
                             <td class="statCell">{{ playerAvgs.totPOM }}</td>
                         </tr>
@@ -66,7 +65,7 @@
     
         <Divider class="fullWidth topDiv" style=""/>
     <!-- </div> -->
-    <div class="">
+    <div class="" v-if="dataLoaded">
         <TabView >
             <TabPanel header="Season Stats">
                 <DataTable :rows="15" scrollHeight="flex" class="p-datatable-sm" :value="playerSeasons" 
@@ -80,10 +79,12 @@
                             {{ slotProps.data.starts }} ({{ slotProps.data.subs }})
                         </template>
                     </Column>
-                    <Column field="goals" header="Goals" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column field="assists" header="Assists" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column field="yellowCards" header="Yellow Cards" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column field="redCards" header="Red Cards" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="isGK" field="goals" header="Goals" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="isGK" field="assists" header="Assists" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="isGK" field="yellowCards" header="Yellow Cards" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="isGK" field="redCards" header="Red Cards" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="!isGK" field="shutouts" header="Shutouts" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="!isGK" field="savePerc" header="Save %" class="min-w-min justify-content-center text-center" sortable></Column>
                     <Column field="avgRating" header="Avg. Rating" class="min-w-min justify-content-center text-center" sortable>
                         <template #body="slotProps">
                             {{ numberFormatterSQ.format(slotProps.data.avgRating) }}
@@ -102,7 +103,7 @@
                     </Column>
                     <template #expansion="slotProps">
                         <div class=" grid flex justify-content-evenly">
-                            <Card class="col-3  attrCard" v-if="playerAvgs.position != 'GK'">
+                            <Card class="col-3  attrCard" v-if="!isGK">
                                 <template #header class="flex text-center"><h3>Technical</h3></template>
                                 <template #content>
                                     <table class="attrTable">
@@ -115,7 +116,7 @@
                                     </table>
                                 </template>
                             </Card>
-                            <Card class="col-3  attrCard" v-if="playerAvgs.position == 'GK'">
+                            <Card class="col-3  attrCard" v-if="isGK">
                                 <template #header class="flex text-center"><h3>Goalkeeping</h3></template>
                                 <template #content>
                                     <table class="attrTable">
@@ -159,7 +160,71 @@
                 </DataTable>
             </TabPanel>
             <TabPanel header="Attribute Progress">
-
+                <div class="flex flex-column justify-content-center">
+                    
+                    <Chart id="attrChart" type="line" :data="chartData" :options="chartOptions"  class="h-25rem" />
+                    <div class="w-full flex justify-content-center"><Button class="w-4" text raised label="Choose Attributes to Show" @click="toggle" /></div>
+                    <OverlayPanel ref="attrChoices" showCloseIcon="true">
+                        <div class="flex ">
+                            <Card v-if="!isGK" class="attrCard selectionCard">
+                                <template #header><h3>Technical</h3></template>
+                                <template #content>
+                                    <table class="attrTable ">
+                                        <tbody>
+                                            <tr v-for="attr in techAttr">
+                                                <td>{{ attr.name }}</td>
+                                                <td><InputSwitch v-model="attr.visible.value" @change="updateChartData"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </Card>
+                            <Card v-if="isGK" class="attrCard selectionCard">
+                                <template #header><h3>Goalkeeping</h3></template>
+                                <template #content>
+                                    <table class="attrTable">
+                                        <tbody>
+                                            <tr v-for="attr in gkAttr">
+                                                <td>{{ attr.name }}</td>
+                                                <td><InputSwitch v-model="attr.visible.value" @change="updateChartData"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </Card>
+                            <Card class="attrCard selectionCard">
+                                <template #header><h3>Mental</h3></template>
+                                <template #content>
+                                    <table class="attrTable">
+                                        <tbody>
+                                            <tr v-for="attr in mentalAttr">
+                                                <td>{{ attr.name }}</td>
+                                                <td><InputSwitch v-model="attr.visible.value" @change="updateChartData"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </Card>
+                            <Card  class="attrCard selectionCard">
+                                <template #header><h3>Physical</h3></template>
+                                <template #content>
+                                    <table class="attrTable ">
+                                        <tbody>
+                                            <tr v-for="attr in phyAttr">
+                                                <td>{{ attr.name }}</td>
+                                                <td><InputSwitch v-model="attr.visible.value" @change="updateChartData"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </Card>
+                        </div>
+                    </OverlayPanel>
+                    
+                </div>
+                <!-- <Sidebar v-model:visible="attrChoices" position="bottom" dismissable="true" @hide="attrChoices=false">
+                    <h1>Some choices here</h1>
+                </Sidebar> -->
             </TabPanel>
         </TabView>
     </div>
@@ -168,11 +233,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onMounted, onBeforeMount } from 'vue'
+import { ref, defineProps, defineEmits, onMounted, onBeforeMount, Ref } from 'vue'
 import { number } from 'yup';
 import { GetSinglePlayer } from '../../../wailsjs/go/main/App'
-
+import { backend } from '../../../wailsjs/go/models';
 import countryCodes from 'country-code-info';
+
 
 // @ts-ignore
 // import convertFIFACountryCode from '/country-code-converter'
@@ -184,74 +250,85 @@ const props = defineProps<{
 const emit = defineEmits(
     ['closeDialog', 'beError']
 )
+const documentStyle = document.styleSheets[0].cssRules[0]
 const playerID = ref()
 const playerSeasons = ref()
 const playerAvgs = ref()
 const dataLoaded = ref(false)
 const expandedSeasons = ref([])
+const chartOptions = ref()
+const chartData = ref()
+const chartPlugins = ref()
+const seasons = ref()
+const isGK = ref(false)
+const attrChoices = ref()
 let numberFormatterSQ: Intl.NumberFormat = new Intl.NumberFormat(navigator.language, {
     style: "decimal",
     maximumFractionDigits: 2
 })
 
-const techAttr: {attr: string, name: string}[] = [
-    {attr: 'cor', name: 'Corners'},
-    {attr: 'cro', name: 'Crossing'},
-    {attr: 'dri', name: 'Dribbling' },
-    {attr: 'fin', name: 'Finishing'},
-    {attr: 'fir', name: 'First Touch'},
-    {attr: 'fre', name: 'Free Kicks'},
-    {attr: 'hea', name: 'Heading'},
-    {attr: 'lon', name: 'Long Shots'},
-    {attr: 'lth', name: 'Long Throws'},
-    {attr: 'mar', name: 'Marking'},
-    {attr: 'pas', name: 'Passing'},
-    {attr: 'pen', name: 'Penalties'},
-    {attr: 'tck', name: 'Tackling'},
-    {attr: 'tec', name: 'Technique'}
+const toggle = (event: any) => {
+    attrChoices.value.toggle(event)
+}
+
+const techAttr: {attr: string, name: string, visible: Ref<boolean>}[] = [
+    {attr: 'cor', name: 'Corners', visible: ref(false)},
+    {attr: 'cro', name: 'Crossing', visible: ref(false)},
+    {attr: 'dri', name: 'Dribbling', visible: ref(false)},
+    {attr: 'fin', name: 'Finishing', visible: ref(false)},
+    {attr: 'fir', name: 'First Touch', visible: ref(false)},
+    {attr: 'fre', name: 'Free Kicks', visible: ref(false)},
+    {attr: 'hea', name: 'Heading', visible: ref(false)},
+    {attr: 'lon', name: 'Long Shots', visible: ref(false)},
+    {attr: 'lth', name: 'Long Throws', visible: ref(false)},
+    {attr: 'mar', name: 'Marking', visible: ref(false)},
+    {attr: 'pas', name: 'Passing', visible: ref(false)},
+    {attr: 'pen', name: 'Penalties', visible: ref(false)},
+    {attr: 'tck', name: 'Tackling', visible: ref(false)},
+    {attr: 'tec', name: 'Technique', visible: ref(false)}
+]
+const gkAttr: {attr: string, name: string, visible: Ref<boolean>}[] = [
+    {attr: 'aer', name: 'Aerial Reach', visible: ref(false)},
+    {attr: 'cmd', name: 'Command of Area', visible: ref(false)},
+    {attr: 'com', name: 'Communication', visible: ref(false)},
+    {attr: 'ecc', name: 'Eccentricity', visible: ref(false)},
+    {attr: 'fir', name: 'First Touch', visible: ref(false)},
+    {attr: 'han', name: 'Handling', visible: ref(false)},
+    {attr: 'kic', name: 'Kicking', visible: ref(false)},
+    {attr: 'ovo', name: 'One On Ones', visible: ref(false)},
+    {attr: 'pas', name: 'Passing', visible: ref(false)},
+    {attr: 'pun', name: 'Punching (Tendency)', visible: ref(false)},
+    {attr: 'ref', name: 'Reflexes', visible: ref(false)},
+    {attr: 'tro', name: 'Rushing Out (Tendency)', visible: ref(false)},
+    {attr: 'thr', name: 'Throwing', visible: ref(false)}
+]
+const mentalAttr: {attr: string, name: string, visible: Ref<boolean>}[] = [
+    {attr: 'agg', name: 'Aggression', visible: ref(false)},
+    {attr: 'ant', name: 'Anticipation', visible: ref(false)},
+    {attr: 'bra', name: 'Bravery', visible: ref(false)},
+    {attr: 'cmp', name: 'Composure', visible: ref(false)},
+    {attr: 'cnt', name: 'Concentration', visible: ref(false)},
+    {attr: 'dec', name: 'Decisions', visible: ref(false)},
+    {attr: 'det', name: 'Determination', visible: ref(false)},
+    {attr: 'fla', name: 'Flair', visible: ref(false)},
+    {attr: 'ldr', name: 'Leadership', visible: ref(false)},
+    {attr: 'otb', name: 'Off the Ball', visible: ref(false)},
+    {attr: 'pos', name: 'Positioning', visible: ref(false)},
+    {attr: 'tea', name: 'Teamwork', visible: ref(false)},
+    {attr: 'vis', name: 'Vision', visible: ref(false)},
+    {attr: 'wor', name: 'Work Rate', visible: ref(false)}
+]
+const phyAttr: {attr: string, name: string, visible: Ref<boolean>}[] = [
+    {attr: 'acc', name: 'Acceleration', visible: ref(false)},
+    {attr: 'agi', name: 'Agility', visible: ref(false)},
+    {attr: 'bal', name: 'Balance', visible: ref(false)},
+    {attr: 'jum', name: 'Jumping Reach', visible: ref(false)},
+    {attr: 'nat', name: 'Natural Fitness', visible: ref(false)},
+    {attr: 'pac', name: 'Pace', visible: ref(false)},
+    {attr: 'sta', name: 'Stamina', visible: ref(false)},
+    {attr: 'str', name: 'Strength', visible: ref(false)}
 ]
 
-const gkAttr: {attr: string, name: string}[] = [
-    {attr: 'aer', name: 'Aerial Reach'},
-    {attr: 'cmd', name: 'Command of Area'},
-    {attr: 'com', name: 'Communication' },
-    {attr: 'ecc', name: 'Eccentricity'},
-    {attr: 'fir', name: 'First Touch'},
-    {attr: 'han', name: 'Handling'},
-    {attr: 'kic', name: 'Kicking'},
-    {attr: 'ovo', name: 'One On Ones'},
-    {attr: 'pas', name: 'Passing'},
-    {attr: 'pun', name: 'Punching (Tendency)'},
-    {attr: 'ref', name: 'Reflexes'},
-    {attr: 'tro', name: 'Rushing Out (Tendency)'},
-    {attr: 'thr', name: 'Throwing'}
-]
-const mentalAttr: {attr: string, name: string}[] = [
-    {attr: 'agg', name: 'Aggression'},
-    {attr: 'ant', name: 'Anticipation'},
-    {attr: 'bra', name: 'Bravery'},
-    {attr: 'cmp', name: 'Composure'},
-    {attr: 'cnt', name: 'Concentration'},
-    {attr: 'dec', name: 'Decisions'},
-    {attr: 'det', name: 'Determination'},
-    {attr: 'fla', name: 'Flair'},
-    {attr: 'ldr', name: 'Leadership'},
-    {attr: 'otb', name: 'Off the Ball'},
-    {attr: 'pos', name: 'Positioning'},
-    {attr: 'tea', name: 'Teamwork'},
-    {attr: 'vis', name: 'Vision'},
-    {attr: 'wor', name: 'Work Rate'}
-]
-const phyAttr: {attr: string, name: string}[] = [
-    {attr: 'acc', name: 'Acceleration'},
-    {attr: 'agi', name: 'Agility'},
-    {attr: 'bal', name: 'Balance'},
-    {attr: 'jum', name: 'Jumping Reach'},
-    {attr: 'nat', name: 'Natural Fitness'},
-    {attr: 'pac', name: 'Pace'},
-    {attr: 'sta', name: 'Stamina'},
-    {attr: 'str', name: 'Strength'}
-]
 
 const difCountryCodes: Map<string, string> = new Map([
     ['ENG', 'GB-ENG'],
@@ -284,19 +361,131 @@ const getCountryName = (nationality: string) => {
     return countryCodes.findCountry({'fifa': nationality})!.name
 }
 
+const setChartPlugins = () => {
+    return {
+        plugins: {
+            legend: {
+                labels: {
+                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                },
+            }
+        }
+    }
+}
+
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement)
+    const textColor = documentStyle.getPropertyValue('--text-color')
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary')
+    const surfaceBorder = documentStyle.getPropertyValue('--surface-border')
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        layout: {
+            padding: 0
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                display: true,
+                labels: {
+                    filter: function(item: any) {
+                        return !item.hidden
+                    }
+                },
+                onClick: function() {
+                    return
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                ticks: {
+                    color:textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                },
+                // min: 1,
+                // max: 20
+            }
+        },
+        parsing: {
+            xAxisKey: 'season',
+        },
+        elements: {
+            point: {
+                radius: 6,
+                hitRadius: 3,
+                pointStyle: 'rectRounded',
+                spanGaps: true
+            }
+        }
+    }
+}
+
+const setChartData = () => {
+    const documentStyle = getComputedStyle(document.documentElement)
+    let listOfAttr: {attr: string, name: string, visible: Ref<boolean>}[][]
+    if (playerAvgs.value.position != 'GK') {
+        listOfAttr = [techAttr, mentalAttr, phyAttr]
+    } else {
+        listOfAttr = [gkAttr, mentalAttr, phyAttr]
+    }
+    let attributes: {label: string, data: {}[], parsing: { yAxisKey: string}, hidden: boolean}[] = []
+    listOfAttr.forEach( (attrList) => {
+        attrList.forEach( (attribute) => {
+            attributes.push({
+                label: attribute.name,
+                data: playerSeasons.value,
+                parsing: {
+                    yAxisKey:attribute.attr
+                },
+                hidden: !attribute.visible.value
+            })
+        })
+    })
+    return {
+        datasets: attributes
+    }
+}
+
+const updateChartData = () => {
+    chartData.value = setChartData()
+}
+
+// onMounted( () => {
+    
+// })
+
 onBeforeMount( () => {
     playerID.value = props.playerID
     GetSinglePlayer(props.playerID).then( (response) => {
-        dataLoaded.value = true
+        
         if (response.Error != "") {
             emit('beError', response.Error)
             return
         }
         playerSeasons.value = response.OnePlayer
         playerAvgs.value = response.PlayerAvgSum
-        // console.log(playerAvgs.value.secondNationality.String)
-        //TODO: Add `COUNT(playerSeason.seasonID)` to query where getting the averages from 
+        seasons.value = ([...new Set(playerSeasons.value.map((item: backend.PlayerPageInfo ) => item.season))])
         console.log(playerSeasons.value)
+        if (playerAvgs.value.position == 'GK') {
+            isGK.value = true
+        }
+        dataLoaded.value = true
+        chartData.value = setChartData()
+        chartOptions.value = setChartOptions()
+        chartPlugins.value = setChartPlugins()
     })
 })
 
@@ -332,7 +521,9 @@ onBeforeMount( () => {
     }
 
     .attrCard {
-        background: none!important;;
+        background: none!important;
+        border: 0px!important;
+        box-shadow: none!important;
     }
 
     .attrCard .p-card-header h3 {
@@ -359,6 +550,11 @@ onBeforeMount( () => {
 
     .attrTable td {
         font-size: smaller;
+    }
+
+    .selectionCard :deep(.p-card-header) {
+        border-bottom: 1px solid var(--surface-border);
+        padding-bottom: 3px!important;
     }
 
 </style>

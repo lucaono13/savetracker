@@ -14,6 +14,9 @@
                         <template #filter="{ filterModel }">
                             <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
                         </template>
+                        <template #body="slotProps">
+                            <Button :label="slotProps.data.playerName" link @click="openPlayerDialog(slotProps.data.playerID)" />
+                        </template>
                     </Column>
                     <Column field="position" header="Position" class="min-w-min" style="min-width: 150px!important;" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
@@ -67,6 +70,9 @@
                         <template #filter="{ filterModel }">
                             <InputText v-model="filterModel.value" type="text" class="p-column-filter" placeholder="Search by name" />
                         </template>
+                        <template #body="slotProps">
+                            <Button :label="slotProps.data.playerName" link @click="openPlayerDialog(slotProps.data.playerID)" />
+                        </template>
                     </Column>
                     <Column field="position" header="Position" class="min-w-min" style="min-width: 150px!important;" :reorderableColumn="false">
                         <template #filter="{ filterModel }">
@@ -104,6 +110,7 @@
             </TabPanel>
         </TabView>
     </div>
+    <PlayerDialog :visible="playerDialog" v-if="playerDialog" :playerID="playerDialogID" @closeDialog="closePlayerDialog"/>
 </template>
 
 <script setup lang="ts">
@@ -112,6 +119,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import PlayerDialog from '../Components/PlayerDialog.vue';
 
 const route = useRoute()
 const gks = ref()
@@ -119,6 +127,8 @@ const outfield = ref()
 const filters = ref()
 const GKfilters = ref()
 const uniqueYears = ref()
+const playerDialog = ref(false)
+const playerDialogID = ref(0)
 const emit = defineEmits(['beError'])
 let numberFormatterSQ: Intl.NumberFormat 
 
@@ -138,6 +148,16 @@ onMounted( () => {
         })
     })
 })
+
+function openPlayerDialog(playerID: number) {
+    playerDialogID.value = playerID
+    playerDialog.value = true
+}
+
+function closePlayerDialog() {
+    playerDialog.value = false
+    playerDialogID.value = 0
+}
 
 const initFilters = () => {
     filters.value = {
