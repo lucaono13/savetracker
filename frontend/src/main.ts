@@ -45,6 +45,12 @@ import DataViewLayoutOptions from 'primevue/dataviewlayoutoptions'   // optional
 import InlineMessage from 'primevue/inlinemessage'
 import Tooltip from 'primevue/tooltip'
 import Editor from 'primevue/editor'
+import Chart from 'primevue/chart'
+import InputSwitch from 'primevue/inputswitch'
+
+// Flags
+// @ts-ignore
+// import Flag from 'vue-flagpack'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -60,7 +66,9 @@ import { fas } from "@fortawesome/free-solid-svg-icons"
 // Import specific icons
 import { faMugHot, faList, faQuestion, faHouseChimney } from '@fortawesome/free-solid-svg-icons'
 
+// Flags
 
+// import Flag from 'vue-flagpack'
 
 // PrimeIcons
 import 'primeicons/primeicons.css'
@@ -77,6 +85,11 @@ import 'primevue/resources/themes/lara-dark-teal/theme.css'
 const app = createApp(App)
 app.use(createPinia())
 app.use(ToastService)
+// app.use(Flag, { name: 'Flag'})
+
+// Flags
+import CountryFlag from 'vue-country-flag-next'
+app.component('CountryFlag', CountryFlag)
 
 // const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
 
@@ -131,8 +144,11 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('DataViewLayoutOptions', DataViewLayoutOptions)
     .component('InlineMessage', InlineMessage)
     .component('Editor', Editor)
+    .component('Chart',Chart)
+    .component('InputSwitch', InputSwitch)
     .directive('tooltip', Tooltip)
 
+// app.use(Flag)
 // Use Vue Router
 app.use(router)
 

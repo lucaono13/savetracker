@@ -21,29 +21,31 @@ type App struct {
 }
 
 type ErrorReturn struct {
-	Error        string                     `json:"Error"`
-	String       string                     `json:"String"`
-	Integer      int                        `json:"Integer"`
-	Save         backend.Save               `json:"Save"`
-	SaveList     []backend.Save             `json:"SaveList"`
-	Matches      []backend.Match            `json:"Matches"`
-	InTransfers  []backend.Transfer         `json:"InTransfers"`
-	OutTransfers []backend.Transfer         `json:"OutTransfers"`
-	Currency     string                     `json:"Currency"`
-	Outfielders  []backend.PlayerSquadView  `json:"Outfielders"`
-	Goalies      []backend.PlayerSquadView  `json:"Goalies"`
-	OutTotals    []backend.PlayerTotalsView `json:"OutTotals"`
-	GKTotals     []backend.PlayerTotalsView `json:"GKTotals"`
-	TopGls       []backend.TopResults       `json:"TopGls"`
-	TopAsts      []backend.TopResults       `json:"TopAsts"`
-	TopApps      []backend.TopResults       `json:"TopApps"`
-	TopRat       []backend.TopResults       `json:"TopAvg"`
-	TopTransfers []backend.TopTransfers     `json:"TopTrfs"`
-	AvgInFee     float32                    `json:"AvgInFee"`
-	AvgOutFee    float32                    `json:"AvgOutFee"`
-	Trophies     []backend.Trophy           `json:"Trophies"`
-	ImageFile    string                     `json:"ImageFile"`
-	ImageB64     string                     `json:"b64Image"`
+	Error         string                     `json:"Error"`
+	String        string                     `json:"String"`
+	Integer       int                        `json:"Integer"`
+	Save          backend.Save               `json:"Save"`
+	SaveList      []backend.Save             `json:"SaveList"`
+	Matches       []backend.Match            `json:"Matches"`
+	InTransfers   []backend.Transfer         `json:"InTransfers"`
+	OutTransfers  []backend.Transfer         `json:"OutTransfers"`
+	Currency      string                     `json:"Currency"`
+	Outfielders   []backend.PlayerSquadView  `json:"Outfielders"`
+	Goalies       []backend.PlayerSquadView  `json:"Goalies"`
+	OutTotals     []backend.PlayerTotalsView `json:"OutTotals"`
+	GKTotals      []backend.PlayerTotalsView `json:"GKTotals"`
+	TopGls        []backend.TopResults       `json:"TopGls"`
+	TopAsts       []backend.TopResults       `json:"TopAsts"`
+	TopApps       []backend.TopResults       `json:"TopApps"`
+	TopRat        []backend.TopResults       `json:"TopAvg"`
+	TopTransfers  []backend.TopTransfers     `json:"TopTrfs"`
+	AvgInFee      float32                    `json:"AvgInFee"`
+	AvgOutFee     float32                    `json:"AvgOutFee"`
+	Trophies      []backend.Trophy           `json:"Trophies"`
+	ImageFile     string                     `json:"ImageFile"`
+	ImageB64      string                     `json:"b64Image"`
+	SinglePlayer  []backend.PlayerPageInfo   `json:"OnePlayer"`
+	SingPlayerAvg backend.PlayerSumsAvgs     `json:"PlayerAvgSum"`
 }
 
 type NewSeason struct {
@@ -204,6 +206,19 @@ func (a *App) GetSavePlayersTotals(saveID int) ErrorReturn {
 	return ErrorReturn{
 		OutTotals: outfielders,
 		GKTotals:  goalies,
+	}
+}
+
+func (a *App) GetSinglePlayer(playerID int) ErrorReturn {
+	player, sumsAvgs, err := backend.GetSinglePlayer(playerID)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error getting player's info. Check log file for more details.",
+		}
+	}
+	return ErrorReturn{
+		SinglePlayer:  player,
+		SingPlayerAvg: sumsAvgs,
 	}
 }
 

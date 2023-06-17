@@ -56,6 +56,144 @@ export namespace backend {
 		    return a;
 		}
 	}
+	export class PlayerPageInfo {
+	    starts: number;
+	    subs: number;
+	    goals: number;
+	    assists: number;
+	    playerOfTheMatch: number;
+	    passPerc: number;
+	    yellowCards: number;
+	    redCards: number;
+	    avgRating: number;
+	    winPerc: number;
+	    minutes: number;
+	    shutouts: number;
+	    savePerc: number;
+	    aer: number;
+	    cmd: number;
+	    com: number;
+	    ecc: number;
+	    han: number;
+	    kic: number;
+	    ovo: number;
+	    pun: number;
+	    ref: number;
+	    tro: number;
+	    thr: number;
+	    cor: number;
+	    cro: number;
+	    dri: number;
+	    fin: number;
+	    fir: number;
+	    fre: number;
+	    hea: number;
+	    lon: number;
+	    lth: number;
+	    mar: number;
+	    pas: number;
+	    pen: number;
+	    tck: number;
+	    tec: number;
+	    agg: number;
+	    ant: number;
+	    bra: number;
+	    cmp: number;
+	    cnt: number;
+	    dec: number;
+	    det: number;
+	    fla: number;
+	    ldr: number;
+	    otb: number;
+	    pos: number;
+	    tea: number;
+	    vis: number;
+	    wor: number;
+	    acc: number;
+	    agi: number;
+	    bal: number;
+	    jum: number;
+	    nat: number;
+	    pac: number;
+	    sta: number;
+	    str: number;
+	    saveName: string;
+	    season: string;
+	    teamName: string;
+	    playerSeasonID: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlayerPageInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.starts = source["starts"];
+	        this.subs = source["subs"];
+	        this.goals = source["goals"];
+	        this.assists = source["assists"];
+	        this.playerOfTheMatch = source["playerOfTheMatch"];
+	        this.passPerc = source["passPerc"];
+	        this.yellowCards = source["yellowCards"];
+	        this.redCards = source["redCards"];
+	        this.avgRating = source["avgRating"];
+	        this.winPerc = source["winPerc"];
+	        this.minutes = source["minutes"];
+	        this.shutouts = source["shutouts"];
+	        this.savePerc = source["savePerc"];
+	        this.aer = source["aer"];
+	        this.cmd = source["cmd"];
+	        this.com = source["com"];
+	        this.ecc = source["ecc"];
+	        this.han = source["han"];
+	        this.kic = source["kic"];
+	        this.ovo = source["ovo"];
+	        this.pun = source["pun"];
+	        this.ref = source["ref"];
+	        this.tro = source["tro"];
+	        this.thr = source["thr"];
+	        this.cor = source["cor"];
+	        this.cro = source["cro"];
+	        this.dri = source["dri"];
+	        this.fin = source["fin"];
+	        this.fir = source["fir"];
+	        this.fre = source["fre"];
+	        this.hea = source["hea"];
+	        this.lon = source["lon"];
+	        this.lth = source["lth"];
+	        this.mar = source["mar"];
+	        this.pas = source["pas"];
+	        this.pen = source["pen"];
+	        this.tck = source["tck"];
+	        this.tec = source["tec"];
+	        this.agg = source["agg"];
+	        this.ant = source["ant"];
+	        this.bra = source["bra"];
+	        this.cmp = source["cmp"];
+	        this.cnt = source["cnt"];
+	        this.dec = source["dec"];
+	        this.det = source["det"];
+	        this.fla = source["fla"];
+	        this.ldr = source["ldr"];
+	        this.otb = source["otb"];
+	        this.pos = source["pos"];
+	        this.tea = source["tea"];
+	        this.vis = source["vis"];
+	        this.wor = source["wor"];
+	        this.acc = source["acc"];
+	        this.agi = source["agi"];
+	        this.bal = source["bal"];
+	        this.jum = source["jum"];
+	        this.nat = source["nat"];
+	        this.pac = source["pac"];
+	        this.sta = source["sta"];
+	        this.str = source["str"];
+	        this.saveName = source["saveName"];
+	        this.season = source["season"];
+	        this.teamName = source["teamName"];
+	        this.playerSeasonID = source["playerSeasonID"];
+	    }
+	}
 	export class PlayerSquadView {
 	    playerID: number;
 	    playerName: string;
@@ -101,6 +239,103 @@ export namespace backend {
 	        this.minutes = source["minutes"];
 	        this.shutouts = source["shutouts"];
 	        this.savePerc = source["savePerc"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class PlayerSumsAvgs {
+	    playerID: number;
+	    saveID: number;
+	    playerName: string;
+	    uniqueID: number;
+	    nationality: string;
+	    // Go type: sql
+	    secondNationality: any;
+	    birthdate: string;
+	    position: string;
+	    saveName: string;
+	    gameVersion: number;
+	    seasons: string;
+	    teamName: string;
+	    avgMin: number;
+	    totMin: number;
+	    avgStart: number;
+	    totStart: number;
+	    avgSubs: number;
+	    totSubs: number;
+	    avgGls: number;
+	    totGls: number;
+	    avgAst: number;
+	    totAst: number;
+	    avgYel: number;
+	    totYel: number;
+	    avgRed: number;
+	    totRed: number;
+	    avgRat: number;
+	    avgPOM: number;
+	    totPOM: number;
+	    avgPasP: number;
+	    avgWinP: number;
+	    avgShutouts: number;
+	    totShutouts: number;
+	    avgSaveP: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlayerSumsAvgs(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.playerID = source["playerID"];
+	        this.saveID = source["saveID"];
+	        this.playerName = source["playerName"];
+	        this.uniqueID = source["uniqueID"];
+	        this.nationality = source["nationality"];
+	        this.secondNationality = this.convertValues(source["secondNationality"], null);
+	        this.birthdate = source["birthdate"];
+	        this.position = source["position"];
+	        this.saveName = source["saveName"];
+	        this.gameVersion = source["gameVersion"];
+	        this.seasons = source["seasons"];
+	        this.teamName = source["teamName"];
+	        this.avgMin = source["avgMin"];
+	        this.totMin = source["totMin"];
+	        this.avgStart = source["avgStart"];
+	        this.totStart = source["totStart"];
+	        this.avgSubs = source["avgSubs"];
+	        this.totSubs = source["totSubs"];
+	        this.avgGls = source["avgGls"];
+	        this.totGls = source["totGls"];
+	        this.avgAst = source["avgAst"];
+	        this.totAst = source["totAst"];
+	        this.avgYel = source["avgYel"];
+	        this.totYel = source["totYel"];
+	        this.avgRed = source["avgRed"];
+	        this.totRed = source["totRed"];
+	        this.avgRat = source["avgRat"];
+	        this.avgPOM = source["avgPOM"];
+	        this.totPOM = source["totPOM"];
+	        this.avgPasP = source["avgPasP"];
+	        this.avgWinP = source["avgWinP"];
+	        this.avgShutouts = source["avgShutouts"];
+	        this.totShutouts = source["totShutouts"];
+	        this.avgSaveP = source["avgSaveP"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -384,6 +619,8 @@ export namespace main {
 	    Trophies: backend.Trophy[];
 	    ImageFile: string;
 	    b64Image: string;
+	    OnePlayer: backend.PlayerPageInfo[];
+	    PlayerAvgSum: backend.PlayerSumsAvgs;
 	
 	    static createFrom(source: any = {}) {
 	        return new ErrorReturn(source);
@@ -414,6 +651,8 @@ export namespace main {
 	        this.Trophies = this.convertValues(source["Trophies"], backend.Trophy);
 	        this.ImageFile = source["ImageFile"];
 	        this.b64Image = source["b64Image"];
+	        this.OnePlayer = this.convertValues(source["OnePlayer"], backend.PlayerPageInfo);
+	        this.PlayerAvgSum = this.convertValues(source["PlayerAvgSum"], backend.PlayerSumsAvgs);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
