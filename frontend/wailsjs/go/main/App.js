@@ -10,12 +10,40 @@ export function AddNewSeason(arg1, arg2) {
   return window['go']['main']['App']['AddNewSeason'](arg1, arg2);
 }
 
+export function GetAllPlayersSeason() {
+  return window['go']['main']['App']['GetAllPlayersSeason']();
+}
+
+export function GetAllPlayersTotals() {
+  return window['go']['main']['App']['GetAllPlayersTotals']();
+}
+
+export function GetAllRankings() {
+  return window['go']['main']['App']['GetAllRankings']();
+}
+
+export function GetAllResults() {
+  return window['go']['main']['App']['GetAllResults']();
+}
+
+export function GetAllTransfers() {
+  return window['go']['main']['App']['GetAllTransfers']();
+}
+
+export function GetAllTrophies() {
+  return window['go']['main']['App']['GetAllTrophies']();
+}
+
 export function GetImage(arg1) {
   return window['go']['main']['App']['GetImage'](arg1);
 }
 
 export function GetNumSaves() {
   return window['go']['main']['App']['GetNumSaves']();
+}
+
+export function GetNumSeasons() {
+  return window['go']['main']['App']['GetNumSeasons']();
 }
 
 export function GetNumSeasonsInSave(arg1) {
@@ -56,6 +84,10 @@ export function GetTrophies(arg1) {
 
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
+}
+
+export function Log(arg1) {
+  return window['go']['main']['App']['Log'](arg1);
 }
 
 export function RetrieveSaves() {

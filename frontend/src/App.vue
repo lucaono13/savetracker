@@ -1,9 +1,10 @@
 <template>
   <Toast />
   <Menubar class="w-full  top-0 relative left-0" style="width: 98vw!important; padding-right: none!important;">
-    <template #start style="width:250px">
-      <FontAwesomeIcon :icon="['fas','house-chimney']"/>
-      <CascadeSelect style="width:90%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
+    <template #start style="width:250px!important" class="flex flex-row">
+      <div class="flex align-items-center gap-2">
+      <Button @click="GoHome"><FontAwesomeIcon :icon="['fas','house-chimney']"/></Button>
+      <CascadeSelect style="width:80%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
         optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
         <template #option="slotProps">
           <div class="flex align-items-center justify-content-center">
@@ -15,7 +16,7 @@
           </div>
         </template>
       </CascadeSelect>
-
+    </div>
     </template>
     <template #end>
       <Button class="p-button-help p-button-outlined" @click="addSaveModal = true">New Save</Button>
@@ -72,6 +73,11 @@ let isDataLoaded = computed(
   }
 )
 
+const GoHome = () => {
+  selectedSave.value = {}
+  router.replace({path: "/", replace: true})
+}
+
 const testing = reactive(finalSaves.value)
 let isLoaded = ref(false)
 
@@ -126,21 +132,24 @@ function GetSaves(newID?: number): void {
     finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({ gameVersion, saves }))
     localStorage.setItem("saves", finalSaves.value.length.toString())
     isLoaded.value = true
-    nextTick()
+    // nextTick()
     if (newID != null) {
       if (newID != 0) {
         GoToSave(newID)
       } else {
         if (finalSaves.value.length > 0 && defaultID != null){
           GoToSave(+defaultID)
+          return
         } else {
           router.replace("/")
+          return
         }
         // TODO: show notification that error occurred when adding save
         // if 
       }
-    } else if (defaultID != null) {
+    } else if (defaultID != null && defaultID != "" && defaultID != "0") {
       GoToSave(+defaultID)
+      return
     }
   })
 }
@@ -226,6 +235,6 @@ h3 {
 }
 
 .p-menubar-start {
-  width: 250px;
+  width: 350px;
 }
 </style>

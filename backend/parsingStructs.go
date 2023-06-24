@@ -4,6 +4,29 @@ import (
 	"database/sql"
 )
 
+type Save struct {
+	SaveID      NullInt64  `json:"id" db:"saveID"`
+	ManagerName string     `json:"managerName" db:"managerName"`
+	GameVersion int        `json:"gameVersion" db:"gameVersion"`
+	SaveName    string     `json:"saveName" db:"saveName"`
+	SaveImage   NullString `json:"saveImage" db:"saveImage"`
+	Currency    string     `json:"currency" db:"currency"`
+}
+
+type Trophy struct {
+	TrophyID        NullInt64  `json:"trophyID" db:"trophyID"`
+	CompetitionName string     `json:"trophyName" db:"trophyName"`
+	TrophyImage     NullString `json:"trophyImage" db:"trophyImage"`
+	Season          string     `json:"season" db:"year"`
+	SaveName        string     `json:"saveName" db:"saveName"`
+}
+
+type TrophiesWon struct {
+	TrophyWon   NullInt64 `json:"trophyID" db:"trophyID"`
+	TrophyName  string    `json:"trophyName" db:"trophyName"`
+	TrophyImage string    `json:"trophyImage" db:"trophyImage"`
+}
+
 type Team struct {
 	TeamID    sql.NullInt64  `db:"teamID" json:"teamID"`
 	TeamName  string         `db:"teamName" json:"teamName"`
@@ -22,27 +45,19 @@ type Transfer struct {
 	InTransfer   bool          `db:"transferIn" json:"inTransfer"`
 	Loan         int           `db:"loan" json:"loan"`
 	Free         int           `db:"free" json:"free"`
-	Season       NullString    `db:"year" json:"year"`
+	Season       string        `db:"year" json:"year"`
+	SaveName     string        `db:"saveName" json:"saveName"`
+	Currency     string        `db:"currency" json:"currency"`
 	// PlayerID     sql.NullInt64 `db:"playerID"`
 }
-
-type TransferQuery struct {
-	Date         string `db:"date" json:"date"`
-	PlayerName   string `db:"playerName" json:"playerName"`
-	Currency     string `db:"currency" json:"currency"`
-	Fee          int    `db:"fee" json:"fee"`
-	PotentialFee int    `db:"potentialFee" json:"potentialFee"`
-	TeamName     string `db:"teamName" json:"teamName"`
-	Loan         int    `db:"loan" json:"loan"`
-	Free         int    `db:"free" json:"free"`
-}
-
 type Match struct {
-	SeasonID     int        `db:"seasonID" json:"seasonID"`
-	SaveID       NullInt64  `db:"saveID" json:"saveID"`
-	Season       NullString `db:"year" json:"year"`
-	Date         string     `db:"date" json:"date"`
-	Opposition   string     `db:"opponentName" json:"opposition"`
+	SeasonID     int       `db:"seasonID" json:"seasonID"`
+	SaveID       NullInt64 `db:"saveID" json:"saveID"`
+	SaveName     string    `db:"saveName" json:"saveName"`
+	GameVersion  string    `db:"gameVersion" json:"gameVersion"`
+	Season       string    `db:"year" json:"year"`
+	Date         string    `db:"date" json:"date"`
+	Opposition   string    `db:"opponentName" json:"opposition"`
 	Time         string
 	Venue        string `db:"venue" json:"venue"`
 	Stadium      string `db:"stadium" json:"stadium"`
@@ -157,6 +172,7 @@ type PlayerSquadView struct {
 	PlayerID int        `db:"playerID" json:"playerID"`
 	Name     string     `db:"playerName" json:"playerName"`
 	TeamName string     `db:"teamName" json:"teamName"`
+	SaveName string     `db:"saveName" json:"saveName"`
 	Season   NullString `db:"year" json:"year"`
 	Position string     `db:"position" json:"position"`
 	Apps     int        `db:"starts" json:"starts"`
@@ -179,6 +195,7 @@ type PlayerTotalsView struct {
 	Name     string  `db:"playerName" json:"playerName"`
 	Position string  `db:"position" json:"position"`
 	TeamName string  `db:"teamName" json:"teamName"`
+	SaveName string  `db:"saveName" json:"saveName"`
 	Seasons  int     `db:"numYears" json:"seasons"`
 	Mins     int     `db:"totMins" json:"minutes"`
 	Starts   int     `db:"totStarts" json:"starts"`

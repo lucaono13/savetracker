@@ -37,11 +37,11 @@
                             <th class="firstCol"></th>
                             <th class="statCell" v-tooltip.top="'Appearances (Subs)'">Apps.</th>
                             <th class="statCell" v-tooltip.top="'Minutes'">Mins.</th>
-                            <th class="statCell" v-if="isGK" v-tooltip.top="'Goals'">Gls.</th>
-                            <th class="statCell" v-if="isGK" v-tooltip.top="'Assists'">Asts.</th>
-                            <th class="statCell" v-if="isGK" v-tooltip.top="'Yellow Cards'">Yell.</th>
-                            <th class="statCell" v-if="isGK" v-tooltip.top="'Red Cards'">Red</th>
-                            <th class="statCell" v-if="!isGK" >Shutouts</th>
+                            <th class="statCell" v-if="!isGK" v-tooltip.top="'Goals'">Gls.</th>
+                            <th class="statCell" v-if="!isGK" v-tooltip.top="'Assists'">Asts.</th>
+                            <th class="statCell" v-if="!isGK" v-tooltip.top="'Yellow Cards'">Yell.</th>
+                            <th class="statCell" v-if="!isGK" v-tooltip.top="'Red Cards'">Red</th>
+                            <th class="statCell" v-if="isGK" >Shutouts</th>
                             <th class="statCell" v-tooltip.top="'Average Rating'">Avg.</th>
                             <th class="statCell" v-tooltip.top="'Player of the Match'">P.o.M.</th>
                         </tr>
@@ -51,11 +51,11 @@
                             <td class="firstCol">Total:</td>
                             <td class="statCell">{{ playerAvgs.totStart }} ({{ playerAvgs.totSubs }})</td>
                             <td class="statCell">{{ playerAvgs.totMin }}</td>
-                            <td class="statCell" v-if="isGK">{{ playerAvgs.totGls }}</td>
-                            <td class="statCell" v-if="isGK">{{ playerAvgs.totAst }}</td>
-                            <td class="statCell" v-if="isGK">{{ playerAvgs.totYel }}</td>
-                            <td class="statCell" v-if="isGK">{{ playerAvgs.totRed }}</td>
-                            <td class="statCell" v-if="!isGK" v-tooltip.top="'Shutouts'">{{ playerAvgs.totShutouts }}</td>
+                            <td class="statCell" v-if="!isGK">{{ playerAvgs.totGls }}</td>
+                            <td class="statCell" v-if="!isGK">{{ playerAvgs.totAst }}</td>
+                            <td class="statCell" v-if="!isGK">{{ playerAvgs.totYel }}</td>
+                            <td class="statCell" v-if="!isGK">{{ playerAvgs.totRed }}</td>
+                            <td class="statCell" v-if="isGK" v-tooltip.top="'Shutouts'">{{ playerAvgs.totShutouts }}</td>
                             <td class="statCell">{{ numberFormatterSQ.format(playerAvgs.avgRat) }}</td>
                             <td class="statCell">{{ playerAvgs.totPOM }}</td>
                         </tr>
@@ -79,12 +79,12 @@
                             {{ slotProps.data.starts }} ({{ slotProps.data.subs }})
                         </template>
                     </Column>
-                    <Column v-if="isGK" field="goals" header="Goals" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column v-if="isGK" field="assists" header="Assists" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column v-if="isGK" field="yellowCards" header="Yellow Cards" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column v-if="isGK" field="redCards" header="Red Cards" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column v-if="!isGK" field="shutouts" header="Shutouts" class="min-w-min justify-content-center text-center" sortable></Column>
-                    <Column v-if="!isGK" field="savePerc" header="Save %" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="!isGK" field="goals" header="Goals" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="!isGK" field="assists" header="Assists" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="!isGK" field="yellowCards" header="Yellow Cards" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="!isGK" field="redCards" header="Red Cards" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="isGK" field="shutouts" header="Shutouts" class="min-w-min justify-content-center text-center" sortable></Column>
+                    <Column v-if="isGK" field="savePerc" header="Save %" class="min-w-min justify-content-center text-center" sortable></Column>
                     <Column field="avgRating" header="Avg. Rating" class="min-w-min justify-content-center text-center" sortable>
                         <template #body="slotProps">
                             {{ numberFormatterSQ.format(slotProps.data.avgRating) }}
@@ -164,7 +164,7 @@
                     
                     <Chart id="attrChart" type="line" :data="chartData" :options="chartOptions"  class="h-25rem" />
                     <div class="w-full flex justify-content-center"><Button class="w-4" text raised label="Choose Attributes to Show" @click="toggle" /></div>
-                    <OverlayPanel ref="attrChoices" showCloseIcon="true">
+                    <OverlayPanel ref="attrChoices" :showCloseIcon="true">
                         <div class="flex ">
                             <Card v-if="!isGK" class="attrCard selectionCard">
                                 <template #header><h3>Technical</h3></template>

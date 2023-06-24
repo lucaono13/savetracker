@@ -20,8 +20,10 @@
                             :disabled="addingToDB"
                         />
                         <Button severity="info" @click="explainSN" ><font-awesome-icon icon="fa-solid fa-question"/></Button>
-                        <OverlayPanel ref="explain">
-                            TODO: Add explanation
+                        <OverlayPanel ref="explain" class="w-6">
+                            Some teams have a short name associated with them that will appear in the files downloaded. 
+                            Look in the Transfer file for the best chance to find it. It will be the one that does not match your teams full name if there is one.
+                             (i.e. Borussia Mönchengladbach's short name is Borussia M'gladbach)
                     </OverlayPanel>
                     </span>
                     
@@ -58,7 +60,7 @@
                 </div>
             </div>
             <!-- <Divider/> -->
-            <p style="font-size: small ;"><a type="button" @click="openLink($event, 'https://drive.google.com/drive/folders/1v7EZSIHoykRcBMWbPxGfl5Ux7Q2PosXv?usp=sharing')" href="">Use the views for Squad and Transfer in from this link to export the data properly.</a></p>
+            <p style="font-size: small ;"><a type="button" @click="openLink($event, 'https://www.mediafire.com/folder/0wz6sxqpy4fme/2023_Views')" href="">Use the views for Squad and Transfer in from this link to export the data properly.</a></p>
             <div class="mt-4 p-inputgroup fileGroup" >
                 <Button style="width: 141px" class="flex-none justify-content-center" @click="GetFile('squadFile', 'Squad')" >Squad File</Button>
                 <Textarea v-model="v$.squadFile.$model" class="fileText" id="squadFile"

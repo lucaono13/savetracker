@@ -1,7 +1,7 @@
 <template>
-    <div class=" flex almost-fh justify-content-center flex-column ">
+    <div class=" flex almost-fh justify-content-center flex-column " v-if="saveSidebar">
       <div class="flex justify-content-center ">
-        <Button label="changeImage" class="saveImageButton my-3" @click="NewImage" :loading="saveImage==''">
+        <Button label="changeImage" class="saveImageButton my-3" @click="NewImage" >
           <img :src="saveImage" style="width:175px" v-if="!imageError && saveImage.length > 0"/>
           <div class="p-2 justify-content-center align-items-center" v-if="saveImage == '' && !imageError">
             <span style="height: 125px;color: var(--text-color)" >No Save Image</span>
@@ -17,19 +17,22 @@
       <Button class="p-button-help p-button-outlined mx-5 justify-content-center" @click="addSeasonModal=true">New Season</Button>
       <Menu :model="$router.getRoutes()" class=" align-content-evenly">
         <template #start>
-          <div>
+          <div class="flex w-full justify-content-center my-2">
             <Checkbox @change="ChangeDefault" inputId="default" v-model="isDefault" :binary="true" />
             <label for="default" style="padding-left: 3px;">Default Save</label>
           </div>
           
         </template>
         <template #item="{ item }">
-          <span :class="{ 'hidden': item.meta.secondary}">
+          <span :class="{ 'hidden': item.meta.hidden}">
           <font-awesome-icon :icon="item.meta.icon" />
-          <router-link :to="item.path.replace(':id', route.params.id)" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">            
-            <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
+          <router-link :to="item.path.replace(':id', route.params.id)" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">
+            <Button @click="navigate" link :href="href" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" class="w-full justify-content-center" style="color:darkturquoise">
+              {{ route.name  }}
+            </Button>           
+            <!-- <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
               {{ route.name }}
-            </a>
+            </a> -->
           </router-link>
           </span>
         </template>
@@ -40,18 +43,47 @@
       
         <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="addSeasonModal=false"/>
     </div>
+    <div class=" flex almost-fh justify-content-center flex-column " v-if="!saveSidebar" style="width: 205px!important;">
+      <Menu :model="$router.getRoutes()" class=" align-content-evenly">
+        <template #start>
+          <!-- <div>
+            <Checkbox @change="ChangeDefault" inputId="default" v-model="isDefault" :binary="true" />
+            <label for="default" style="padding-left: 3px;">Default Save</label>
+          </div> -->
+          
+        </template>
+        <template #item="{ item }">
+          <span :class="{ 'hidden': !item.meta.totals}">
+          
+          <router-link :to="item.path.replace(':id', route.params.id)" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">
+            <Button @click="navigate" link :href="href" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" class="w-full justify-content-center" style="color:darkturquoise">
+              {{ route.name  }}
+            </Button>            
+            <!-- <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
+              {{ route.name }}
+            </a> -->
+          </router-link>
+          </span>
+        </template>
+        <template #end class="flex align-content-end">
+          
+        </template>
+      </Menu>
+    </div>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { onMounted, ref } from 'vue'
   import { useRoute } from 'vue-router';
   import { SingleImage, GetImage, UploadSaveImage } from '../../../wailsjs/go/main/App'
   import AddSeasonDialog from './AddSeasonDialog.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   interface Props {
-    id?: string | string[]
+    id?: string | string[],
+    saveSidebar: boolean,
   }
   const emit = defineEmits(['beError'])
+  const saveSidebar = ref(false)
   const route = useRoute()
   let isDefault = ref(false)
   const addSeasonModal = ref(false)
@@ -65,14 +97,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   let saveImage = ref('')
   const imageError = ref(false)
   
-  SingleImage(+route.params.id).then( (response) => {
-    GetImage(response).then( (b64) => {
-      if (b64.Error) {
-        imageError.value = true
-      }
-      saveImage.value = b64.b64Image
-    })
-  })
+  
 
   function beError(e: string) {
     emit('beError', e)
@@ -100,6 +125,25 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
     })
   }
   
+  onMounted(() => {
+    saveSidebar.value = props.saveSidebar
+    if (saveSidebar.value == true) {
+      SingleImage(+route.params.id).then( (response) => {
+        if (response.length == 0){
+          return
+        }
+        GetImage(response).then( (b64) => {
+          if (b64.Error) {
+            console.log(b64)
+            imageError.value = true
+          }
+          saveImage.value = b64.b64Image
+        })
+      })
+    }
+    
+  })
+
 </script>
 
 <style lang="scss">
@@ -113,6 +157,11 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 .almost-fh {
   height: calc(100vh - 63px - 50px);
+}
+
+.router-btn {
+  background: none!important;
+  border: 0px solid white !important;
 }
 
 </style>

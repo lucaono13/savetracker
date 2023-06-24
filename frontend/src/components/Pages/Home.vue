@@ -1,5 +1,5 @@
 <template>
-    <Sidebar :saveSidebar="true" class="col-fixed relative left-0" @beError="beError" style="width:205px!important"/>
+    <Sidebar :saveSidebar="false" class="col-fixed relative left-0" @beError="beError" style="width:205px!important"/>
     <div class="col-auto ">
             <router-view :key="$route.fullPath" class="mt-3" @beError="beError"></router-view>
     </div>

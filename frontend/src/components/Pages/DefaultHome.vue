@@ -1,19 +1,13 @@
 <template>
+    <!-- <Sidebar :saveSidebar="false" class="col-fixed relative left-0" @beError="beError" style="width:205px!important"/> -->
     <div class="pr-4 pb-4" >
         <div class="mt-3 ml-1">
-            <span class="text-5xl" style="font-family: Didot;">{{ save.saveName }} - {{ save.managerName }}</span>
+            <span class="text-5xl" style="font-family: Didot;">Welcome to the Save Tracker</span>
         </div>
         <Divider class="fullWidth topDiv" style=""/>
         <div class="grid fullWidth mr-0 gap-0" >
-            <div  class=" col-12 fullWidth ml-1 overflow-auto story" 
-            style="max-height: calc(100vh * 0.175)!important;width:calc(100vw - 205px - 50px)">
-                <span class="font-bold align-items-center">Story:<Button label="Edit" class="editButton ml-1" text @click="editDialog = true"/></span>
-                <span> </span>
-                <span v-if="saveStory.story.length == 0">Click edit to start writing your story</span>
-                <span v-html="saveStory.story"></span>
-            </div>
-            <div v-if="dataAdded && trophies != null" class="col-12" > 
-                        <Carousel v-if="dataAdded" :value="trophies" circular :numVisible="5" :numScroll="1">
+            <div v-if="trophies != null" class="col-12" > 
+                        <Carousel :value="trophies" circular :numVisible="5" :numScroll="1">
                             <template #item="slotProps">
                                 <div class="border-2  border-round border-yellow-900 m-2 text-center py-1 px-1 flex flex-column align-items-center justify-content-center" >
                                     <div class="">
@@ -22,14 +16,14 @@
                                             <FontAwesomeIcon icon="trophy"  style="color: var(--text-color); height: 100px!important;" v-if="!slotProps.data[1]['b64']"/>
                                         </Button>                                        
                                     </div>
-                                    <div  v-tooltip.bottom='{value: slotProps.data[1]["years"].toString()}'>
+                                    <div >
                                         {{ slotProps.data[0] }}<br/>X{{ slotProps.data[1]["years"].length }}
                                     </div>
                                 </div>
                             </template>
                         </Carousel> 
             </div> 
-            <div class="col-4 statsDiv" v-if="dataAdded">
+            <div class="col-4 statsDiv">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Transfers</h1></template>
                     <template #content>
@@ -48,7 +42,7 @@
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" v-if="dataAdded">
+            <div class="col-4 statsDiv">
                 <Card class="statsCard">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Results</h1></template>
                     <template #content>
@@ -69,7 +63,7 @@
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="dataAdded">
+            <div class="col-4 statsDiv" style="max-height:250px!important ;">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header ><h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1></template>
                     <!-- <h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1> -->
@@ -114,21 +108,18 @@
             </div>
         </div>
     </div>
-    <EditStoryDialog :visible="editDialog" v-if="editDialog" :story="saveStory.story" @updateStory="updateStory" @closeDialog="editDialog = false"/>
     <PlayerDialog :visible="playerDialog" v-if="playerDialog" :playerID="playerDialogID" @closeDialog="playerDialog = false"/>
 </template>
 
 <script lang="ts" async setup>
 import Sidebar from '../Components/Sidebar.vue'
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { nextTick, ref, onMounted, watch, onBeforeMount } from 'vue';
-import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
-import EditStoryDialog  from '../../../src/components/Components/EditStoryDialog.vue'
+import { GetImage, GetNumSeasons, GetAllRankings, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
 import PlayerDialog from '../Components/PlayerDialog.vue';
 import { backend, main } from '../../../wailsjs/go/models'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-const editDialog = ref(false)
 const playerDialog = ref(false)
 const playerDialogID = ref(0)
 const route = useRoute()
@@ -141,8 +132,6 @@ const mostTrfs = ref()
 const avgInFee = ref()
 const avgOutFee = ref()
 const trophies = ref()
-const dataAdded = ref()
-const saveStory = ref({saveID: 0, story:""})
 const hoverTest = ref("")
 const currency = ref()
 
@@ -155,10 +144,8 @@ let numberFormmaterDec: Intl.NumberFormat = new Intl.NumberFormat(navigator.lang
 })
 let numberFormmaterCur: Intl.NumberFormat
 
-function updateStory(story: string) {
-    let updated : backend.Story = { saveID: saveStory.value.saveID, story: story}
-    UpdateSaveStory(updated)
-    saveStory.value.story = story
+const beError = (error: string) => {
+    emit('beError', error)
 }
 
 function openPlayerDialog(playerID: number) {
@@ -193,7 +180,7 @@ function newTrophyImage(trophyData: {0: string, 1: {"id": number, "image": strin
 // })
 
 
-onMounted( async () => {
+onMounted( () => {
     // dataAdded.value = false
     // sortedResults.value = null
     // topGls.value = null
@@ -202,34 +189,34 @@ onMounted( async () => {
     // topRat.value = null
     // mostTrfs.value = null
     // console.log(dataAdded.value)
-    SingleSave(+route.params.id).then((response) => {
-        if (response.Error != "") {
-            emit('beError', response.Error)
-            return
-        }
-        let result = response.Save
-        // let sessionVal: string = response.id.toString() + '_save_'
-        save.value.saveID = result.id
-        save.value.managerName = result.managerName
-        save.value.gameVersion = result.gameVersion
-        save.value.saveName = result.saveName
-        save.value.image = result.saveImage
-        // localStorage.setItem("saveCurrency", result.currency)
-        if (result.saveImage) {
-            GetImage(result.saveImage).then(async (result) => {
-                save.value.image = result.b64Image
-            })
-        }
+    // SingleSave(+route.params.id).then((response) => {
+    //     if (response.Error != "") {
+    //         emit('beError', response.Error)
+    //         return
+    //     }
+    //     let result = response.Save
+    //     // let sessionVal: string = response.id.toString() + '_save_'
+    //     save.value.saveID = result.id
+    //     save.value.managerName = result.managerName
+    //     save.value.gameVersion = result.gameVersion
+    //     save.value.saveName = result.saveName
+    //     save.value.image = result.saveImage
+    //     // localStorage.setItem("saveCurrency", result.currency)
+    //     if (result.saveImage) {
+    //         GetImage(result.saveImage).then(async (result) => {
+    //             save.value.image = result.b64Image
+    //         })
+    //     }
 
-        nextTick()
-    })
-    saveStory.value = await GetSaveStory(+route.params.id)
-    dataAdded.value = await GetNumSeasonsInSave(+route.params.id)
-    if (!dataAdded.value) {
-        return
-    }
+    //     nextTick()
+    // })
+
+    // TODO: get number of seasons in DB
+    
+    // saveStory.value = await GetSaveStory(+route.params.id)
+    // dataAdded.value = await GetNumSeasonsInSave(+route.params.id)
     // GetSaveResults(+route.params.id).then( (response) => {
-    GetSaveHomeRankings(+route.params.id).then( async (response: main.ErrorReturn) => {
+    GetAllRankings().then( (response: main.ErrorReturn) => {
         if (response.Error != "") {
             emit('beError', response.Error)
             return
@@ -296,7 +283,7 @@ onMounted( async () => {
             return
         }
         let combinedTrophies = new Map<string, {"years": string[], "image": string, "id": number, "b64": string}>()
-        response.Trophies.forEach( async function (trophy) {
+        response.Trophies.forEach( function (trophy) {
             if (!combinedTrophies.has(trophy.trophyName)) {
                 combinedTrophies.set(trophy.trophyName, {"years": [trophy.season], "image": trophy.trophyImage, "id": trophy.trophyID, "b64": ""})
             } else if (combinedTrophies.has(trophy.trophyName)) {
@@ -336,14 +323,14 @@ onMounted( async () => {
     width: calc(100vw - 205px - 50px)!important;
 }
 
-.p-divider.p-divider-horizontal::before {
-    border-top: .5px white!important;
-    // margin-left: 5px;
-    // border-width: 3px!important;
-    border-style: solid!important;
-    width: calc(100vw - 205px - 50px)!important;
-    box-sizing: border-box!important;
-}
+// .p-divider.p-divider-horizontal::before {
+//     border-top: .5px white!important;
+//     // margin-left: 5px;
+//     // border-width: 3px!important;
+//     border-style: solid!important;
+//     width: calc(100vw - 205px - 50px)!important;
+//     box-sizing: border-box!important;
+// }
 
 .isHovered {
     background-color:hotpink!important;

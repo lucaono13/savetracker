@@ -4,8 +4,9 @@ export namespace backend {
 	    seasonID: number;
 	    // Go type: NullInt64
 	    saveID: any;
-	    // Go type: NullString
-	    year: any;
+	    saveName: string;
+	    gameVersion: string;
+	    year: string;
 	    date: string;
 	    opposition: string;
 	    venue: string;
@@ -25,7 +26,9 @@ export namespace backend {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.seasonID = source["seasonID"];
 	        this.saveID = this.convertValues(source["saveID"], null);
-	        this.year = this.convertValues(source["year"], null);
+	        this.saveName = source["saveName"];
+	        this.gameVersion = source["gameVersion"];
+	        this.year = source["year"];
 	        this.date = source["date"];
 	        this.opposition = source["opposition"];
 	        this.venue = source["venue"];
@@ -198,6 +201,7 @@ export namespace backend {
 	    playerID: number;
 	    playerName: string;
 	    teamName: string;
+	    saveName: string;
 	    // Go type: NullString
 	    year: any;
 	    position: string;
@@ -224,6 +228,7 @@ export namespace backend {
 	        this.playerID = source["playerID"];
 	        this.playerName = source["playerName"];
 	        this.teamName = source["teamName"];
+	        this.saveName = source["saveName"];
 	        this.year = this.convertValues(source["year"], null);
 	        this.position = source["position"];
 	        this.starts = source["starts"];
@@ -361,6 +366,7 @@ export namespace backend {
 	    playerName: string;
 	    position: string;
 	    teamName: string;
+	    saveName: string;
 	    seasons: number;
 	    minutes: number;
 	    starts: number;
@@ -386,6 +392,7 @@ export namespace backend {
 	        this.playerName = source["playerName"];
 	        this.position = source["position"];
 	        this.teamName = source["teamName"];
+	        this.saveName = source["saveName"];
 	        this.seasons = source["seasons"];
 	        this.minutes = source["minutes"];
 	        this.starts = source["starts"];
@@ -512,8 +519,9 @@ export namespace backend {
 	    inTransfer: boolean;
 	    loan: number;
 	    free: number;
-	    // Go type: NullString
-	    year: any;
+	    year: string;
+	    saveName: string;
+	    currency: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Transfer(source);
@@ -531,7 +539,9 @@ export namespace backend {
 	        this.inTransfer = source["inTransfer"];
 	        this.loan = source["loan"];
 	        this.free = source["free"];
-	        this.year = this.convertValues(source["year"], null);
+	        this.year = source["year"];
+	        this.saveName = source["saveName"];
+	        this.currency = source["currency"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -559,6 +569,7 @@ export namespace backend {
 	    // Go type: NullString
 	    trophyImage: any;
 	    season: string;
+	    saveName: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Trophy(source);
@@ -570,6 +581,7 @@ export namespace backend {
 	        this.trophyName = source["trophyName"];
 	        this.trophyImage = this.convertValues(source["trophyImage"], null);
 	        this.season = source["season"];
+	        this.saveName = source["saveName"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

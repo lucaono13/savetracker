@@ -7,9 +7,23 @@ export function AddNewSave(arg1:string,arg2:string,arg3:number,arg4:string):Prom
 
 export function AddNewSeason(arg1:number,arg2:main.NewSeason):Promise<main.ErrorReturn>;
 
+export function GetAllPlayersSeason():Promise<main.ErrorReturn>;
+
+export function GetAllPlayersTotals():Promise<main.ErrorReturn>;
+
+export function GetAllRankings():Promise<main.ErrorReturn>;
+
+export function GetAllResults():Promise<main.ErrorReturn>;
+
+export function GetAllTransfers():Promise<main.ErrorReturn>;
+
+export function GetAllTrophies():Promise<main.ErrorReturn>;
+
 export function GetImage(arg1:string):Promise<main.ErrorReturn>;
 
 export function GetNumSaves():Promise<number>;
+
+export function GetNumSeasons():Promise<number>;
 
 export function GetNumSeasonsInSave(arg1:number):Promise<boolean>;
 
@@ -30,6 +44,8 @@ export function GetSinglePlayer(arg1:number):Promise<main.ErrorReturn>;
 export function GetTrophies(arg1:number):Promise<main.ErrorReturn>;
 
 export function Greet(arg1:string):Promise<string>;
+
+export function Log(arg1:string):Promise<void>;
 
 export function RetrieveSaves():Promise<main.ErrorReturn>;
 
