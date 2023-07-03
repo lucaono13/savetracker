@@ -7,6 +7,8 @@ export function AddNewSave(arg1:string,arg2:string,arg3:number,arg4:string):Prom
 
 export function AddNewSeason(arg1:number,arg2:main.NewSeason):Promise<main.ErrorReturn>;
 
+export function DeleteSave(arg1:number):Promise<main.ErrorReturn>;
+
 export function GetAllPlayersSeason():Promise<main.ErrorReturn>;
 
 export function GetAllPlayersTotals():Promise<main.ErrorReturn>;

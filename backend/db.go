@@ -97,6 +97,15 @@ func GetNumSaves() int {
 	return numSaves
 }
 
+func DeleteSave(saveID int) error {
+	_, err := DB.Exec(DeleteSaveQ, saveID)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return err
+	}
+	return nil
+}
+
 // Seasons
 func AddSeason(saveID int, teamID int, year string) (int64, error) {
 	result, err := DB.Exec(NewSeason, teamID, saveID, year)

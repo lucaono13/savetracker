@@ -26,9 +26,20 @@
 
   <div class="grid mt-0" style="width:100vw!important">
     <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
-      <component :is="Component" :key="route.params.id" @beError="beError"></component>
+      <component :is="Component" :key="route.params.id" @getSaves="GetSaves" @beError="beError"></component>
     </router-view>
   </div>
+  <Toast position="bottom-left" group="update" sticky>
+    <template #message="slotProps" >
+      <div class="flex flex-column align-items-center flex-1">
+        <span class="p-toast-summary">{{ slotProps.message.summary }}</span>
+      <!-- <p class="col-12 p-toast-detail"> -->
+        <a class='p-toast-detail' href="" @click="openLink($event, slotProps.message.detail)" style="color:var(--orange-500)">Click here to download.</a>
+      <!-- </p> -->
+      </div>
+      
+    </template>
+  </Toast>
 </template>
 
 <script lang="ts" async setup>
@@ -40,6 +51,7 @@ import AddSeasonDialog from './components/Components/AddSeasonDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useToast } from 'primevue/usetoast';
+import { BrowserOpenURL, EventsOn } from '../wailsjs/runtime/runtime';
 
 const toast = useToast()
 const route = useRoute()
@@ -47,6 +59,26 @@ const router = useRouter()
 let startup = ref(true)
 let addSaveModal = ref(false)
 let addSeasonModal = ref(false)
+
+const newVersionAvail = (url: string) => {
+  toast.add({
+    severity: 'warn',
+    summary: 'New Version Available',
+    detail: url,
+    group: 'update'
+  })
+}
+
+EventsOn('updateVersion', (url: string) => newVersionAvail(url))
+
+const openLink = (event: any, url: string) => {
+    event.preventDefault();
+    BrowserOpenURL(url)
+}
+
+// EventsOn('manageSaves', function() {
+//   console.log('managing now!')
+// })
 
 // Getting number of saves, persists between opening of app
 var noOfSaves: null | string = localStorage.getItem("saves")

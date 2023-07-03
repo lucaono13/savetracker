@@ -69,11 +69,21 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	backend.StartBackend()
+
 	// backend.StartLogger()
 }
 
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
+	needUpdate, url, err := backend.CheckVersion()
+	if err != nil {
+		return
+	}
+	// backend.Logger.Info().Msg(fmt.Sprint(needUpdate))
+	if needUpdate {
+		// backend.Logger.Info().Msg("needs update")
+		runtime.EventsEmit(a.ctx, "updateVersion", url)
+	}
 }
 
 func (a *App) shutdown(ctx context.Context) bool {
@@ -209,6 +219,16 @@ func (a *App) SingleImage(id int) string {
 
 func (a *App) GetNumSaves() int {
 	return backend.GetNumSaves()
+}
+
+func (a *App) DeleteSave(saveID int) ErrorReturn {
+	err := backend.DeleteSave(saveID)
+	if err != nil {
+		return ErrorReturn{
+			Error: "Error deleting save. Check logs for more details",
+		}
+	}
+	return ErrorReturn{}
 }
 
 func (a *App) GetSaveStory(saveID int) backend.Story {

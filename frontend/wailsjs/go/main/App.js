@@ -10,6 +10,10 @@ export function AddNewSeason(arg1, arg2) {
   return window['go']['main']['App']['AddNewSeason'](arg1, arg2);
 }
 
+export function DeleteSave(arg1) {
+  return window['go']['main']['App']['DeleteSave'](arg1);
+}
+
 export function GetAllPlayersSeason() {
   return window['go']['main']['App']['GetAllPlayersSeason']();
 }

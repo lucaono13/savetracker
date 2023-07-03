@@ -21,6 +21,8 @@ import Dropdown from 'primevue/dropdown'
 import Card from 'primevue/card'
 import BlockUI from 'primevue/blockui'
 import OverlayPanel from 'primevue/overlaypanel'
+import ConfirmDialog from 'primevue/confirmdialog'
+import ConfirmationService from 'primevue/confirmationservice'
 import CascadeSelect from 'primevue/cascadeselect'
 import VirtualScroller from 'primevue/virtualscroller'
 import Image from 'primevue/image'
@@ -146,8 +148,10 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('Editor', Editor)
     .component('Chart',Chart)
     .component('InputSwitch', InputSwitch)
+    .component('ConfirmDialog', ConfirmDialog)
     .directive('tooltip', Tooltip)
 
+app.use(ConfirmationService)
 // app.use(Flag)
 // Use Vue Router
 app.use(router)

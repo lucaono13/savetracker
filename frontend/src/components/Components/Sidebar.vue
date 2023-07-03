@@ -36,11 +36,13 @@
           </router-link>
           </span>
         </template>
-        <template #end class="flex align-content-end">
+        <template #end class="flex align-content-end align-self-end">
           
         </template>
       </Menu>
-      
+      <!-- <Divider /> -->
+          <!-- <Button class="p-button-danger p-button-outlined mx-4 justify-content-center" @click="deleteSave">Delete Save</Button> -->
+          <Button class="mx-4 justify-content-center align-self-end" @click="deleteSave"  severity="danger" text raised>Delete Save</Button>
         <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="addSeasonModal=false"/>
     </div>
     <div class=" flex almost-fh justify-content-center flex-column " v-if="!saveSidebar" style="width: 205px!important;">
@@ -70,23 +72,29 @@
         </template>
       </Menu>
     </div>
+    <ConfirmDialog group="saveDeletion"></ConfirmDialog>
 </template>
 
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
-  import { useRoute } from 'vue-router';
-  import { SingleImage, GetImage, UploadSaveImage } from '../../../wailsjs/go/main/App'
+  import { useRoute, useRouter } from 'vue-router';
+  import { useConfirm } from 'primevue/useconfirm'
+  import { DeleteSave, SingleImage, GetImage, UploadSaveImage } from '../../../wailsjs/go/main/App'
   import AddSeasonDialog from './AddSeasonDialog.vue';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+  import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { backend, main } from '../../../wailsjs/go/models';
   interface Props {
     id?: string | string[],
     saveSidebar: boolean,
   }
-  const emit = defineEmits(['beError'])
+  const confirm = useConfirm()
+  const emit = defineEmits(['beError', 'getSaves'])
   const saveSidebar = ref(false)
   const route = useRoute()
+  const router = useRouter()
   let isDefault = ref(false)
   const addSeasonModal = ref(false)
+  // const deleteSaveModal = ref(false)
   const props = defineProps<Props>()
   let defaultSave: string | null = localStorage.getItem("defaultSave")
   if (defaultSave) {
@@ -97,7 +105,27 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   let saveImage = ref('')
   const imageError = ref(false)
   
-  
+  const deleteSave = () => {
+    confirm.require({
+      message: "Are you sure you want to delete the save? This cannot be undone!",
+      group: "saveDeletion",
+      header: "Delete Confirmation",
+      // icon: 'triangle-exclamation',
+      acceptClass: 'p-button-danger',
+      accept: () => {
+        DeleteSave(+route.params.id).then( (response: main.ErrorReturn) => {
+          if (response.Error) {
+            beError(response.Error)
+            return
+          }
+          router.replace({name: "All Saves Home", replace: true})
+        })
+      },
+      reject: () => {
+        return
+      }
+    })
+  }
 
   function beError(e: string) {
     emit('beError', e)

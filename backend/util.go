@@ -3,18 +3,32 @@ package backend
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 
 	"github.com/adrg/xdg"
 )
 
 var (
-	stories *[]*Story
+	stories     *[]*Story
+	config      *Config
+	curVersion  string = "1.0.0"
+	releaseLink string = "https://api.github.com/repos/benjaminjonard/koillection/releases/latest"
 )
 
 type Story struct {
 	SaveID int    `json:"saveID"`
 	Story  string `json:"story"`
+}
+
+type Config struct {
+	Version string `json:"version"`
+}
+
+type GithubReleases struct {
+	URL string `json:"html_url"`
+	Tag string `json:"tag_name"`
 }
 
 func MakePlayersMap(players []PlayerInfo) map[int]int {
@@ -113,4 +127,84 @@ func UpdateSaveStory(updatedStory Story) error {
 	}
 	fmt.Println(stories, updated)
 	return WriteStoriesToFile(stories)
+}
+
+func GetConfig() {
+	configFilePath, err := xdg.ConfigFile("Save Tracker/config.json")
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return
+	}
+	if _, err := os.Stat(configFilePath); err != nil {
+		if os.IsNotExist(err) {
+			_, err := os.Create(configFilePath)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return
+			}
+			content, err := json.Marshal(
+				Config{
+					Version: curVersion,
+				},
+			)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return
+			}
+			err = os.WriteFile(configFilePath, content, 0666)
+			if err != nil {
+				Logger.Error().Timestamp().Msg(err.Error())
+				return
+			}
+		} else {
+			Logger.Error().Timestamp().Msg(err.Error())
+			return
+		}
+	}
+	file, err := os.ReadFile(configFilePath)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return
+	}
+	err = json.Unmarshal(file, &config)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return
+	}
+}
+
+func CheckVersion() (bool, string, error) {
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", releaseLink, nil)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return false, "", err
+	}
+	req.Header.Add("Accept", "application/vnd.github+json")
+	req.Header.Add("X-Github-Api-Version", "2022-11-28")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return false, "", err
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return false, "", err
+	}
+
+	githubVersion := GithubReleases{}
+	err = json.Unmarshal(body, &githubVersion)
+	if err != nil {
+		Logger.Error().Timestamp().Msg(err.Error())
+		return false, "", nil
+	}
+	// Logger.Info().Msg(config.Version + " " + githubVersion.Tag)
+	if config.Version == githubVersion.Tag {
+		return false, "", nil
+	} else {
+		return true, githubVersion.URL, nil
+	}
 }

@@ -1,5 +1,5 @@
 <template>
-    <Dialog header="Add Save" @hide="resetForm" :modal="true" :draggable="false" :closable="false"
+    <Dialog header="Add Save" @hide="" :modal="true" :draggable="false" :closable="false"
         class="w-5">
         <form method="POST" id='addForm' @submit.prevent="newSaveAdded(!v$.$invalid)">
             <div class="field">
@@ -8,7 +8,7 @@
                         v-model="v$.saveName.$model" autofocus
                         :class="{ 'p-invalid': v$.saveName.$invalid && submitted }" />
                     <label for="saveName">Save Name</label>
-                    <small v-if="(v$.saveName.$invalid && submitted) || v$.saveName.$pending.$response"
+                    <small v-if="(v$.saveName.$invalid && submitted) || v$.saveName.$pending"
                         class="p-error">{{ v$.saveName.required.$message.replace('Value', 'Save Name') }}</small>
                 </div>
             </div>
@@ -16,7 +16,7 @@
                 <InputText class="w-full" id="managerName" type="text" :disabled="addingToDB"
                     v-model="v$.managerName.$model" :class="{ 'p-invalid': v$.managerName.$invalid && submitted }" />
                 <label for="managerName">Manager Name</label>
-                <small v-if="(v$.managerName.$invalid && submitted) || v$.managerName.$pending.$response"
+                <small v-if="(v$.managerName.$invalid && submitted) || v$.managerName.$pending"
                     class="p-error">{{ v$.managerName.required.$message.replace('Value', 'Manager Name') }}</small>
             </div>
             <!-- <div class="formgroup-inline grid"> -->
@@ -25,7 +25,7 @@
                         :options="versions" optionLabel="name" optionValue="name" 
                         :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" />
                     <label for="gVersion">Game Version</label>
-                    <small v-if="(v$.gameVersion.$invalid && submitted) || v$.gameVersion.$pending.$response"
+                    <small v-if="(v$.gameVersion.$invalid && submitted) || v$.gameVersion.$pending"
                         class="p-error">{{ v$.gameVersion.required.$message.replace('Value', 'Game Version') }}</small>
                 </div>
                 <!-- <div class="field mt-4 p-float-label">
@@ -48,7 +48,7 @@
                         </template>
                     </Dropdown>
                     <label for="currency">Currency</label>
-                    <small v-if="(v$.currency.$invalid && submitted) || v$.currency.$pending.$response"
+                    <small v-if="(v$.currency.$invalid && submitted) || v$.currency.$pending"
                         class="p-error">{{ v$.gameVersion.required.$message.replace('Value', 'Currency') }}</small>
                 </div>
             <!-- </div> -->
@@ -68,101 +68,79 @@
     </Dialog>
 </template>
 
-<script lang="ts">
-import { required } from '@vuelidate/validators';
-import { useVuelidate } from "@vuelidate/core";
-import { AddNewSave } from "../../../wailsjs/go/main/App";
-import { string } from 'yup';
-import currencies from '../../../../currency-names.json'
-
-const curr = currencies
 
 
+<script setup lang="ts">
+    import { ref, reactive } from 'vue'
+    import { required } from '@vuelidate/validators';
+    import { useVuelidate } from "@vuelidate/core";
+    import { AddNewSave } from "../../../wailsjs/go/main/App";
+    import currencies from '../../../../currency-names.json'
 
-export default {
-    setup: () => ({ v$: useVuelidate() }),
-    data() {
-        return {
-            addSaveModal: false,
-            saveName: '',
-            gameVersion: '',
-            managerName: '',
-            currency: {"name":'',"symbol":'',"code":''},
-            currencyToSubmit: '',
-            blockedDocument: false,
-            submitted: false,
-            versions: [
-                { name: "2023" },
-            ],
-            currFilters: [
-                "name",
-                "symbol",
-                "code"
-            ],
-            currencies: currencies,
-            addingToDB: false,
-        }
-    },
-    methods: {
-        openAddSave() {
-            this.addSaveModal = true
-        },
-        addSave() {
-            AddNewSave(this.saveName, this.managerName, +this.gameVersion, this.currency.code).then((response) => {
-                setTimeout(() => {
-                    if (response.Integer == 0) {
-                        this.$emit('saveAdded', response.Integer)
-                    } else {
-                        this.$emit('saveAdded', response.Integer)
-                    }
-                }, 3000)
-            })
+    const emit = defineEmits(['saveAdded', 'beError', 'closeDialog'])
 
-        },
-        newSaveAdded(isFormValid: boolean) {
-            this.submitted = true;
-            if (!isFormValid) {
-                return;
-            }
-            this.blockDocument();
-        },
-        blockDocument() {
-            this.addingToDB = true
-            this.addSave()
+    const state = reactive({
+        saveName: '',
+        managerName: '',
+        gameVersion: '',
+        currency: {"name": '', "symbol": '', "code": ''},
+    })
 
-            setTimeout(() => {
-                this.addSaveModal = false;
-                this.addingToDB = false;
-                this.resetForm()
-                this.$emit('closeDialog')
-            }, 3000);
-
-        },
-        resetForm() {
-            this.saveName = ''
-            this.gameVersion = ''
-            this.managerName = ''
-            this.currency = {"name":'',"symbol":'',"code":''}
-            this.submitted = false;
-        },
-    },
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    validations() {
-        return {
-            saveName: {
-                required
-            },
-            managerName: {
-                required
-            },
-            gameVersion: {
-                required
-            },
-            currency: {
-                required
-            }
-
-        }
+    const rules = {
+        saveName: { required },
+        managerName: { required },
+        gameVersion: { required },
+        currency: { required },
     }
-}
+
+    const versions = ref([
+        { name: '2023'},
+    ])
+    const blockedDocument = ref(false)
+    const addingToDB = ref(false)
+    const submitted = ref(false)
+
+    const v$ = useVuelidate(rules, state)
+
+    // function openAddSave() {
+    //     this.addSaveModal = true
+    // }
+    
+    function AddSave() {
+        let fields = v$.value
+        AddNewSave(fields.saveName.$model, fields.managerName.$model, +fields.gameVersion.$model, fields.currency.$model.name).then( (response) => {
+            if (response.Error != '') {
+                emit('beError', response.Error)
+                return
+            }
+            emit('saveAdded', response.Integer)
+        })
+    }
+
+    function newSaveAdded(isFormValid: boolean) {
+        submitted.value = true
+
+        if (!isFormValid) {
+            return
+        }
+        BlockDocument()
+    }
+
+    function BlockDocument() {
+        addingToDB.value = true
+        setTimeout( () => {
+            AddSave()
+            addingToDB.value = false
+            resetForm()
+            emit('closeDialog')
+        }, 2000)
+    }
+
+    function resetForm() {
+        v$.value.currency.$model = {"name": '', "symbol": '', "code": ''}
+        v$.value.gameVersion.$model = ''
+        v$.value.saveName.$model = ''
+        v$.value.managerName.$model = ''
+    }
+
 </script>

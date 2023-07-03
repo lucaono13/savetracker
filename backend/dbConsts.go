@@ -623,4 +623,9 @@ const (
 		ORDER BY starts DESC
 		LIMIT 5
 	`
+	DeleteSaveQ = `
+		DELETE
+		FROM saves
+		WHERE saveID = ?
+	`
 )
