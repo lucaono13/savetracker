@@ -13,7 +13,6 @@ import (
 
 func readHtmlFromFile(webPage string) (string, error) {
 	content, err := os.ReadFile(webPage)
-	// content, err := ioutil.ReadFile(webPage)
 	if err != nil {
 		return "", err
 	}
@@ -24,7 +23,7 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 
 	text, err := readHtmlFromFile(filePath)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return nil, nil, err
 	}
 
@@ -48,11 +47,11 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 		case tt == html.ErrorToken:
 			// If error is EOF, then return
 			if tkn.Err().Error() == "EOF" {
-				Logger.Info().Timestamp().Msg("Transfers successfully parsed.")
+				Logger.Info().Msg("Transfers successfully parsed.")
 				return inTransfers, outTransfers, nil
 			}
 			// fmt.Println(tkn.Err())
-			Logger.Error().Timestamp().Msg(tkn.Err().Error())
+			Logger.Error().Msg(tkn.Err().Error())
 			return nil, nil, err
 		// Check what start tag is being used
 		case tt == html.StartTagToken:
@@ -131,7 +130,7 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 						numberSize = string(fee[len(fee)-1])
 						floatFee, err := strconv.ParseFloat(fee[0:len(fee)-1], 64)
 						if err != nil {
-							Logger.Error().Timestamp().Msg(err.Error())
+							Logger.Error().Msg(err.Error())
 							return nil, nil, err
 							// log.Fatal().Err(err)
 						}
@@ -150,7 +149,7 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 					numberSize = string(fee[len(fee)-1])
 					floatFee, err := strconv.ParseFloat(fee[0:len(fee)-1], 64)
 					if err != nil {
-						Logger.Error().Timestamp().Msg(err.Error())
+						Logger.Error().Msg(err.Error())
 						return nil, nil, err
 						// log.Fatal().Err(err)
 					}
@@ -173,7 +172,7 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 						floatFee, err := strconv.ParseFloat(fee[0:len(fee)-1], 64)
 
 						if err != nil {
-							Logger.Error().Timestamp().Msg(err.Error())
+							Logger.Error().Msg(err.Error())
 							return nil, nil, err
 							// log.Fatal().Err(err)
 						}
@@ -227,16 +226,12 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 func ParseSchedule(filePath string) ([]Match, error) {
 	text, err := readHtmlFromFile(filePath)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return nil, err
 	}
 	tkn := html.NewTokenizer(strings.NewReader(text))
-	// matches := []Match{}
 	match := Match{ExtraTime: 0, Penalties: 0}
 	colNames := [6]string{"Date", "Opposition", "Time", "Venue", "Stadium", "Competition"}
-	// var isTd bool
-	// var col int
-	// var homeTeam string
 	var (
 		matches  []Match
 		isTd     bool
@@ -251,18 +246,15 @@ func ParseSchedule(filePath string) ([]Match, error) {
 		switch {
 		case tt == html.ErrorToken:
 			if tkn.Err().Error() == "EOF" {
-				Logger.Info().Timestamp().Msg("Schedule successfully parsed.")
+				Logger.Info().Msg("Schedule successfully parsed.")
 				homeTeam = ""
 				return matches, nil
 			}
-			Logger.Error().Timestamp().Msg(tkn.Err().Error())
+			Logger.Error().Msg(tkn.Err().Error())
 			return nil, err
-			// return nil, tkn.Err()
 		case tt == html.StartTagToken:
 			t := tkn.Token()
-			// fmt.Println(t.Data, col)
 			isTd = t.Data == "td"
-			// isTh = t.Data == "th"
 			if t.Data == "tr" {
 				col = 0
 			}
@@ -281,7 +273,6 @@ func ParseSchedule(filePath string) ([]Match, error) {
 					if data == "" {
 						break
 					}
-					// homeTeam = data
 				case 8:
 					if data == "" {
 
@@ -295,8 +286,6 @@ func ParseSchedule(filePath string) ([]Match, error) {
 						match.Penalties = 1
 					}
 					goals := strings.Split(data, "-")
-					// fmt.Println("[Match]", match)
-
 					// Edge case for penalties (shown in schedule results as 1-1p or p1-1)
 					// Remove the p in the string if it is in there for int parsing
 					var whoWonPens string = ""
@@ -309,18 +298,14 @@ func ParseSchedule(filePath string) ([]Match, error) {
 					}
 					homeGoals, err := strconv.ParseInt(strings.TrimSpace(goals[0]), 10, 0)
 					if err != nil {
-						Logger.Error().Timestamp().Msg(err.Error())
+						Logger.Error().Msg(err.Error())
 						return nil, err
-						// log.Fatal().Msg(err.Error())
 					}
 					awayGoals, err := strconv.ParseInt(strings.TrimSpace(goals[1]), 10, 0)
 					if err != nil {
-						Logger.Error().Timestamp().Msg(err.Error())
+						Logger.Error().Msg(err.Error())
 						return nil, err
-						// log.Fatal().Msg(err.Error())
 					}
-					// match.HomeGoals = int(homeGoals)
-					// match.AwayGoals = int(awayGoals)
 					switch match.Venue {
 					case "H":
 						match.GoalsAgainst = int(awayGoals)
@@ -357,7 +342,6 @@ func ParseSchedule(filePath string) ([]Match, error) {
 							} else {
 								match.Result = "D"
 							}
-							// match.Result = "D"
 						}
 					case "N":
 						// NOTE: for neutral games, goals in the home side are the goals scored by the team that that is capturing the schedule
@@ -380,9 +364,7 @@ func ParseSchedule(filePath string) ([]Match, error) {
 
 				}
 			}
-			// fmt.Println(match)
 			if col == 8 && len(match.Opposition) != 0 {
-				// fmt.Println(match)
 				matches = append(matches, match)
 				match = Match{ExtraTime: 0, Penalties: 0}
 				col = 0
@@ -391,13 +373,12 @@ func ParseSchedule(filePath string) ([]Match, error) {
 			isTd = false
 		}
 	}
-	// return matches, nil
 }
 
 func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error) {
 	text, err := readHtmlFromFile(path)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return nil, nil, err
 	}
 	tkn := html.NewTokenizer(strings.NewReader(text))
@@ -417,10 +398,10 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 		switch {
 		case tt == html.ErrorToken:
 			if tkn.Err().Error() == "EOF" {
-				Logger.Info().Timestamp().Msg("Player Stats and Attributes successfully parsed.")
+				Logger.Info().Msg("Player Stats and Attributes successfully parsed.")
 				return allInfo, allSeasons, nil
 			}
-			Logger.Error().Timestamp().Msg(tkn.Err().Error())
+			Logger.Error().Msg(tkn.Err().Error())
 			return nil, nil, err
 		case tt == html.StartTagToken:
 			t := tkn.Token()
@@ -451,7 +432,7 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 					// Player's Unique ID
 					uid, err := strconv.ParseInt(data, 10, 0)
 					if err != nil {
-						Logger.Error().Timestamp().Msg(err.Error())
+						Logger.Error().Msg(err.Error())
 						return nil, nil, err
 					}
 					playerInfo.UID = int(uid)
@@ -467,7 +448,7 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 						data = strings.ReplaceAll(data, ",", "")
 						stat, err := strconv.ParseInt(data, 10, 0)
 						if err != nil {
-							Logger.Error().Timestamp().Msg(err.Error())
+							Logger.Error().Msg(err.Error())
 							return nil, nil, err
 						}
 						reflect.ValueOf(&playerSeason).Elem().FieldByName(colNames[col-1]).SetInt(stat)
@@ -479,7 +460,7 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 					// Getting the players technical attributes
 					attr, err := strconv.ParseInt(data, 10, 0)
 					if err != nil {
-						Logger.Error().Timestamp().Msg(err.Error())
+						Logger.Error().Msg(err.Error())
 						return nil, nil, err
 					}
 					reflect.ValueOf(&playerSeason).Elem().FieldByName(colNames[col-1]).SetInt(attr)
@@ -495,7 +476,7 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 						apps[0] = strings.TrimSpace(apps[0])
 						starts, err := strconv.ParseInt(apps[0], 10, 0)
 						if err != nil {
-							Logger.Error().Timestamp().Msg(err.Error())
+							Logger.Error().Msg(err.Error())
 							return nil, nil, err
 						}
 						playerSeason.Apps = int(starts)
@@ -503,11 +484,9 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 							apps[1] = strings.TrimSpace(apps[1])
 							subs, err := strconv.ParseInt(strings.ReplaceAll(apps[1], ")", ""), 10, 0)
 							if err != nil {
-								Logger.Error().Timestamp().Msg(err.Error())
+								Logger.Error().Msg(err.Error())
 								return nil, nil, err
-								// log.Fatal().Msg(err.Error())
 							}
-							// playerSeason.Stats.Subs = int(subs)
 							playerSeason.Subs = int(subs)
 						}
 					}
@@ -518,7 +497,7 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 						data := strings.ReplaceAll(data, "%", "")
 						perc, err := strconv.ParseInt(data, 10, 0)
 						if err != nil {
-							Logger.Error().Timestamp().Msg(err.Error())
+							Logger.Error().Msg(err.Error())
 							return nil, nil, err
 						}
 						if col == 11 {
@@ -532,7 +511,7 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 					if data != "-" {
 						rating, err := strconv.ParseFloat(data, 32)
 						if err != nil {
-							Logger.Error().Timestamp().Msg(err.Error())
+							Logger.Error().Msg(err.Error())
 							return nil, nil, err
 						}
 						playerSeason.AvgRat = float32(rating)
@@ -543,8 +522,6 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 			// At end of column add to slices and reset
 			if col == 65 {
 				col = 0
-				// playerSeason.Season = season
-				// playerSeason.Name = playerInfo.Name
 				playerSeason.UID = playerInfo.UID
 				allInfo = append(allInfo, playerInfo)
 				allSeasons = append(allSeasons, playerSeason)

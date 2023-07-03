@@ -6,7 +6,6 @@
                     paginator :rowsPerPageOptions="[5,15,20,30,50]" :value="inTransfers" tableStyle="min-width: 906px"
                     filterDisplay="menu" v-model:filters="filters" :rowClass="(loan:number) => loan === 1 ? 'font-italic' : null!"
                       :lazy="false" removableSort>
-                    <!-- <template #header>Total Spent: {{ totalSpent }} ({{ totalPotSpent }})</template> -->
                     <template #empty>
                         <InlineMessage severity="warn">
                             No data found! Add new season by clicking the "New Season" button to the left.
@@ -94,15 +93,11 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import { ColumnFilterModelType } from 'primevue/column'
 
-const route = useRoute()
 const inTransfers = ref()
 const outTransfers = ref()
 const currency = ref()
 const filters = ref()
-const totalSpent = ref()
-const totalPotSpent = ref()
 const totalReceived = ref()
 const totalPotReceived = ref()
 const uniqueYears = ref()
@@ -126,11 +121,6 @@ onMounted( () => {
         currency.value = response.Currency
         inTransfersSaves.value = ([...new Set(response.InTransfers.map((item: backend.Transfer) => item.saveName))])
         outTransfersSaves.value = ([...new Set(response.OutTransfers.map((item: backend.Transfer) => item.saveName))])
-        // numberFormatterTR = new Intl.NumberFormat(navigator.language, {
-        //     style: 'currency',
-        //     currency: currency.value,
-        //     notation: "compact"
-        // })
         
     })
 })
@@ -177,40 +167,6 @@ const formatTotal = (total: number) => {
     return formattedTot
     return total
 }
-
-// function GetTotalSpent( e: {originalEvent: Event, filteredValue: backend.Transfer[]}) {
-//     let spent = 0
-//     let potSpent = 0
-//     e.filteredValue.forEach(function (transfer) {
-//         spent += transfer.fee
-//         if (transfer.potentialFee.Valid == true) {
-//             potSpent += transfer.potentialFee.Int64
-//         } else {
-//             potSpent += transfer.fee
-//         }
-//     })
-//     totalSpent.value = numberFormatterTR.format(spent)
-//     totalPotSpent.value = numberFormatterTR.format(potSpent)
-// }
-
-// function GetTotalReceived( e: {originalEvent: Event, filteredValue: backend.Transfer[]}) {
-//     let receieved = 0
-//     let potReceived = 0
-//     e.filteredValue.forEach(function (transfer) {
-//         receieved += transfer.fee
-        
-//         if (transfer.potentialFee.Valid == true) {
-//             potReceived += transfer.potentialFee.Int64
-//         } else {
-//             potReceived += transfer.fee
-//         }
-//     })
-//     totalReceived.value = numberFormatterTR.format(receieved)
-//     totalPotReceived.value = numberFormatterTR.format(potReceived)
-// }
-
-
-
 </script>
 
 <style scoped lang="scss">

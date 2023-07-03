@@ -86,10 +86,6 @@ export function GetTrophies(arg1) {
   return window['go']['main']['App']['GetTrophies'](arg1);
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
-}
-
 export function Log(arg1) {
   return window['go']['main']['App']['Log'](arg1);
 }
@@ -104,18 +100,6 @@ export function SelectFileParse(arg1) {
 
 export function SelectNewTrophyImage(arg1) {
   return window['go']['main']['App']['SelectNewTrophyImage'](arg1);
-}
-
-export function SelectScheduleFile() {
-  return window['go']['main']['App']['SelectScheduleFile']();
-}
-
-export function SelectSquadFile() {
-  return window['go']['main']['App']['SelectSquadFile']();
-}
-
-export function SelectTransfersFile() {
-  return window['go']['main']['App']['SelectTransfersFile']();
 }
 
 export function SingleImage(arg1) {

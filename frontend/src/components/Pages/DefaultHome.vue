@@ -1,5 +1,4 @@
 <template>
-    <!-- <Sidebar :saveSidebar="false" class="col-fixed relative left-0" @beError="beError" style="width:205px!important"/> -->
     <div class="pr-4 pb-4" >
         <div class="mt-3 ml-1">
             <span class="text-5xl" style="font-family: Didot;">Welcome to the Save Tracker</span>
@@ -112,17 +111,14 @@
 </template>
 
 <script lang="ts" async setup>
-import Sidebar from '../Components/Sidebar.vue'
-import { useRoute } from 'vue-router';
-import { nextTick, ref, onMounted, watch, onBeforeMount } from 'vue';
-import { GetImage, GetNumSeasons, GetAllRankings, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
+import { ref, onMounted } from 'vue';
+import { GetImage, GetAllRankings, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
 import PlayerDialog from '../Components/PlayerDialog.vue';
 import { backend, main } from '../../../wailsjs/go/models'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const playerDialog = ref(false)
 const playerDialogID = ref(0)
-const route = useRoute()
 const sortedResults = ref()
 const topGls = ref()
 const topAsts = ref()
@@ -132,8 +128,6 @@ const mostTrfs = ref()
 const avgInFee = ref()
 const avgOutFee = ref()
 const trophies = ref()
-const hoverTest = ref("")
-const currency = ref()
 
 let imgPlaceholder: string | undefined
 let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
@@ -174,48 +168,7 @@ function newTrophyImage(trophyData: {0: string, 1: {"id": number, "image": strin
     })
 }
 
-// watch(route.params, async (newParams, oldParams) => {
-//     dataAdded.value = await GetNumSeasonsInSave(+newParams.id)
-//     console.log(newParams, oldParams)
-// })
-
-
 onMounted( () => {
-    // dataAdded.value = false
-    // sortedResults.value = null
-    // topGls.value = null
-    // topAsts.value = null
-    // topApps.value = null
-    // topRat.value = null
-    // mostTrfs.value = null
-    // console.log(dataAdded.value)
-    // SingleSave(+route.params.id).then((response) => {
-    //     if (response.Error != "") {
-    //         emit('beError', response.Error)
-    //         return
-    //     }
-    //     let result = response.Save
-    //     // let sessionVal: string = response.id.toString() + '_save_'
-    //     save.value.saveID = result.id
-    //     save.value.managerName = result.managerName
-    //     save.value.gameVersion = result.gameVersion
-    //     save.value.saveName = result.saveName
-    //     save.value.image = result.saveImage
-    //     // localStorage.setItem("saveCurrency", result.currency)
-    //     if (result.saveImage) {
-    //         GetImage(result.saveImage).then(async (result) => {
-    //             save.value.image = result.b64Image
-    //         })
-    //     }
-
-    //     nextTick()
-    // })
-
-    // TODO: get number of seasons in DB
-    
-    // saveStory.value = await GetSaveStory(+route.params.id)
-    // dataAdded.value = await GetNumSeasonsInSave(+route.params.id)
-    // GetSaveResults(+route.params.id).then( (response) => {
     GetAllRankings().then( (response: main.ErrorReturn) => {
         if (response.Error != "") {
             emit('beError', response.Error)
@@ -236,7 +189,6 @@ onMounted( () => {
         let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
         let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
         let matches: backend.Match[] = response.Matches
-        // teams = Array.from(new Map([...]))
 
         matches.forEach( function (match) {
             if (!teamsMap.has(match.opposition)) {               
@@ -323,15 +275,6 @@ onMounted( () => {
     width: calc(100vw - 205px - 50px)!important;
 }
 
-// .p-divider.p-divider-horizontal::before {
-//     border-top: .5px white!important;
-//     // margin-left: 5px;
-//     // border-width: 3px!important;
-//     border-style: solid!important;
-//     width: calc(100vw - 205px - 50px)!important;
-//     box-sizing: border-box!important;
-// }
-
 .isHovered {
     background-color:hotpink!important;
 }
@@ -358,12 +301,6 @@ onMounted( () => {
 .transfer {
     width: 6rem!important;
 }
-// .statTable tr:nth-child(even) {
-//     background-color: var(--surface-100);
-// }
-// .statTable tr:nth-child(odd) {
-//     background-color: var(--surface-50);
-// }
 
 .statTable tr {
     border-bottom: 1px solid var(--surface-200);

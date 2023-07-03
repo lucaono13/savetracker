@@ -45,8 +45,6 @@ export function GetSinglePlayer(arg1:number):Promise<main.ErrorReturn>;
 
 export function GetTrophies(arg1:number):Promise<main.ErrorReturn>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function Log(arg1:string):Promise<void>;
 
 export function RetrieveSaves():Promise<main.ErrorReturn>;
@@ -54,12 +52,6 @@ export function RetrieveSaves():Promise<main.ErrorReturn>;
 export function SelectFileParse(arg1:string):Promise<string>;
 
 export function SelectNewTrophyImage(arg1:number):Promise<main.ErrorReturn>;
-
-export function SelectScheduleFile():Promise<string>;
-
-export function SelectSquadFile():Promise<string>;
-
-export function SelectTransfersFile():Promise<string>;
 
 export function SingleImage(arg1:number):Promise<string>;
 

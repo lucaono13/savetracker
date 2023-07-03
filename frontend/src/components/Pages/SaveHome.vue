@@ -187,34 +187,18 @@ function newTrophyImage(trophyData: {0: string, 1: {"id": number, "image": strin
     })
 }
 
-// watch(route.params, async (newParams, oldParams) => {
-//     dataAdded.value = await GetNumSeasonsInSave(+newParams.id)
-//     console.log(newParams, oldParams)
-// })
-
-
 onMounted( async () => {
-    // dataAdded.value = false
-    // sortedResults.value = null
-    // topGls.value = null
-    // topAsts.value = null
-    // topApps.value = null
-    // topRat.value = null
-    // mostTrfs.value = null
-    // console.log(dataAdded.value)
     SingleSave(+route.params.id).then((response) => {
         if (response.Error != "") {
             emit('beError', response.Error)
             return
         }
         let result = response.Save
-        // let sessionVal: string = response.id.toString() + '_save_'
         save.value.saveID = result.id
         save.value.managerName = result.managerName
         save.value.gameVersion = result.gameVersion
         save.value.saveName = result.saveName
         save.value.image = result.saveImage
-        // localStorage.setItem("saveCurrency", result.currency)
         if (result.saveImage) {
             GetImage(result.saveImage).then(async (result) => {
                 save.value.image = result.b64Image
@@ -228,7 +212,6 @@ onMounted( async () => {
     if (!dataAdded.value) {
         return
     }
-    // GetSaveResults(+route.params.id).then( (response) => {
     GetSaveHomeRankings(+route.params.id).then( async (response: main.ErrorReturn) => {
         if (response.Error != "") {
             emit('beError', response.Error)
@@ -249,7 +232,6 @@ onMounted( async () => {
         let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
         let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
         let matches: backend.Match[] = response.Matches
-        // teams = Array.from(new Map([...]))
 
         matches.forEach( function (match) {
             if (!teamsMap.has(match.opposition)) {               
@@ -332,14 +314,11 @@ onMounted( async () => {
     }
 
 .fullWidth {
-    // height: calc(100vw - 79px)!important;
     width: calc(100vw - 205px - 50px)!important;
 }
 
 .p-divider.p-divider-horizontal::before {
     border-top: .5px white!important;
-    // margin-left: 5px;
-    // border-width: 3px!important;
     border-style: solid!important;
     width: calc(100vw - 205px - 50px)!important;
     box-sizing: border-box!important;
@@ -360,7 +339,6 @@ onMounted( async () => {
 
 .statTable {
     width: 100%!important;
-    // border: 1px solid white;
     border-collapse: collapse;
 }
 
@@ -371,12 +349,6 @@ onMounted( async () => {
 .transfer {
     width: 6rem!important;
 }
-// .statTable tr:nth-child(even) {
-//     background-color: var(--surface-100);
-// }
-// .statTable tr:nth-child(odd) {
-//     background-color: var(--surface-50);
-// }
 
 .statTable tr {
     border-bottom: 1px solid var(--surface-200);

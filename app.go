@@ -69,8 +69,6 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	backend.StartBackend()
-
-	// backend.StartLogger()
 }
 
 func (a *App) domReady(ctx context.Context) {
@@ -79,9 +77,7 @@ func (a *App) domReady(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	// backend.Logger.Info().Msg(fmt.Sprint(needUpdate))
 	if needUpdate {
-		// backend.Logger.Info().Msg("needs update")
 		runtime.EventsEmit(a.ctx, "updateVersion", url)
 	}
 }
@@ -89,15 +85,9 @@ func (a *App) domReady(ctx context.Context) {
 func (a *App) shutdown(ctx context.Context) bool {
 	backend.Logger.Info().Msg("Shutting down...")
 	backend.CloseDB()
-	// fmt.Println("written")
 	backend.EndLogging()
 
 	return false
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
 // Open File Dialog
@@ -112,25 +102,13 @@ func SelectExportedFile(ctx context.Context, exported string) string {
 		},
 	})
 	if err != nil {
-		backend.Logger.Error().Timestamp().Msg(err.Error())
+		backend.Logger.Error().Msg(err.Error())
 		return ""
 	}
 	return file
 }
 
 // Selecting the files exported from the game.
-func (a *App) SelectSquadFile() string {
-	return SelectExportedFile(a.ctx, "Squad")
-}
-
-func (a *App) SelectScheduleFile() string {
-	return SelectExportedFile(a.ctx, "Schedule")
-}
-
-func (a *App) SelectTransfersFile() string {
-	return SelectExportedFile(a.ctx, "Transfers")
-}
-
 func (a *App) SelectFileParse(fileType string) string {
 	return SelectExportedFile(a.ctx, fileType)
 }
@@ -174,7 +152,6 @@ func (a *App) SingleSave(id int) ErrorReturn {
 		return ErrorReturn{
 			Error: "Could not retrieve save",
 		}
-		// return backend.Save{}
 	}
 	return ErrorReturn{
 		Save: saveID,
@@ -195,7 +172,7 @@ func (a *App) UploadSaveImage(id int) ErrorReturn {
 		return ErrorReturn{}
 	}
 	if err != nil {
-		backend.Logger.Error().Timestamp().Msg(err.Error())
+		backend.Logger.Error().Msg(err.Error())
 		return ErrorReturn{
 			Error: "Error getting save image. Check log file for more details.",
 		}
@@ -523,14 +500,14 @@ func (a *App) SelectNewTrophyImage(id int) ErrorReturn {
 		},
 	})
 	if err != nil {
-		backend.Logger.Error().Timestamp().Msg(err.Error())
+		backend.Logger.Error().Msg(err.Error())
 		return ErrorReturn{
 			Error: "Error getting trophy image. Check log file for more details.",
 		}
 	}
 	err = backend.UpdateTrophyImage(id, file)
 	if err != nil {
-		backend.Logger.Error().Timestamp().Msg(err.Error())
+		backend.Logger.Error().Msg(err.Error())
 		return ErrorReturn{
 			Error: "Error updating trophy image. Check log file for more details.",
 		}
@@ -609,12 +586,6 @@ func (a *App) GetAllRankings() ErrorReturn {
 // Utility
 func (a *App) GetImage(path string) ErrorReturn {
 	path = strings.TrimSpace(path)
-	// file, err := os.Open(path)
-	// if err != nil {
-	// 	return ErrorReturn{
-	// 		Error: "Photo file not found.",
-	// 	}
-	// }
 	if filepath.Ext(path) != ".png" && filepath.Ext(path) != ".jpg" && filepath.Ext(path) != ".jpeg" {
 		return ErrorReturn{
 			Error: "Photo is not correct file type",
@@ -622,7 +593,7 @@ func (a *App) GetImage(path string) ErrorReturn {
 	}
 	bytes, err := os.ReadFile(path)
 	if err != nil {
-		backend.Logger.Error().Timestamp().Msg(err.Error())
+		backend.Logger.Error().Msg(err.Error())
 		return ErrorReturn{
 			Error: "Photo file not found",
 		}
@@ -643,5 +614,5 @@ func (a *App) GetImage(path string) ErrorReturn {
 }
 
 func (a *App) Log(msg string) {
-	backend.Logger.Info().Timestamp().Msg(msg)
+	backend.Logger.Info().Msg(msg)
 }

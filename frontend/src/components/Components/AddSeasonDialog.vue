@@ -98,15 +98,13 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 import { useRoute, useRouter } from 'vue-router'
-import { SelectSquadFile, SelectScheduleFile, SelectTransfersFile, SelectFileParse, AddNewSeason } from '../../../wailsjs/go/main/App'
-import { useForm, useField } from 'vee-validate';
+import { SelectFileParse, AddNewSeason } from '../../../wailsjs/go/main/App'
 import { useVuelidate } from "@vuelidate/core"
 import { required } from '@vuelidate/validators'
 import { main } from '../../../wailsjs/go/models'
-import * as yup from 'yup';
 import InputText from 'primevue/inputtext';
 
 const route = useRoute()
@@ -218,8 +216,6 @@ function addSeason(isValid: boolean) {
         trophies = []
         router.replace({path: '/save/' + route.params.id + '/home', replace: true})
     }, 2000)
-    
-    // ADD NEW SEASON BACKEND FUNCTION
 }
 
 </script>

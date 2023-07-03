@@ -222,9 +222,6 @@
                     </OverlayPanel>
                     
                 </div>
-                <!-- <Sidebar v-model:visible="attrChoices" position="bottom" dismissable="true" @hide="attrChoices=false">
-                    <h1>Some choices here</h1>
-                </Sidebar> -->
             </TabPanel>
         </TabView>
     </div>
@@ -233,16 +230,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onMounted, onBeforeMount, Ref } from 'vue'
-import { number } from 'yup';
+import { ref, defineProps, defineEmits, onBeforeMount, Ref } from 'vue'
 import { GetSinglePlayer } from '../../../wailsjs/go/main/App'
 import { backend } from '../../../wailsjs/go/models';
 import countryCodes from 'country-code-info';
 
-
-// @ts-ignore
-// import convertFIFACountryCode from '/country-code-converter'
-// import getCountryISO2 from "country-iso-3-to-2";
 
 const props = defineProps<{
     playerID: number,
@@ -342,7 +334,6 @@ const getCountryCode = (nationality: string) => {
     if (difCountryCodes.has(nationality)) {
         return difCountryCodes.get(nationality)
     }
-    // return getCountryISO2(nationality)
     return countryCodes.findCountry({'fifa': nationality})!.a3
 }
 
@@ -415,8 +406,6 @@ const setChartOptions = () => {
                 grid: {
                     color: surfaceBorder
                 },
-                // min: 1,
-                // max: 20
             }
         },
         parsing: {
@@ -434,7 +423,6 @@ const setChartOptions = () => {
 }
 
 const setChartData = () => {
-    const documentStyle = getComputedStyle(document.documentElement)
     let listOfAttr: {attr: string, name: string, visible: Ref<boolean>}[][]
     if (playerAvgs.value.position != 'GK') {
         listOfAttr = [techAttr, mentalAttr, phyAttr]
@@ -463,10 +451,6 @@ const updateChartData = () => {
     chartData.value = setChartData()
 }
 
-// onMounted( () => {
-    
-// })
-
 onBeforeMount( () => {
     playerID.value = props.playerID
     GetSinglePlayer(props.playerID).then( (response) => {
@@ -492,17 +476,6 @@ onBeforeMount( () => {
 </script>
 
 <style scoped lang="scss">
-    // .totalsTable tbody td:nth-of-type(odd), thead th:nth-of-type(odd) {
-    //     background: var(--surface-100);
-    // }
-    // .totalsTable tbody td:first, thead th:first {
-    //     background: none;
-    // }
-    // .totalsTable td, th {
-    //     // border-collapse: collapse;
-    //     border: .5px solid grey
-    // }
-
     .firstCol {
         border: none!important
     }

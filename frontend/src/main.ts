@@ -1,8 +1,7 @@
-import { createApp, defineComponent } from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
-import { useCounterStore, store } from './stores/counter'
 import router from './router'
-import { createPinia, storeToRefs } from 'pinia'
+import { createPinia } from 'pinia'
 
 // PrimeVue Components 
 import PrimeVue from 'primevue/config'
@@ -34,8 +33,6 @@ import ToastService from 'primevue/toastservice'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Badge from 'primevue/badge'
-// import ColumnGroup from 'primevue/columngroup'
-// import Row from 'primevue/row'
 import MultiSelect from 'primevue/multiselect'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -50,9 +47,6 @@ import Editor from 'primevue/editor'
 import Chart from 'primevue/chart'
 import InputSwitch from 'primevue/inputswitch'
 
-// Flags
-// @ts-ignore
-// import Flag from 'vue-flagpack'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -64,13 +58,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { config } from "@fortawesome/fontawesome-svg-core"
 
 import { fas } from "@fortawesome/free-solid-svg-icons"
-
-// Import specific icons
-import { faMugHot, faList, faQuestion, faHouseChimney } from '@fortawesome/free-solid-svg-icons'
-
-// Flags
-
-// import Flag from 'vue-flagpack'
 
 // PrimeIcons
 import 'primeicons/primeicons.css'
@@ -93,12 +80,6 @@ app.use(ToastService)
 import CountryFlag from 'vue-country-flag-next'
 app.component('CountryFlag', CountryFlag)
 
-// const app = createApp(App).use(PrimeVue).use(store, key).use(router)//.mount('#app')
-
-// Add Icons to Library
-// library.add(faMugHot)
-// library.add(faList)
-// library.add(faQuestion)
 library.add(fas)
 
 // Add FontAwesome to app
@@ -152,7 +133,6 @@ app.component('ProgressSpinner',ProgressSpinner)
     .directive('tooltip', Tooltip)
 
 app.use(ConfirmationService)
-// app.use(Flag)
 // Use Vue Router
 app.use(router)
 

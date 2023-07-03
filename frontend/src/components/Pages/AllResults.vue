@@ -68,7 +68,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import { ColumnFilterModelType } from 'primevue/column'
 
 onMounted( () => {
     GetAllResults().then( (response) => {

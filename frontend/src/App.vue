@@ -176,8 +176,6 @@ function GetSaves(newID?: number): void {
           router.replace("/")
           return
         }
-        // TODO: show notification that error occurred when adding save
-        // if 
       }
     } else if (defaultID != null && defaultID != "" && defaultID != "0") {
       GoToSave(+defaultID)
@@ -242,8 +240,6 @@ h3 {
 .p-menu {
   height: 100% !important;
   padding: .75rem !important;
-  // width: 100%!important;
-  // width:calc(max-content+25px)!important;
   background: rgba(240, 248, 255, 0) !important;
   border: rgba(240, 248, 255, 0) !important;
 }
@@ -263,7 +259,6 @@ h3 {
 .p-menubar {
   background: rgba(240, 248, 255, 0) !important;
   border: rgba(240, 248, 255, 0) !important;
-  // padding-right: 5px!important;
 }
 
 .p-menubar-start {

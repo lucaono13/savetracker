@@ -62,7 +62,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import { ColumnFilterModelType } from 'primevue/column'
 
 onMounted( () => {
     GetSaveResults(+route.params.id).then( (response) => {
@@ -77,19 +76,6 @@ const wins = ref()
 const losses = ref()
 const draws = ref()
 const totalGames = ref()
-const columns = [
-    { field: "date", header: "Date" },
-    { field: "year", header: "Year" },
-    { field: "competition", header: "Competition" },
-    { field: "stadium", header: "Stadium" },
-    { field: "venue", header: "Venue" },
-    { field: "opposition", header: "Opponent" },
-    { field: "result", header: "Result" },
-    { field: "goalsFor", header: "GF" },
-    { field: "goalsAgainst", header: "GA" },
-    { field: "penalties", header: "Penalties" },
-    { field: "extraTime", header: "extraTime" }
-]
 const resultType = ref(['W','D','L'])
 const venueType = ref(['H','A','N'])
 const filters = ref()

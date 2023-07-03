@@ -14,7 +14,7 @@ var (
 	stories     *[]*Story
 	config      *Config
 	curVersion  string = "1.0.0"
-	releaseLink string = "https://api.github.com/repos/benjaminjonard/koillection/releases/latest"
+	releaseLink string = "https://api.github.com/repos/lucaono13/savetracker/releases/latest"
 )
 
 type Story struct {
@@ -50,31 +50,30 @@ func MakeTrophiesMap(trophies []Trophy) map[string]int {
 func GetStoriesFromFile() {
 	storyFilePath, err := xdg.DataFile("Save Tracker/stories.json")
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return
 	}
 	if _, err := os.Stat(storyFilePath); err != nil {
 		if os.IsNotExist(err) {
 			_, err := os.Create(storyFilePath)
 			if err != nil {
-				Logger.Error().Timestamp().Msg(err.Error())
+				Logger.Error().Msg(err.Error())
 				return
 			}
 		} else {
-			Logger.Error().Timestamp().Msg(err.Error())
+			Logger.Error().Msg(err.Error())
 			return
 		}
 	}
 	file, err := os.ReadFile(storyFilePath)
-	// Logger.Info().Timestamp().Msg(string(file))
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return
 	}
 	if len(file) > 0 {
 		err = json.Unmarshal(file, &stories)
 		if err != nil {
-			Logger.Error().Timestamp().Msg(err.Error())
+			Logger.Error().Msg(err.Error())
 			return
 		}
 	}
@@ -82,27 +81,25 @@ func GetStoriesFromFile() {
 }
 
 func WriteStoriesToFile(stories *[]*Story) error {
-	// fmt.Println(stories)
 	storyFilePath, err := xdg.DataFile("Save Tracker/stories.json")
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return err
 	}
 	jsonedStories, err := json.Marshal(stories)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return err
 	}
 	err = os.WriteFile(storyFilePath, jsonedStories, 0666)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return err
 	}
 	return nil
 }
 
 func GetSaveStory(saveID int) Story {
-	// fmt.Println(stories)
 	var saveStory Story = Story{SaveID: saveID, Story: ""}
 	for _, story := range *stories {
 		if story.SaveID == saveID {
@@ -132,14 +129,14 @@ func UpdateSaveStory(updatedStory Story) error {
 func GetConfig() {
 	configFilePath, err := xdg.ConfigFile("Save Tracker/config.json")
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return
 	}
 	if _, err := os.Stat(configFilePath); err != nil {
 		if os.IsNotExist(err) {
 			_, err := os.Create(configFilePath)
 			if err != nil {
-				Logger.Error().Timestamp().Msg(err.Error())
+				Logger.Error().Msg(err.Error())
 				return
 			}
 			content, err := json.Marshal(
@@ -148,37 +145,38 @@ func GetConfig() {
 				},
 			)
 			if err != nil {
-				Logger.Error().Timestamp().Msg(err.Error())
+				Logger.Error().Msg(err.Error())
 				return
 			}
 			err = os.WriteFile(configFilePath, content, 0666)
 			if err != nil {
-				Logger.Error().Timestamp().Msg(err.Error())
+				Logger.Error().Msg(err.Error())
 				return
 			}
 		} else {
-			Logger.Error().Timestamp().Msg(err.Error())
+			Logger.Error().Msg(err.Error())
 			return
 		}
 	}
 	file, err := os.ReadFile(configFilePath)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return
 	}
 	err = json.Unmarshal(file, &config)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return
 	}
 }
 
+// Check Github version
 func CheckVersion() (bool, string, error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", releaseLink, nil)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return false, "", err
 	}
 	req.Header.Add("Accept", "application/vnd.github+json")
@@ -186,22 +184,21 @@ func CheckVersion() (bool, string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return false, "", err
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return false, "", err
 	}
 
 	githubVersion := GithubReleases{}
 	err = json.Unmarshal(body, &githubVersion)
 	if err != nil {
-		Logger.Error().Timestamp().Msg(err.Error())
+		Logger.Error().Msg(err.Error())
 		return false, "", nil
 	}
-	// Logger.Info().Msg(config.Version + " " + githubVersion.Tag)
 	if config.Version == githubVersion.Tag {
 		return false, "", nil
 	} else {

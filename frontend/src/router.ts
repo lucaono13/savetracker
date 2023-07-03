@@ -22,8 +22,6 @@ const routes = [
         localStorage.setItem("defaultSave", "");
         return;
       }
-      // LogPls(("params" in to).toString())
-      // console.log(to)
       const dSave: string | null = localStorage.getItem("defaultSave")
       if (dSave != null) {
         if (dSave != "0" && dSave != "") {
@@ -31,7 +29,6 @@ const routes = [
           return {path: "/save/" + dSave + "/home", replace: true}
         }
       }
-      // return {path: '/home', replace: true}
     },
     children: [
       {
@@ -81,24 +78,6 @@ const routes = [
       }
     ]
   },
-  // {
-  //   path: '/allResults',
-  //   name: 'All Results',
-  //   component: () => import('./components/Pages/AllResults.vue'),
-  //   meta: {
-  //     hidden: true,
-  //     totals: true,
-  //   }
-  // },
-  // {
-  //   path: '/no-default',
-  //   name: 'No Default',
-  //   component: () => import('./components/Pages/NoDefaultSave.vue'),
-  //   meta: {
-  //     hidden: true,
-  //     totals: false,
-  //   },
-  // },
   {
     path: '/no-saves',
     name: 'No Saves',
@@ -108,24 +87,6 @@ const routes = [
       hidden: true,
       totals: false,
     },
-    // beforeEnter: async (to: RouteLocationNormalized) => {
-    //   // console.log(to)
-    //   const numSaves: number = await GetNumSaves();
-
-    //   if (numSaves == 0) {
-    //     localStorage.setItem("saves", "0");
-    //     localStorage.setItem("defaultSave", "");
-    //     return;
-    //   }
-    //   // LogPls(("params" in to).toString())
-    //   // console.log(to)
-    //   const dSave: string | null = localStorage.getItem("defaultSave")
-    //   if (dSave != null) {
-    //     if (dSave != "0" && dSave != "") {
-    //       return {path: "/save/" + dSave + "/home", replace: true}
-    //     }
-    //   } 
-    // }
   },
   {
     path: '/save/:id',
@@ -148,8 +109,6 @@ const routes = [
         beforeEnter: (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
           if ("id" in to.params) {
             if (to.params.id == "0") {
-              
-              // return { name: "No Default", replace: true}
               return { name: "App Home", replace: true}
             }
           }
@@ -205,10 +164,4 @@ const router = createRouter({
 })
 
 
-router.beforeEach( (to, from) => {
-  // console.log(to)
-})
-
-
 export default router 
-// export default routes

@@ -29,7 +29,7 @@ func StartLogger() {
 	} else {
 
 		logFileHandler = file
-		Logger = zerolog.New(logFileHandler).With().Logger()
+		Logger = zerolog.New(logFileHandler).With().Timestamp().Caller().Logger()
 	}
 	Logger.Info().Timestamp().Msg("Logger has been created and is starting.")
 }

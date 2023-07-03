@@ -10,7 +10,6 @@
 
 <script setup lang="ts">
 import { ref, defineProps, onMounted, defineEmits } from 'vue';
-import { backend } from '../../../wailsjs/go/models'
 
 const props = defineProps<{
     story: string,
