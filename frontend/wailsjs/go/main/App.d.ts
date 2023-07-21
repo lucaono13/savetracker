@@ -3,7 +3,7 @@
 import {main} from '../models';
 import {backend} from '../models';
 
-export function AddNewSave(arg1:string,arg2:string,arg3:number,arg4:string):Promise<main.ErrorReturn>;
+export function AddNewSave(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.ErrorReturn>;
 
 export function AddNewSeason(arg1:number,arg2:main.NewSeason):Promise<main.ErrorReturn>;
 

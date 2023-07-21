@@ -20,10 +20,12 @@
                     class="p-error">{{ v$.managerName.required.$message.replace('Value', 'Manager Name') }}</small>
             </div>
                 <div class="field mt-4 p-float-label">
-                    <Dropdown class="w-full" v-model="v$.gameVersion.$model" id="gVersion" :disabled="addingToDB"
+                    <!-- <Dropdown class="w-full" v-model="v$.gameVersion.$model" id="gVersion" :disabled="addingToDB"
                         :options="versions" optionLabel="name" optionValue="name" 
+                        :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" /> -->
+                    <InputText class="w-full" v-model="v$.gameVersion.$model" id="gVersion" type="text" :disabled="addingToDB"
                         :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" />
-                    <label for="gVersion">Game Version</label>
+                    <label for="gVersion">Game Version/Save Type</label>
                     <small v-if="(v$.gameVersion.$invalid && submitted) || v$.gameVersion.$pending"
                         class="p-error">{{ v$.gameVersion.required.$message.replace('Value', 'Game Version') }}</small>
                 </div>
@@ -95,7 +97,7 @@
     
     function AddSave() {
         let fields = v$.value
-        AddNewSave(fields.saveName.$model, fields.managerName.$model, +fields.gameVersion.$model, fields.currency.$model.name).then( (response) => {
+        AddNewSave(fields.saveName.$model, fields.managerName.$model, fields.gameVersion.$model, fields.currency.$model.code).then( (response) => {
             if (response.Error != '') {
                 emit('beError', response.Error)
                 return

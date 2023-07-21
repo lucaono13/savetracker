@@ -7,7 +7,7 @@ import (
 type Save struct {
 	SaveID      NullInt64  `json:"id" db:"saveID"`
 	ManagerName string     `json:"managerName" db:"managerName"`
-	GameVersion int        `json:"gameVersion" db:"gameVersion"`
+	GameVersion string     `json:"gameVersion" db:"gameVersion"`
 	SaveName    string     `json:"saveName" db:"saveName"`
 	SaveImage   NullString `json:"saveImage" db:"saveImage"`
 	Currency    string     `json:"currency" db:"currency"`

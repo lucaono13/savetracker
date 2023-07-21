@@ -33,9 +33,7 @@
     <template #message="slotProps" >
       <div class="flex flex-column align-items-center flex-1">
         <span class="p-toast-summary">{{ slotProps.message.summary }}</span>
-      <!-- <p class="col-12 p-toast-detail"> -->
         <a class='p-toast-detail' href="" @click="openLink($event, slotProps.message.detail)" style="color:var(--orange-500)">Click here to download.</a>
-      <!-- </p> -->
       </div>
       
     </template>
@@ -131,9 +129,9 @@ function GetSaves(newID?: number): void {
       return
     }
     let saveList = response.SaveList
-    let savesMap = new Map<number, {}[]>()
+    let savesMap = new Map<string, {}[]>()
     for (var save in saveList) {
-      let gV: number = saveList[save].gameVersion
+      let gV: string = saveList[save].gameVersion
       let saveObj: { id: number, name: string, manager: string, image: string | undefined } = { id: saveList[save].id, name: saveList[save].saveName, manager: saveList[save].managerName, image: saveList[save].saveImage }
       
       if (saveObj.image != undefined) {

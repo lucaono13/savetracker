@@ -6,7 +6,7 @@ const (
 	CREATE TABLE IF NOT EXISTS "saves" (
 		"saveID"	INTEGER NOT NULL UNIQUE,
 		"managerName"	TEXT NOT NULL,
-		"gameVersion"	INTEGER NOT NULL,
+		"gameVersion"	TEXT NOT NULL,
 		"saveName"	TEXT NOT NULL,
 		"saveImage"	TEXT,
 		"currency"	TEXT NOT NULL,

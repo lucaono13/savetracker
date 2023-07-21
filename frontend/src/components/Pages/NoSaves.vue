@@ -12,15 +12,19 @@
                 <Button label="Add Save" class="p-button" @click="openAddSave" />
             </template>
         </Card>
-        <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="$emit('saveAdded')" @closeDialog="addSaveModal=false"/>
+        <AddSaveDialog v-model:visible="addSaveModal" @saveAdded="saveAdded" @closeDialog="addSaveModal=false"/>
     </div>
 </template>
 
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { ref, defineEmits } from 'vue';
     import AddSaveDialog from "../Components/AddSaveDialog.vue";
     let addSaveModal = ref(false)
-    
+    const emit = defineEmits(['saveAdded'])
+
+    function saveAdded(id: number) {
+        emit('saveAdded',id)
+    }
     function openAddSave() {
         addSaveModal.value = true
     }

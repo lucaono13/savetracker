@@ -147,7 +147,7 @@ const hoverTest = ref("")
 const currency = ref()
 
 let imgPlaceholder: string | undefined
-let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
+let save = ref({ saveID: 0, managerName: "", gameVersion: '', saveName: '', image: imgPlaceholder })
 const emit = defineEmits(['beError'])
 let numberFormmaterDec: Intl.NumberFormat = new Intl.NumberFormat(navigator.language, {
     style: "decimal",

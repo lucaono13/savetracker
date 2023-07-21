@@ -13,7 +13,7 @@ import (
 var (
 	stories     *[]*Story
 	config      *Config
-	curVersion  string = "1.0.0"
+	curVersion  string = "v1.0.0"
 	releaseLink string = "https://api.github.com/repos/lucaono13/savetracker/releases/latest"
 )
 

@@ -89,6 +89,15 @@ const routes = [
     },
   },
   {
+    path: '/no-seasons',
+    name: 'No Seasons',
+    component: () => import('./components/Pages/NoSeasons.vue'),
+    meta: {
+      hidden: true,
+      totals: false,
+    }
+  },
+  {
     path: '/save/:id',
     name: 'Save',
     component: () => import('./components/Pages/Save.vue'),

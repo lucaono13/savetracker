@@ -413,7 +413,7 @@ export namespace backend {
 	    // Go type: NullInt64
 	    id: any;
 	    managerName: string;
-	    gameVersion: number;
+	    gameVersion: string;
 	    saveName: string;
 	    // Go type: NullString
 	    saveImage: any;

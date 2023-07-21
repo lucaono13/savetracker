@@ -126,7 +126,7 @@ func (a *App) RetrieveSaves() ErrorReturn {
 	}
 }
 
-func (a *App) AddNewSave(saveName string, managerName string, gameVersion int, currency string) ErrorReturn {
+func (a *App) AddNewSave(saveName string, managerName string, gameVersion string, currency string) ErrorReturn {
 	newSave := backend.Save{
 		SaveName:    saveName,
 		ManagerName: managerName,

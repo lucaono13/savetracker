@@ -28,6 +28,11 @@ func OpenDB() {
 		Logger.Error().Msg(err.Error())
 		return
 	}
+	_, err = db.Exec("PRAGMA foreign_keys=1")
+	if err != nil {
+		Logger.Error().Msg(err.Error())
+		return
+	}
 	DB = db
 	// Logger.Info().Msg("DB has been opened.")
 }
@@ -476,21 +481,21 @@ func GetAllTransersStats() ([]TopTransfers, float32, float32, error) {
 	)
 	err := DB.Select(&topTransfers, AllMostTransfers)
 	if err != nil {
-		Logger.Error().Msg("all transfers")
+		// Logger.Error().Msg("all transfers")
 		Logger.Error().Msg(err.Error())
 		return nil, 0.0, 0.0, err
 	}
 	row := DB.QueryRow(AllAvgTransfersOut)
 	err = row.Scan(&avgOut)
 	if err != nil {
-		Logger.Error().Msg("avgout")
+		// Logger.Error().Msg("avgout")
 		Logger.Error().Msg(err.Error())
 		return nil, 0.0, 0.0, err
 	}
 	row = DB.QueryRow(AllAvgTransfersIn)
 	err = row.Scan(&avgIn)
 	if err != nil {
-		Logger.Error().Msg("avgin")
+		// Logger.Error().Msg("avgin")
 		Logger.Error().Msg("err " + err.Error())
 		return nil, 0.0, 0.0, err
 	}
