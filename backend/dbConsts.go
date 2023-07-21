@@ -94,7 +94,7 @@ const (
 		"result"	TEXT NOT NULL,
 		"penalties"	INTEGER NOT NULL,
 		"extraTime"	INTEGER NOT NULL,
-		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID"),
+		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "trophies" (
