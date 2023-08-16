@@ -6,12 +6,16 @@ export function AddNewSave(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['AddNewSave'](arg1, arg2, arg3, arg4);
 }
 
-export function AddNewSeason(arg1, arg2) {
-  return window['go']['main']['App']['AddNewSeason'](arg1, arg2);
+export function AddNewSeason(arg1, arg2, arg3) {
+  return window['go']['main']['App']['AddNewSeason'](arg1, arg2, arg3);
 }
 
 export function DeleteSave(arg1) {
   return window['go']['main']['App']['DeleteSave'](arg1);
+}
+
+export function GetAllPSeasons() {
+  return window['go']['main']['App']['GetAllPSeasons']();
 }
 
 export function GetAllPlayersSeason() {
@@ -22,8 +26,8 @@ export function GetAllPlayersTotals() {
   return window['go']['main']['App']['GetAllPlayersTotals']();
 }
 
-export function GetAllRankings() {
-  return window['go']['main']['App']['GetAllRankings']();
+export function GetAllRankings(arg1) {
+  return window['go']['main']['App']['GetAllRankings'](arg1);
 }
 
 export function GetAllResults() {
@@ -54,8 +58,12 @@ export function GetNumSeasonsInSave(arg1) {
   return window['go']['main']['App']['GetNumSeasonsInSave'](arg1);
 }
 
-export function GetSaveHomeRankings(arg1) {
-  return window['go']['main']['App']['GetSaveHomeRankings'](arg1);
+export function GetSaveHomeRankings(arg1, arg2) {
+  return window['go']['main']['App']['GetSaveHomeRankings'](arg1, arg2);
+}
+
+export function GetSavePSeasons(arg1) {
+  return window['go']['main']['App']['GetSavePSeasons'](arg1);
 }
 
 export function GetSavePlayers(arg1) {

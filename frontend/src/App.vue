@@ -38,6 +38,20 @@
       
     </template>
   </Toast>
+  <Dialog :visible="aboutDialog" modal header="About Save Tracker" :draggable="false" :style="{ width: '50vw' }" @update:visible="aboutDialog = false">
+    <!-- <p>Save Tracker</p> -->
+    <p>Author: <a href="" @click="openLink($event, 'https://github.com/lucaono13')">Gianluca</a></p>
+    <p><span class="font-bold">Version: </span><span class="font-italic">{{ appVersion }}</span></p>
+    <p><span class="font-bold">DB Version: </span><span class="font-italic">{{ dbVersion }}</span></p>
+    
+    <p><span>Technologies Used:</span>
+      <ul>
+        <li><a href="" @click="openLink($event, 'https://wails.io')">Wails Framework</a></li>
+        <li><a href="" @click="openLink($event, 'https://primevue.org')">PrimeVue Components</a></li>
+        <li><a href="" @click="openLink($event, 'https://fontawesome.com')">Font Awesome Icons</a></li>
+      </ul>
+    </p>
+  </Dialog>
 </template>
 
 <script lang="ts" async setup>
@@ -54,9 +68,12 @@ import { BrowserOpenURL, EventsOn } from '../wailsjs/runtime/runtime';
 const toast = useToast()
 const route = useRoute()
 const router = useRouter()
-let startup = ref(true)
-let addSaveModal = ref(false)
-let addSeasonModal = ref(false)
+const startup = ref(true)
+const addSaveModal = ref(false)
+const addSeasonModal = ref(false)
+const aboutDialog = ref(false)
+const appVersion = ref()
+const dbVersion = ref()
 
 const newVersionAvail = (url: string) => {
   toast.add({
@@ -68,6 +85,17 @@ const newVersionAvail = (url: string) => {
 }
 
 EventsOn('updateVersion', (url: string) => newVersionAvail(url))
+EventsOn('githubIssues', () => BrowserOpenURL( "https://github.com/lucaono13/savetracker/issues"))
+EventsOn('saveDeleted', () => {
+  selectedSave.value = {}
+  GetSaves()
+})
+EventsOn('aboutDialog', (version: string, databaseVersion: string) => {
+  appVersion.value = version
+  dbVersion.value = databaseVersion
+  aboutDialog.value = true
+})
+
 
 const openLink = (event: any, url: string) => {
     event.preventDefault();

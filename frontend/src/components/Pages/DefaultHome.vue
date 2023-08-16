@@ -28,18 +28,37 @@
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Transfers</h1></template>
                     <template #content>
-                        <table class="statTable">
-                            <thead>
-                                <tr>
-                                    <th>Team</th>
-                                    <th>Count (Total)</th>
-                                </tr>
-                            </thead>
-                            <tr v-for="team in mostTrfs">
-                                <td>{{ team.teamName }}</td>
-                                <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
-                            </tr>
-                        </table>
+                        <TabView class="playerStatView">
+                            <TabPanel header="Transfers">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Count (Total)</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in mostTrfs">
+                                        <td>{{ team.teamName }}</td>
+                                        <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                            <TabPanel header="Loans">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Count (Total)</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in mostLoans">
+                                        <td>{{ team.teamName }}</td>
+                                        <td class="transfer">{{ team.numLoans }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                        </TabView>
+                        
                     </template>
                 </Card>
             </div>
@@ -64,7 +83,7 @@
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" style="max-height:250px!important ;">
+            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="numPlayerSeasons > 0">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header ><h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1></template>
                     <!-- <h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1> -->
@@ -114,7 +133,7 @@
 
 <script lang="ts" async setup>
 import { ref, onMounted } from 'vue';
-import { GetImage, GetAllRankings, SelectNewTrophyImage, GetNumSaves, GetNumSeasons } from '../../../wailsjs/go/main/App'
+import { GetImage, GetAllRankings, SelectNewTrophyImage, GetNumSaves, GetNumSeasons, GetAllPSeasons } from '../../../wailsjs/go/main/App'
 import PlayerDialog from '../Components/PlayerDialog.vue';
 import NoDefaultSave from './NoDefaultSave.vue';
 import NoSaves from './NoSaves.vue';
@@ -130,11 +149,13 @@ const topAsts = ref()
 const topApps = ref()
 const topRat = ref()
 const mostTrfs = ref()
+const mostLoans = ref()
 const avgInFee = ref()
 const avgOutFee = ref()
 const trophies = ref()
 const numOfSaves = ref()
 const numOfSeasons = ref()
+const numPlayerSeasons = ref()
 
 const router = useRouter()
 let imgPlaceholder: string | undefined
@@ -185,98 +206,104 @@ onMounted(  async () => {
             }
         GetNumSeasons().then( (totSeasons: number) => {
             numOfSeasons.value = totSeasons
-            console.log(numOfSeasons.value)
+            // console.log(numOfSeasons.value)
             if (totSeasons <= 0) {
                 router.replace({name: 'No Seasons',replace: true})
                 return
             }
-            GetAllRankings().then( (response: main.ErrorReturn) => {
-                if (response.Error != "") {
-                    emit('beError', response.Error)
-                    return
-                }
-                topApps.value = response.TopApps
-                topAsts.value = response.TopAsts
-                topGls.value = response.TopGls
-                topRat.value = response.TopAvg
-                mostTrfs.value = response.TopTrfs
-                avgInFee.value = response.AvgInFee
-                avgOutFee.value = response.AvgOutFee
-                numberFormmaterCur = new Intl.NumberFormat(navigator.language, {
-                    style: "currency",
-                    currency: response.TopTrfs[0].currency,
-                    notation: "compact"
-                })
-                let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
-                let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
-                let matches: backend.Match[] = response.Matches
-
-                matches.forEach( function (match) {
-                    if (!teamsMap.has(match.opposition)) {               
-                        teamsMap.set(match.opposition, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0})
-                    }
-                    let matchResults: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0} = teamsMap.get(match.opposition)!
-                    switch (match.result) {
-                        case "W": {
-                            matchResults.W += 1
-                            break
-                        }
-                        case "D": {
-                            matchResults.D += 1
-                            break
-                        }
-                        case "L": {
-                            matchResults.L += 1
-                            break
-                        }
-                    }
-                    matchResults.GF += match.goalsFor
-                    matchResults.GA += match.goalsAgainst 
-                    teamsMap.set(match.opposition, matchResults)
-                })
-
-                teamsMap.forEach( (results: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}, team: string) => {
-                    let games: number = results.W + results.D + results.L
-                    if (games >= 2) {
-                        resultsMap.set(team, {"WinPerc": (results.W / games) * 100, "Record": results})
-                    }
-                    
-                })
-                sortedResults.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
-                    if (v.WinPerc > v2.WinPerc) {
-                        return 1
-                    }
-                    if (v.WinPerc < v2.WinPerc) {
-                        return -1
-                    }
-                    return 0
-                })
-                sortedResults.value = sortedResults.value.slice(0,5)
-                if (response.Trophies == null) {
-                    return
-                }
-                let combinedTrophies = new Map<string, {"years": string[], "image": string, "id": number, "b64": string}>()
-                response.Trophies.forEach( function (trophy) {
-                    if (!combinedTrophies.has(trophy.trophyName)) {
-                        combinedTrophies.set(trophy.trophyName, {"years": [trophy.season], "image": trophy.trophyImage, "id": trophy.trophyID, "b64": ""})
-                    } else if (combinedTrophies.has(trophy.trophyName)) {
-                        let trophyInfo: {"years":string[], "image": string, "id": number, "b64": string} = combinedTrophies.get(trophy.trophyName)!
-                        trophyInfo.years.push(trophy.season)
-                        combinedTrophies.set(trophy.trophyName, trophyInfo)
-                    }
-                })
-                trophies.value = [...combinedTrophies]
+            GetAllPSeasons().then( (playerSeasonNum: number) => {
+                numPlayerSeasons.value = playerSeasonNum
+                // console.log(numPlayerSeasons.value > 0)
                 
-                trophies.value.forEach( function (trophy: {"years": string[], "image": string, "id": number, "b64": string}[]) {
-                    if (trophy[1]['image'] != null) {
-                        GetImage(trophy[1]['image']).then( (response) => {
-                            if (response.Error != "") {
-                                emit('beError', response.Error)
-                                return
-                            }
-                            trophy[1]['b64'] = response.b64Image
-                        })
+                GetAllRankings(numPlayerSeasons.value > 0).then( (response: main.ErrorReturn) => {
+                    if (response.Error != "") {
+                        emit('beError', response.Error)
+                        return
                     }
+                    topApps.value = response.TopApps
+                    topAsts.value = response.TopAsts
+                    topGls.value = response.TopGls
+                    topRat.value = response.TopAvg
+                    mostTrfs.value = response.TopTrfs
+                    mostLoans.value = response.TopLoans
+                    avgInFee.value = response.AvgInFee
+                    avgOutFee.value = response.AvgOutFee
+                    numberFormmaterCur = new Intl.NumberFormat(navigator.language, {
+                        style: "currency",
+                        currency: response.TopTrfs[0].currency,
+                        notation: "compact"
+                    })
+                    let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
+                    let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
+                    let matches: backend.Match[] = response.Matches
+
+                    matches.forEach( function (match) {
+                        if (!teamsMap.has(match.opposition)) {               
+                            teamsMap.set(match.opposition, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0})
+                        }
+                        let matchResults: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0} = teamsMap.get(match.opposition)!
+                        switch (match.result) {
+                            case "W": {
+                                matchResults.W += 1
+                                break
+                            }
+                            case "D": {
+                                matchResults.D += 1
+                                break
+                            }
+                            case "L": {
+                                matchResults.L += 1
+                                break
+                            }
+                        }
+                        matchResults.GF += match.goalsFor
+                        matchResults.GA += match.goalsAgainst 
+                        teamsMap.set(match.opposition, matchResults)
+                    })
+
+                    teamsMap.forEach( (results: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}, team: string) => {
+                        let games: number = results.W + results.D + results.L
+                        if (games >= 2) {
+                            resultsMap.set(team, {"WinPerc": (results.W / games) * 100, "Record": results})
+                        }
+                        
+                    })
+                    sortedResults.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
+                        if (v.WinPerc > v2.WinPerc) {
+                            return 1
+                        }
+                        if (v.WinPerc < v2.WinPerc) {
+                            return -1
+                        }
+                        return 0
+                    })
+                    sortedResults.value = sortedResults.value.slice(0,5)
+                    if (response.Trophies == null) {
+                        return
+                    }
+                    let combinedTrophies = new Map<string, {"years": string[], "image": string, "id": number, "b64": string}>()
+                    response.Trophies.forEach( function (trophy) {
+                        if (!combinedTrophies.has(trophy.trophyName)) {
+                            combinedTrophies.set(trophy.trophyName, {"years": [trophy.season], "image": trophy.trophyImage, "id": trophy.trophyID, "b64": ""})
+                        } else if (combinedTrophies.has(trophy.trophyName)) {
+                            let trophyInfo: {"years":string[], "image": string, "id": number, "b64": string} = combinedTrophies.get(trophy.trophyName)!
+                            trophyInfo.years.push(trophy.season)
+                            combinedTrophies.set(trophy.trophyName, trophyInfo)
+                        }
+                    })
+                    trophies.value = [...combinedTrophies]
+                    
+                    trophies.value.forEach( function (trophy: {"years": string[], "image": string, "id": number, "b64": string}[]) {
+                        if (trophy[1]['image'] != null) {
+                            GetImage(trophy[1]['image']).then( (response) => {
+                                if (response.Error != "") {
+                                    emit('beError', response.Error)
+                                    return
+                                }
+                                trophy[1]['b64'] = response.b64Image
+                            })
+                        }
+                    })
                 })
             })
         })

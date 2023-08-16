@@ -46,7 +46,7 @@ import Tooltip from 'primevue/tooltip'
 import Editor from 'primevue/editor'
 import Chart from 'primevue/chart'
 import InputSwitch from 'primevue/inputswitch'
-
+import ToggleButton from 'primevue/togglebutton'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -130,6 +130,7 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('Chart',Chart)
     .component('InputSwitch', InputSwitch)
     .component('ConfirmDialog', ConfirmDialog)
+    .component('ToggleButton', ToggleButton)
     .directive('tooltip', Tooltip)
 
 app.use(ConfirmationService)

@@ -25,7 +25,7 @@
             
             <div class="col flex flex-column align-items-end justify-content-end" style="font-family: Didot;">
                 <span class="text-lg">From save: <span class="font-bold text-xl">{{ playerAvgs.saveName }}</span></span>
-                <span class="text-lg">Game Version: <span class="font-bold text-xl">{{ playerAvgs.gameVersion }}</span></span>
+                <span class="text-lg">Game Version/Save Type: <span class="font-bold text-xl">{{ playerAvgs.gameVersion }}</span></span>
                 <span class="text-lg">Number of seasons: <span class="font-bold text-xl">{{ playerAvgs.seasons }}</span></span>
                 
             </div>
@@ -454,7 +454,6 @@ const updateChartData = () => {
 onBeforeMount( () => {
     playerID.value = props.playerID
     GetSinglePlayer(props.playerID).then( (response) => {
-        
         if (response.Error != "") {
             emit('beError', response.Error)
             return
@@ -462,7 +461,7 @@ onBeforeMount( () => {
         playerSeasons.value = response.OnePlayer
         playerAvgs.value = response.PlayerAvgSum
         seasons.value = ([...new Set(playerSeasons.value.map((item: backend.PlayerPageInfo ) => item.season))])
-        console.log(playerSeasons.value)
+        // console.log(playerSeasons.value)
         if (playerAvgs.value.position == 'GK') {
             isGK.value = true
         }

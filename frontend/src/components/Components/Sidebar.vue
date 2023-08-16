@@ -38,7 +38,7 @@
         </template>
       </Menu>
           <Button class="mx-4 justify-content-center align-self-end" @click="deleteSave"  severity="danger" text raised>Delete Save</Button>
-        <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="addSeasonModal=false"/>
+        <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="seasonAdded"/>
     </div>
     <div class=" flex almost-fh justify-content-center flex-column " v-if="!saveSidebar" style="width: 205px!important;">
       <Menu :model="$router.getRoutes()" class=" align-content-evenly">
@@ -75,7 +75,7 @@ import { main } from '../../../wailsjs/go/models';
     saveSidebar: boolean,
   }
   const confirm = useConfirm()
-  const emit = defineEmits(['beError', 'getSaves'])
+  const emit = defineEmits(['beError', 'getSaves', 'seasonAdded'])
   const saveSidebar = ref(false)
   const route = useRoute()
   const router = useRouter()
@@ -103,7 +103,7 @@ import { main } from '../../../wailsjs/go/models';
             beError(response.Error)
             return
           }
-          router.replace({name: "All Saves Home", replace: true})
+          router.replace({name: "App Home", replace: true})
         })
       },
       reject: () => {
@@ -114,6 +114,11 @@ import { main } from '../../../wailsjs/go/models';
 
   function beError(e: string) {
     emit('beError', e)
+  }
+
+  function seasonAdded() {
+    addSeasonModal.value = false
+    emit('seasonAdded')
   }
 
   function ChangeDefault() {
@@ -147,7 +152,7 @@ import { main } from '../../../wailsjs/go/models';
         }
         GetImage(response).then( (b64) => {
           if (b64.Error) {
-            console.log(b64)
+            // console.log(b64)
             imageError.value = true
           }
           saveImage.value = b64.b64Image

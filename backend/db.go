@@ -28,11 +28,7 @@ func OpenDB() {
 		Logger.Error().Msg(err.Error())
 		return
 	}
-	_, err = db.Exec("PRAGMA foreign_keys=1")
-	if err != nil {
-		Logger.Error().Msg(err.Error())
-		return
-	}
+
 	DB = db
 	// Logger.Info().Msg("DB has been opened.")
 }
@@ -103,7 +99,12 @@ func GetNumSaves() int {
 }
 
 func DeleteSave(saveID int) error {
-	_, err := DB.Exec(DeleteSaveQ, saveID)
+	_, err := DB.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		Logger.Error().Msg(err.Error())
+		return err
+	}
+	_, err = DB.Exec(DeleteSaveQ, saveID)
 	if err != nil {
 		Logger.Error().Msg(err.Error())
 		return err
@@ -200,6 +201,28 @@ func addPlayerSeason(playerID int, seasonID int) (int64, error) {
 		return 0, err
 	}
 	return playerSeasonID, nil
+}
+
+func GetSavePlayerSeasons(saveID int) int {
+	row := DB.QueryRow(SavePlayerSeasons, saveID)
+	var numSeasons int
+	err := row.Scan(&numSeasons)
+	if err != nil {
+		Logger.Error().Msg(err.Error())
+		return 0
+	}
+	return numSeasons
+}
+
+func GetAllPlayerSeasons() int {
+	row := DB.QueryRow(TotalPlayerSeasons)
+	var numSeasons int
+	err := row.Scan(&numSeasons)
+	if err != nil {
+		Logger.Error().Msg(err.Error())
+		return 0
+	}
+	return numSeasons
 }
 
 // Players
@@ -449,57 +472,71 @@ func GetAllTransfers(transferIn int) ([]Transfer, error) {
 	return transfers, nil
 }
 
-func GetTransfersStats(saveID int) ([]TopTransfers, float32, float32, error) {
+func GetTransfersStats(saveID int) ([]TopTransfers, []TopTransfers, float32, float32, error) {
 	var (
 		topTransfers  []TopTransfers
+		topLoans      []TopTransfers
 		avgOut, avgIn float32
 	)
 	err := DB.Select(&topTransfers, MostTransfers, saveID)
 	if err != nil {
 		Logger.Error().Msg(err.Error())
-		return nil, 0.0, 0.0, err
+		return nil, nil, 0.0, 0.0, err
 	}
+	err = DB.Select(&topLoans, MostLoans, saveID)
+	if err != nil {
+		Logger.Error().Msg(err.Error())
+		return nil, nil, 0.0, 0.0, err
+	}
+
 	row := DB.QueryRow(AvgTransfersOut, saveID)
 	err = row.Scan(&avgOut)
 	if err != nil {
 		Logger.Error().Msg(err.Error())
-		return nil, 0.0, 0.0, err
+		return nil, nil, 0.0, 0.0, err
 	}
 	row = DB.QueryRow(AvgTransfersIn, saveID)
 	err = row.Scan(&avgIn)
 	if err != nil {
 		Logger.Error().Msg(err.Error())
-		return nil, 0.0, 0.0, err
+		return nil, nil, 0.0, 0.0, err
 	}
-	return topTransfers, avgIn, avgOut, nil
+	return topTransfers, topLoans, avgIn, avgOut, nil
 }
 
-func GetAllTransersStats() ([]TopTransfers, float32, float32, error) {
+func GetAllTransersStats() ([]TopTransfers, []TopTransfers, float32, float32, error) {
 	var (
-		topTransfers  []TopTransfers
+		topTransfers, topLoans []TopTransfers
+		// topLoans []TopTransfers
 		avgOut, avgIn float32
 	)
 	err := DB.Select(&topTransfers, AllMostTransfers)
 	if err != nil {
 		// Logger.Error().Msg("all transfers")
 		Logger.Error().Msg(err.Error())
-		return nil, 0.0, 0.0, err
+		return nil, nil, 0.0, 0.0, err
 	}
+	err = DB.Select(&topLoans, AllMostLoans)
+	if err != nil {
+		Logger.Error().Msg(err.Error())
+		return nil, nil, 0.0, 0.0, err
+	}
+
 	row := DB.QueryRow(AllAvgTransfersOut)
 	err = row.Scan(&avgOut)
 	if err != nil {
 		// Logger.Error().Msg("avgout")
 		Logger.Error().Msg(err.Error())
-		return nil, 0.0, 0.0, err
+		return nil, nil, 0.0, 0.0, err
 	}
 	row = DB.QueryRow(AllAvgTransfersIn)
 	err = row.Scan(&avgIn)
 	if err != nil {
 		// Logger.Error().Msg("avgin")
 		Logger.Error().Msg("err " + err.Error())
-		return nil, 0.0, 0.0, err
+		return nil, nil, 0.0, 0.0, err
 	}
-	return topTransfers, avgIn, avgOut, nil
+	return topTransfers, topLoans, avgIn, avgOut, nil
 }
 
 // Schedule

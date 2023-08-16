@@ -329,6 +329,17 @@ const (
 		ORDER BY numTransfers DESC
 		LIMIT 5
 	`
+	MostLoans = `
+		SELECT transfers.teamName, saves.currency,
+			SUM(transfers.fee) totFee, COUNT(transfers.fee) numLoans
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ? AND transfers.loan = true AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numLoans DESC
+		LIMIT 5
+	`
 	AvgTransfersOut = `
 		SELECT AVG(transfers.fee)
 		FROM transfers
@@ -502,6 +513,17 @@ const (
 		ORDER BY numTransfers DESC
 		LIMIT 5
 	`
+	AllMostLoans = `
+		SELECT transfers.teamName, saves.currency,
+			SUM(transfers.fee) totFee, COUNT(transfers.fee) numLoans
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.loan = true AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numLoans DESC
+		LIMIT 5
+	`
 	AllTopRat = `
 		SELECT players.playerID, players.playerName, AVG(playerStats.avgRating) avgRating
 		FROM playerStats
@@ -627,5 +649,18 @@ const (
 		DELETE
 		FROM saves
 		WHERE saveID = ?
+	`
+	SavePlayerSeasons = `
+		SELECT COUNT(1)
+		FROM playerSeason
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?
+	`
+	TotalPlayerSeasons = `
+		SELECT COUNT(1)
+		FROM playerSeason
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
 	`
 )

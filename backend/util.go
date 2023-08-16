@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	stories     *[]*Story
-	config      *Config
-	curVersion  string = "v1.0.0"
-	releaseLink string = "https://api.github.com/repos/lucaono13/savetracker/releases/latest"
+	stories      *[]*Story
+	version      *Version
+	curVersion   string = "v1.0.0"
+	curDBVersion string = "v1.0.0"
+	releaseLink  string = "https://api.github.com/repos/lucaono13/savetracker/releases/latest"
 )
 
 type Story struct {
@@ -22,8 +23,9 @@ type Story struct {
 	Story  string `json:"story"`
 }
 
-type Config struct {
-	Version string `json:"version"`
+type Version struct {
+	Version   string `json:"version"`
+	DBVersion string `json:"dbVersion"`
 }
 
 type GithubReleases struct {
@@ -127,7 +129,7 @@ func UpdateSaveStory(updatedStory Story) error {
 }
 
 func GetConfig() {
-	configFilePath, err := xdg.ConfigFile("Save Tracker/config.json")
+	configFilePath, err := xdg.ConfigFile("Save Tracker/versions.json")
 	if err != nil {
 		Logger.Error().Msg(err.Error())
 		return
@@ -140,8 +142,9 @@ func GetConfig() {
 				return
 			}
 			content, err := json.Marshal(
-				Config{
-					Version: curVersion,
+				Version{
+					Version:   curVersion,
+					DBVersion: curDBVersion,
 				},
 			)
 			if err != nil {
@@ -163,11 +166,19 @@ func GetConfig() {
 		Logger.Error().Msg(err.Error())
 		return
 	}
-	err = json.Unmarshal(file, &config)
+	err = json.Unmarshal(file, &version)
 	if err != nil {
 		Logger.Error().Msg(err.Error())
 		return
 	}
+}
+
+func GetVersion() string {
+	return version.Version
+}
+
+func GetDBVersion() string {
+	return version.DBVersion
 }
 
 // Check Github version
@@ -199,7 +210,7 @@ func CheckVersion() (bool, string, error) {
 		Logger.Error().Msg(err.Error())
 		return false, "", nil
 	}
-	if config.Version == githubVersion.Tag {
+	if version.Version == githubVersion.Tag {
 		return false, "", nil
 	} else {
 		return true, githubVersion.URL, nil

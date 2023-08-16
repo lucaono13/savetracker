@@ -25,7 +25,6 @@ const routes = [
       const dSave: string | null = localStorage.getItem("defaultSave")
       if (dSave != null) {
         if (dSave != "0" && dSave != "") {
-          console.log('here')
           return {path: "/save/" + dSave + "/home", replace: true}
         }
       }

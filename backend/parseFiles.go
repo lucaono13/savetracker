@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -38,7 +39,8 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 	var isTd, isTh bool
 	var isInOrOut string
 	var n, headerCol, col int
-
+	// var colNames []string
+	// var colChecked bool = false
 	// Iterate through HTML file
 	for {
 		tt := tkn.Next()
@@ -78,10 +80,16 @@ func ParseTransfers(filePath string, teamName string) ([]Transfer, []Transfer, e
 				if headerCol == 4 {
 					headerCol = 0
 				}
+				// colNames = append(colNames, t.Data)
 
 			}
 			// Get data from each cell
 			if isTd {
+				// if len(colNames) != 4 || len(colNames) != 8 {
+				// 	err = errors.New("wrong number of columns: check view used to export file")
+				// 	Logger.Error().Msg("Wrong number of columns. Ensure file is using the correct view.")
+				// 	return nil, nil, err
+				// }
 				col++
 				data := strings.TrimSpace(t.Data)
 				transferRow = append(transferRow, data)
@@ -235,11 +243,13 @@ func ParseSchedule(filePath string) ([]Match, error) {
 	var (
 		matches  []Match
 		isTd     bool
+		isTh     bool
 		col      int
 		homeTeam string
+		fileCols []string
 	)
 
-	// Weird Go shenanigans going on, please ignore
+	// Weird shenanigans going on, please ignore
 	_ = fmt.Sprint(homeTeam)
 	for {
 		tt := tkn.Next()
@@ -255,12 +265,25 @@ func ParseSchedule(filePath string) ([]Match, error) {
 		case tt == html.StartTagToken:
 			t := tkn.Token()
 			isTd = t.Data == "td"
+			isTh = t.Data == "th"
 			if t.Data == "tr" {
 				col = 0
 			}
 		case tt == html.TextToken:
 			t := tkn.Token()
+			if isTh {
+				fileCols = append(fileCols, t.Data)
+			}
 			if isTd {
+				if len(fileCols) != 17 {
+					for _, v := range fileCols {
+						// Logger.Info().Msg(rune(i))
+						Logger.Info().Msg(v)
+					}
+					err = errors.New("wrong number of columns: check view used to export file")
+					Logger.Error().Msg("Wrong number of columns. Ensure file is using the correct view.")
+					return nil, err
+				}
 				col++
 				data := strings.TrimSpace(t.Data)
 				switch col {
@@ -423,6 +446,12 @@ func ParseStats(path string, season string) ([]PlayerInfo, []PlayerSeason, error
 			}
 
 			if isTd {
+				if len(colNames) != 65 {
+
+					err = errors.New("wrong number of columns: check view used to export file")
+					Logger.Error().Msg("Wrong number of columns. Ensure file is using the correct view.")
+					return nil, nil, err
+				}
 				col++
 				data := strings.TrimSpace(t.Data)
 				switch col {

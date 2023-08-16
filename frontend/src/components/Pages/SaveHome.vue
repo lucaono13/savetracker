@@ -33,7 +33,37 @@
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Transfers</h1></template>
                     <template #content>
-                        <table class="statTable">
+                        <TabView class="playerStatView">
+                            <TabPanel header="Transfers">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Count (Total)</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in mostTrfs">
+                                        <td>{{ team.teamName }}</td>
+                                        <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                            <TabPanel header="Loans">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Count (Total)</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in mostLoans">
+                                        <td>{{ team.teamName }}</td>
+                                        <td class="transfer">{{ team.numLoans }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                        </TabView>
+                        <!-- <table class="statTable">
                             <thead>
                                 <tr>
                                     <th>Team</th>
@@ -44,7 +74,7 @@
                                 <td>{{ team.teamName }}</td>
                                 <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
                             </tr>
-                        </table>
+                        </table> -->
                     </template>
                 </Card>
             </div>
@@ -69,7 +99,7 @@
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="dataAdded">
+            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="playerSeasons > 0">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header ><h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1></template>
                     <!-- <h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1> -->
@@ -122,7 +152,7 @@
 import Sidebar from '../Components/Sidebar.vue'
 import { useRoute, useRouter } from 'vue-router';
 import { nextTick, ref, onMounted, watch, onBeforeMount } from 'vue';
-import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
+import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage, GetSavePSeasons } from '../../../wailsjs/go/main/App'
 import EditStoryDialog  from '../../../src/components/Components/EditStoryDialog.vue'
 import PlayerDialog from '../Components/PlayerDialog.vue';
 import { backend, main } from '../../../wailsjs/go/models'
@@ -138,10 +168,12 @@ const topAsts = ref()
 const topApps = ref()
 const topRat = ref()
 const mostTrfs = ref()
+const mostLoans = ref()
 const avgInFee = ref()
 const avgOutFee = ref()
 const trophies = ref()
 const dataAdded = ref()
+const playerSeasons = ref()
 const saveStory = ref({saveID: 0, story:""})
 const hoverTest = ref("")
 const currency = ref()
@@ -162,6 +194,7 @@ function updateStory(story: string) {
 }
 
 function openPlayerDialog(playerID: number) {
+    console.log('opening ', playerID)
     playerDialogID.value = playerID
     playerDialog.value = true
 }
@@ -212,7 +245,9 @@ onMounted( async () => {
     if (!dataAdded.value) {
         return
     }
-    GetSaveHomeRankings(+route.params.id).then( async (response: main.ErrorReturn) => {
+    playerSeasons.value = await GetSavePSeasons(+route.params.id)
+    
+    GetSaveHomeRankings(+route.params.id, playerSeasons.value > 0).then( async (response: main.ErrorReturn) => {
         if (response.Error != "") {
             emit('beError', response.Error)
             return
@@ -222,6 +257,7 @@ onMounted( async () => {
         topGls.value = response.TopGls
         topRat.value = response.TopAvg
         mostTrfs.value = response.TopTrfs
+        mostLoans.value = response.TopLoans
         avgInFee.value = response.AvgInFee
         avgOutFee.value = response.AvgOutFee
         numberFormmaterCur = new Intl.NumberFormat(navigator.language, {

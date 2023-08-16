@@ -61,13 +61,21 @@
             </div>
             <!-- <Divider/> -->
             <p style="font-size: small ;"><a type="button" @click="openLink($event, 'https://www.mediafire.com/folder/0wz6sxqpy4fme/2023_Views')" href="">Use the views for Squad and Transfer in from this link to export the data properly.</a></p>
+            <!-- <div class="mt-4 ">
+
+            </div> -->
             <div class="mt-4 p-inputgroup fileGroup" >
-                <Button style="width: 141px" class="flex-none justify-content-center" @click="GetFile('squadFile', 'Squad')" >Squad File</Button>
+                <Button style="width: 141px" class="flex-none justify-content-center" @click="GetFile('squadFile', 'Squad')" :disabled="!historicalSeason">Squad File</Button>
                 <Textarea v-model="v$.squadFile.$model" class="fileText" id="squadFile"
                     cols="500" disabled
                     :class="{ 'p-invalid': v$.squadFile.$invalid && submitted }"
                 />
+                <ToggleButton v-model="historicalSeason" v-tooltip.left="'Click this button if you do not have the squad file for the season.'" @change=""></ToggleButton>
             </div>
+            <!-- <div class="flex justify-content-end">
+                <small class="font-italic text-right">Click "Have File?"" button if you don't have the squad file for this year.</small>
+            </div>
+             -->
             <div class="p-inputgroup mt-4 fileGroup" >
                 <Button style="width: 141px" class="justify-content-center" @click="GetFile('scheduleFile', 'Schedule')" >Schedule File</Button>
                 <Textarea v-model="v$.scheduleFile.$model" class="fileText" id="scheduleFile" 
@@ -111,7 +119,7 @@ const route = useRoute()
 const router = useRouter()
 
 const addingToDB = ref(false)
-const value = ref()
+const historicalSeason = ref(true)
 const explain = ref()
 const submitted = ref(false)
 const emit = defineEmits(['closeDialog', 'beError'])
@@ -148,6 +156,7 @@ function GetFile(textArea: string, fileType: string) {
 }
 
 
+
 const state = reactive({
     teamName: '',
     shortName: '',
@@ -165,7 +174,7 @@ const rules = {
     season: { required },
     country: { required },
     trophies: { required },
-    squadFile: { required },
+    squadFile: {  },
     scheduleFile: { required },
     transfersFile: { required }
 }
@@ -196,7 +205,7 @@ function addSeason(isValid: boolean) {
         return;
     }
     addingToDB.value = true
-    AddNewSeason(+route.params.id, season).then( (response) => {
+    AddNewSeason(+route.params.id, season, historicalSeason.value).then( (response) => {
         if (response.Error != "") {
             emit('beError', response.Error)
         }
@@ -217,7 +226,6 @@ function addSeason(isValid: boolean) {
         router.replace({path: '/save/' + route.params.id + '/home', replace: true})
     }, 2000)
 }
-
 </script>
 
 <style lang="scss">
