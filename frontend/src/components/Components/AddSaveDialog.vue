@@ -19,29 +19,22 @@
                 <small v-if="(v$.managerName.$invalid && submitted) || v$.managerName.$pending"
                     class="p-error">{{ v$.managerName.required.$message.replace('Value', 'Manager Name') }}</small>
             </div>
-            <!-- <div class="formgroup-inline grid"> -->
                 <div class="field mt-4 p-float-label">
-                    <Dropdown class="w-full" v-model="v$.gameVersion.$model" id="gVersion" :disabled="addingToDB"
+                    <!-- <Dropdown class="w-full" v-model="v$.gameVersion.$model" id="gVersion" :disabled="addingToDB"
                         :options="versions" optionLabel="name" optionValue="name" 
+                        :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" /> -->
+                    <InputText class="w-full" v-model="v$.gameVersion.$model" id="gVersion" type="text" :disabled="addingToDB"
                         :class="{ 'p-invalid': v$.gameVersion.$invalid && submitted }" />
-                    <label for="gVersion">Game Version</label>
+                    <label for="gVersion">Game Version/Save Type</label>
                     <small v-if="(v$.gameVersion.$invalid && submitted) || v$.gameVersion.$pending"
                         class="p-error">{{ v$.gameVersion.required.$message.replace('Value', 'Game Version') }}</small>
                 </div>
-                <!-- <div class="field mt-4 p-float-label">
-                    <InputText class="w-full" v-model="v$.currency.$model" id="curr" :disabled="addingToDB"
-                        :class="{ 'p-invalid': v$.currency.$invalid && submitted }" />
-                    <label for="curr">Currency (i.e. $, €, £)</label>
-                    <small v-if="(v$.currency.$invalid && submitted) || v$.currency.$pending.$response"
-                    class="p-error">{{ v$.currency.required.$message.replace('Value', 'Currency') }}</small>
-                </div> -->
                 <div class="field mt-4 p-float-label">
                     <Dropdown class="w-full" v-model="v$.currency.$model" id="currency" :disabled="addingToDB"
                     :options="currencies" :filterFields="['name','symbol','code']" filter placeholder="Select Save Currency"
                     :class="{ 'p-invalid': v$.currency.$invalid && submitted }">
                         <template #value="slotProps">
                             <div v-if="slotProps.value">{{ slotProps.value.name }} - {{ slotProps.value.symbol }}</div>
-                            <!-- <span v-else>{{ slotProps.placeholder }}</span> -->
                         </template>
                         <template #option="slotProps">
                             <div >{{ slotProps.option.name }} - {{ slotProps.option.symbol }}</div>
@@ -101,14 +94,10 @@
     const submitted = ref(false)
 
     const v$ = useVuelidate(rules, state)
-
-    // function openAddSave() {
-    //     this.addSaveModal = true
-    // }
     
     function AddSave() {
         let fields = v$.value
-        AddNewSave(fields.saveName.$model, fields.managerName.$model, +fields.gameVersion.$model, fields.currency.$model.name).then( (response) => {
+        AddNewSave(fields.saveName.$model, fields.managerName.$model, fields.gameVersion.$model, fields.currency.$model.code).then( (response) => {
             if (response.Error != '') {
                 emit('beError', response.Error)
                 return

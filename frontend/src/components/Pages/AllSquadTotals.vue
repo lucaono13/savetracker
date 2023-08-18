@@ -129,17 +129,14 @@
 <script setup lang="ts">
 import { GetAllPlayersTotals } from '../../../wailsjs/go/main/App';
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import PlayerDialog from '../Components/PlayerDialog.vue';
 
-const route = useRoute()
 const gks = ref()
 const outfield = ref()
 const filters = ref()
 const GKfilters = ref()
-const uniqueYears = ref()
 const playerDialog = ref(false)
 const playerDialogID = ref(0)
 const outGroupedSaves = ref()

@@ -1,38 +1,133 @@
-# Save Tracker
+<h1 style="text-align:center; font-size: 50px" >Save Tracker</h1>
+<img src="./build/appicon.png" alt='Save Tracker Logo' width="300" style="display:block; margin-left:auto; margin-right:auto">
+<br>
 
-Have been thinking about this for a long time and finally am getting around to creating it. Thought that people would love to have a way to go back on previous saves and look at their past players, results, trophies, records or even the teams that are their bogey teams.
+A side project I have been thinking about for a long time and finally got to making it a reality about a year ago (summer of 2022). Thought it would be a great application for the community since it would allow players to see their past players (and their stats/attributes too!), results, trophies, records or even which teams they just can't seem to beat. 
 
-A way to track your Saves by exporting with specific filters that will be in the Steam Workshop as well as downloadable from the application itself.
+[There are specific views that are available at this link](https://app.mediafire.com/a1nr43y08ynii).
 
-### **Tools Used:**
-  - Wails (Go)
+<sup>Currently the only supported version of FM is 2023, but I do plan on adding other games soon. You can create the views yourself as long as they are in the *exact* order as the ones that I have created are in. Otherwise the parsing of the data will be incorrect and might have errors.</sup>
+
+Some notable features that I'm really excited about for this are the Save Story, where you can write your own story in the tracker, have an image to show off on the side for each save, a default save so the application alwa
+
+Some notable features that I'm really excited about for:
+  - Save Story to write your own story
+  - Have the app open to a specific save immediately so it's easy to find
+  - Keep track of your best players throught the save through different stats
+  - Visualize a players attribute growth
+  - Have images represent your save or even trophies
+  - See which teams you have made the most transfers deal with (and how much they've cost!)
+  - And some more!
+<hr>
+
+### Screenshots
+
+
+### Tools Used:
+  - [Wails (Go)](https://wails.io)
   - Typescript
   - Vue Framework
-  - SQLite (Embedded database)
-  - PrimeVue components
+  - SQLite
+  - [PrimeVue components](https://primevue.org)
   
-### **Features:**
-  - Attribute Tracking
-  - Stats
+### What you can track:
+  - Attributes
+  - Stats (both per season and overall)
   - Transfers
   - Results
-  - Save Goals
+  - Save Story
+  - Trophies
   
-### **Installation**
-*TBD*
+### Installation
+##### Only for Windows for now
+Download the installer by going to releases on the right side or clicking <a href="https://github.com/lucaono13/savetracker/releases">here</a>.
+### Screenshots
+<!-- |![New Save Dialog](screenshots/newSaveDialog.png =100px)| -->
+<table>
+  <tr>
+    <td>
+      <img src="screenshots/newSaveDialog.png" width=350px >
+      <p style="text-align: center">
+        <em>New Save Dialog</em>
+      </p>
+    </td>
+    <td>
+      <img src="screenshots/newSeasonDialog.png" width=350px >
+      <p style="text-align: center">
+        <em>New Season Dialog</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="screenshots/saveHome_noData.png" width=350px >
+      <p style="text-align: center">
+        <em>Save Home with no Data</em>
+      </p>
+    </td>
+    <td>
+      <img src="screenshots/saveHome_withData.png" width=350px >
+      <p style="text-align: center">
+        <em>Save Home with Data</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="screenshots/results.png" width=350px >
+      <p style="text-align: center">
+        <em>Results</em>
+      </p>
+    </td>
+    <td>
+      <img src="screenshots/transfers.png" width=350px >
+      <p style="text-align: center">
+        <em>Transfers</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="screenshots/playerSeasons.png" width=350px >
+      <p style="text-align: center">
+        <em>Player Seasons</em>
+      </p>
+    </td>
+    <td>
+      <img src="screenshots/playerTotals.png" width=350px >
+      <p style="text-align: center">
+        <em>Player Totals</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="screenshots/playerDialog_stats.png" width=350px >
+      <p style="text-align: center">
+        <em>Player Dialog (Stats)</em>
+      </p>
+    </td>
+    <td>
+      <img src="screenshots/playerDialog_attrs.png" width=350px >
+      <p style="text-align: center">
+        <em>Player Dialog (Attributes)</em>
+      </p>
+    </td>
+  </tr>
+</table>
 
-### **Possible Future Features:**
-No guarantee I will add all or any of these
+
+
+
+
+
+### Just some ideas for what I might want to do in the future<sup style="font-size:x-small">No guarantee I will add any of these</sup>:
+  - [ ] Backups
   - [ ] Comparisons between players
-  - [ ] Track multiple teams managed in 1 save (for like Journeyman, Glory Hunter, etc)
-  - [ ] Results w/ Head-to-head (separated by competition, etc)
   - [ ] League Positions
   - [ ] Coaching Staff
   - [ ] Formations
   - [ ] Team Info (Facilities, Stadium name, capacity, etc)
   - [ ] Youth Intakes
-  - [ ] Trophies (team + personal)
-  - [ ] Place to add a written story (per year or add on to a long one
-  - [ ] Manager Timelines (only if they can be exported)
+  - [ ] ~~Manager Timelines~~ *Currently not exportable*
   - [ ] Easy export to share with others
-

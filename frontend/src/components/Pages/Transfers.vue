@@ -84,7 +84,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { backend } from '../../../wailsjs/go/models'
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
-import { ColumnFilterModelType } from 'primevue/column'
 
 const route = useRoute()
 const inTransfers = ref()
@@ -154,7 +153,6 @@ initFilters()
 const formatTotal = (total: number) => {
     let formattedTot: string = numberFormatterTR.format(total)
     return formattedTot
-    return total
 }
 
 function GetTotalSpent( e: {originalEvent: Event, filteredValue: backend.Transfer[]}) {

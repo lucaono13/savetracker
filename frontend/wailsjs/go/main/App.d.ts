@@ -3,17 +3,19 @@
 import {main} from '../models';
 import {backend} from '../models';
 
-export function AddNewSave(arg1:string,arg2:string,arg3:number,arg4:string):Promise<main.ErrorReturn>;
+export function AddNewSave(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.ErrorReturn>;
 
-export function AddNewSeason(arg1:number,arg2:main.NewSeason):Promise<main.ErrorReturn>;
+export function AddNewSeason(arg1:number,arg2:main.NewSeason,arg3:boolean):Promise<main.ErrorReturn>;
 
 export function DeleteSave(arg1:number):Promise<main.ErrorReturn>;
+
+export function GetAllPSeasons():Promise<number>;
 
 export function GetAllPlayersSeason():Promise<main.ErrorReturn>;
 
 export function GetAllPlayersTotals():Promise<main.ErrorReturn>;
 
-export function GetAllRankings():Promise<main.ErrorReturn>;
+export function GetAllRankings(arg1:boolean):Promise<main.ErrorReturn>;
 
 export function GetAllResults():Promise<main.ErrorReturn>;
 
@@ -29,7 +31,9 @@ export function GetNumSeasons():Promise<number>;
 
 export function GetNumSeasonsInSave(arg1:number):Promise<boolean>;
 
-export function GetSaveHomeRankings(arg1:number):Promise<main.ErrorReturn>;
+export function GetSaveHomeRankings(arg1:number,arg2:boolean):Promise<main.ErrorReturn>;
+
+export function GetSavePSeasons(arg1:number):Promise<number>;
 
 export function GetSavePlayers(arg1:number):Promise<main.ErrorReturn>;
 
@@ -45,8 +49,6 @@ export function GetSinglePlayer(arg1:number):Promise<main.ErrorReturn>;
 
 export function GetTrophies(arg1:number):Promise<main.ErrorReturn>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function Log(arg1:string):Promise<void>;
 
 export function RetrieveSaves():Promise<main.ErrorReturn>;
@@ -54,12 +56,6 @@ export function RetrieveSaves():Promise<main.ErrorReturn>;
 export function SelectFileParse(arg1:string):Promise<string>;
 
 export function SelectNewTrophyImage(arg1:number):Promise<main.ErrorReturn>;
-
-export function SelectScheduleFile():Promise<string>;
-
-export function SelectSquadFile():Promise<string>;
-
-export function SelectTransfersFile():Promise<string>;
 
 export function SingleImage(arg1:number):Promise<string>;
 

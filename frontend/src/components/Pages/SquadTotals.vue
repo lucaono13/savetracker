@@ -185,7 +185,6 @@ initFilters()
     }
 
     .p-tabview :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
-        // background: none!important;
         color: #5eead4
     }
 

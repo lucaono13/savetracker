@@ -6,7 +6,7 @@ const (
 	CREATE TABLE IF NOT EXISTS "saves" (
 		"saveID"	INTEGER NOT NULL UNIQUE,
 		"managerName"	TEXT NOT NULL,
-		"gameVersion"	INTEGER NOT NULL,
+		"gameVersion"	TEXT NOT NULL,
 		"saveName"	TEXT NOT NULL,
 		"saveImage"	TEXT,
 		"currency"	TEXT NOT NULL,
@@ -94,7 +94,7 @@ const (
 		"result"	TEXT NOT NULL,
 		"penalties"	INTEGER NOT NULL,
 		"extraTime"	INTEGER NOT NULL,
-		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID"),
+		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "trophies" (
@@ -329,6 +329,17 @@ const (
 		ORDER BY numTransfers DESC
 		LIMIT 5
 	`
+	MostLoans = `
+		SELECT transfers.teamName, saves.currency,
+			SUM(transfers.fee) totFee, COUNT(transfers.fee) numLoans
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ? AND transfers.loan = true AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numLoans DESC
+		LIMIT 5
+	`
 	AvgTransfersOut = `
 		SELECT AVG(transfers.fee)
 		FROM transfers
@@ -502,6 +513,17 @@ const (
 		ORDER BY numTransfers DESC
 		LIMIT 5
 	`
+	AllMostLoans = `
+		SELECT transfers.teamName, saves.currency,
+			SUM(transfers.fee) totFee, COUNT(transfers.fee) numLoans
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.loan = true AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numLoans DESC
+		LIMIT 5
+	`
 	AllTopRat = `
 		SELECT players.playerID, players.playerName, AVG(playerStats.avgRating) avgRating
 		FROM playerStats
@@ -627,5 +649,18 @@ const (
 		DELETE
 		FROM saves
 		WHERE saveID = ?
+	`
+	SavePlayerSeasons = `
+		SELECT COUNT(1)
+		FROM playerSeason
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?
+	`
+	TotalPlayerSeasons = `
+		SELECT COUNT(1)
+		FROM playerSeason
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
 	`
 )

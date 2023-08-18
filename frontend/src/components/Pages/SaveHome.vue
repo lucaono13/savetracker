@@ -33,7 +33,37 @@
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Transfers</h1></template>
                     <template #content>
-                        <table class="statTable">
+                        <TabView class="playerStatView">
+                            <TabPanel header="Transfers">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Count (Total)</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in mostTrfs">
+                                        <td>{{ team.teamName }}</td>
+                                        <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                            <TabPanel header="Loans">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Count (Total)</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in mostLoans">
+                                        <td>{{ team.teamName }}</td>
+                                        <td class="transfer">{{ team.numLoans }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                        </TabView>
+                        <!-- <table class="statTable">
                             <thead>
                                 <tr>
                                     <th>Team</th>
@@ -44,7 +74,7 @@
                                 <td>{{ team.teamName }}</td>
                                 <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
                             </tr>
-                        </table>
+                        </table> -->
                     </template>
                 </Card>
             </div>
@@ -69,7 +99,7 @@
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="dataAdded">
+            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="playerSeasons > 0">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header ><h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1></template>
                     <!-- <h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1> -->
@@ -122,7 +152,7 @@
 import Sidebar from '../Components/Sidebar.vue'
 import { useRoute, useRouter } from 'vue-router';
 import { nextTick, ref, onMounted, watch, onBeforeMount } from 'vue';
-import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage } from '../../../wailsjs/go/main/App'
+import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage, GetSavePSeasons } from '../../../wailsjs/go/main/App'
 import EditStoryDialog  from '../../../src/components/Components/EditStoryDialog.vue'
 import PlayerDialog from '../Components/PlayerDialog.vue';
 import { backend, main } from '../../../wailsjs/go/models'
@@ -138,16 +168,18 @@ const topAsts = ref()
 const topApps = ref()
 const topRat = ref()
 const mostTrfs = ref()
+const mostLoans = ref()
 const avgInFee = ref()
 const avgOutFee = ref()
 const trophies = ref()
 const dataAdded = ref()
+const playerSeasons = ref()
 const saveStory = ref({saveID: 0, story:""})
 const hoverTest = ref("")
 const currency = ref()
 
 let imgPlaceholder: string | undefined
-let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
+let save = ref({ saveID: 0, managerName: "", gameVersion: '', saveName: '', image: imgPlaceholder })
 const emit = defineEmits(['beError'])
 let numberFormmaterDec: Intl.NumberFormat = new Intl.NumberFormat(navigator.language, {
     style: "decimal",
@@ -162,6 +194,7 @@ function updateStory(story: string) {
 }
 
 function openPlayerDialog(playerID: number) {
+    console.log('opening ', playerID)
     playerDialogID.value = playerID
     playerDialog.value = true
 }
@@ -187,34 +220,18 @@ function newTrophyImage(trophyData: {0: string, 1: {"id": number, "image": strin
     })
 }
 
-// watch(route.params, async (newParams, oldParams) => {
-//     dataAdded.value = await GetNumSeasonsInSave(+newParams.id)
-//     console.log(newParams, oldParams)
-// })
-
-
 onMounted( async () => {
-    // dataAdded.value = false
-    // sortedResults.value = null
-    // topGls.value = null
-    // topAsts.value = null
-    // topApps.value = null
-    // topRat.value = null
-    // mostTrfs.value = null
-    // console.log(dataAdded.value)
     SingleSave(+route.params.id).then((response) => {
         if (response.Error != "") {
             emit('beError', response.Error)
             return
         }
         let result = response.Save
-        // let sessionVal: string = response.id.toString() + '_save_'
         save.value.saveID = result.id
         save.value.managerName = result.managerName
         save.value.gameVersion = result.gameVersion
         save.value.saveName = result.saveName
         save.value.image = result.saveImage
-        // localStorage.setItem("saveCurrency", result.currency)
         if (result.saveImage) {
             GetImage(result.saveImage).then(async (result) => {
                 save.value.image = result.b64Image
@@ -228,8 +245,9 @@ onMounted( async () => {
     if (!dataAdded.value) {
         return
     }
-    // GetSaveResults(+route.params.id).then( (response) => {
-    GetSaveHomeRankings(+route.params.id).then( async (response: main.ErrorReturn) => {
+    playerSeasons.value = await GetSavePSeasons(+route.params.id)
+    
+    GetSaveHomeRankings(+route.params.id, playerSeasons.value > 0).then( async (response: main.ErrorReturn) => {
         if (response.Error != "") {
             emit('beError', response.Error)
             return
@@ -239,6 +257,7 @@ onMounted( async () => {
         topGls.value = response.TopGls
         topRat.value = response.TopAvg
         mostTrfs.value = response.TopTrfs
+        mostLoans.value = response.TopLoans
         avgInFee.value = response.AvgInFee
         avgOutFee.value = response.AvgOutFee
         numberFormmaterCur = new Intl.NumberFormat(navigator.language, {
@@ -249,7 +268,6 @@ onMounted( async () => {
         let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
         let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
         let matches: backend.Match[] = response.Matches
-        // teams = Array.from(new Map([...]))
 
         matches.forEach( function (match) {
             if (!teamsMap.has(match.opposition)) {               
@@ -332,14 +350,11 @@ onMounted( async () => {
     }
 
 .fullWidth {
-    // height: calc(100vw - 79px)!important;
     width: calc(100vw - 205px - 50px)!important;
 }
 
 .p-divider.p-divider-horizontal::before {
     border-top: .5px white!important;
-    // margin-left: 5px;
-    // border-width: 3px!important;
     border-style: solid!important;
     width: calc(100vw - 205px - 50px)!important;
     box-sizing: border-box!important;
@@ -360,7 +375,6 @@ onMounted( async () => {
 
 .statTable {
     width: 100%!important;
-    // border: 1px solid white;
     border-collapse: collapse;
 }
 
@@ -371,12 +385,6 @@ onMounted( async () => {
 .transfer {
     width: 6rem!important;
 }
-// .statTable tr:nth-child(even) {
-//     background-color: var(--surface-100);
-// }
-// .statTable tr:nth-child(odd) {
-//     background-color: var(--surface-50);
-// }
 
 .statTable tr {
     border-bottom: 1px solid var(--surface-200);

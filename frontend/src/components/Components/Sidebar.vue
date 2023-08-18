@@ -29,10 +29,7 @@
           <router-link :to="item.path.replace(':id', route.params.id)" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">
             <Button @click="navigate" link :href="href" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" class="w-full justify-content-center" style="color:darkturquoise">
               {{ route.name  }}
-            </Button>           
-            <!-- <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
-              {{ route.name }}
-            </a> -->
+            </Button>
           </router-link>
           </span>
         </template>
@@ -40,19 +37,12 @@
           
         </template>
       </Menu>
-      <!-- <Divider /> -->
-          <!-- <Button class="p-button-danger p-button-outlined mx-4 justify-content-center" @click="deleteSave">Delete Save</Button> -->
           <Button class="mx-4 justify-content-center align-self-end" @click="deleteSave"  severity="danger" text raised>Delete Save</Button>
-        <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="addSeasonModal=false"/>
+        <AddSeasonDialog v-model:visible="addSeasonModal" @beError="beError" @closeDialog="seasonAdded"/>
     </div>
     <div class=" flex almost-fh justify-content-center flex-column " v-if="!saveSidebar" style="width: 205px!important;">
       <Menu :model="$router.getRoutes()" class=" align-content-evenly">
         <template #start>
-          <!-- <div>
-            <Checkbox @change="ChangeDefault" inputId="default" v-model="isDefault" :binary="true" />
-            <label for="default" style="padding-left: 3px;">Default Save</label>
-          </div> -->
-          
         </template>
         <template #item="{ item }">
           <span :class="{ 'hidden': !item.meta.totals}">
@@ -60,10 +50,7 @@
           <router-link :to="item.path.replace(':id', route.params.id)" icon custom v-slot="{  href, route, navigate, isActive, isExactActive }">
             <Button @click="navigate" link :href="href" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" class="w-full justify-content-center" style="color:darkturquoise">
               {{ route.name  }}
-            </Button>            
-            <!-- <a :href="href" @click="navigate" :class="{ 'active-link': isActive, 'active-link-exact': isExactActive }" style="color:darkturquoise">
-              {{ route.name }}
-            </a> -->
+            </Button>
           </router-link>
           </span>
         </template>
@@ -82,19 +69,18 @@
   import { DeleteSave, SingleImage, GetImage, UploadSaveImage } from '../../../wailsjs/go/main/App'
   import AddSeasonDialog from './AddSeasonDialog.vue';
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { backend, main } from '../../../wailsjs/go/models';
+import { main } from '../../../wailsjs/go/models';
   interface Props {
     id?: string | string[],
     saveSidebar: boolean,
   }
   const confirm = useConfirm()
-  const emit = defineEmits(['beError', 'getSaves'])
+  const emit = defineEmits(['beError', 'getSaves', 'seasonAdded'])
   const saveSidebar = ref(false)
   const route = useRoute()
   const router = useRouter()
   let isDefault = ref(false)
   const addSeasonModal = ref(false)
-  // const deleteSaveModal = ref(false)
   const props = defineProps<Props>()
   let defaultSave: string | null = localStorage.getItem("defaultSave")
   if (defaultSave) {
@@ -110,7 +96,6 @@ import { backend, main } from '../../../wailsjs/go/models';
       message: "Are you sure you want to delete the save? This cannot be undone!",
       group: "saveDeletion",
       header: "Delete Confirmation",
-      // icon: 'triangle-exclamation',
       acceptClass: 'p-button-danger',
       accept: () => {
         DeleteSave(+route.params.id).then( (response: main.ErrorReturn) => {
@@ -118,7 +103,7 @@ import { backend, main } from '../../../wailsjs/go/models';
             beError(response.Error)
             return
           }
-          router.replace({name: "All Saves Home", replace: true})
+          router.replace({name: "App Home", replace: true})
         })
       },
       reject: () => {
@@ -129,6 +114,11 @@ import { backend, main } from '../../../wailsjs/go/models';
 
   function beError(e: string) {
     emit('beError', e)
+  }
+
+  function seasonAdded() {
+    addSeasonModal.value = false
+    emit('seasonAdded')
   }
 
   function ChangeDefault() {
@@ -162,7 +152,7 @@ import { backend, main } from '../../../wailsjs/go/models';
         }
         GetImage(response).then( (b64) => {
           if (b64.Error) {
-            console.log(b64)
+            // console.log(b64)
             imageError.value = true
           }
           saveImage.value = b64.b64Image

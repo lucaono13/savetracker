@@ -7,7 +7,7 @@ import (
 type Save struct {
 	SaveID      NullInt64  `json:"id" db:"saveID"`
 	ManagerName string     `json:"managerName" db:"managerName"`
-	GameVersion int        `json:"gameVersion" db:"gameVersion"`
+	GameVersion string     `json:"gameVersion" db:"gameVersion"`
 	SaveName    string     `json:"saveName" db:"saveName"`
 	SaveImage   NullString `json:"saveImage" db:"saveImage"`
 	Currency    string     `json:"currency" db:"currency"`
@@ -227,6 +227,7 @@ type TopTransfers struct {
 	AvgFee       float32 `db:"avgFee" json:"avgFee"`
 	TotFee       int     `db:"totFee" json:"totFee"`
 	NumTransfers int     `db:"numTransfers" json:"numTransfers"`
+	NumLoans     int     `db:"numLoans" json:"numLoans"`
 }
 
 type PlayerPageInfo struct {
@@ -245,7 +246,7 @@ type PlayerPageInfo struct {
 type PlayerSumsAvgs struct {
 	PlayerInfo
 	SaveName    string  `db:"saveName" json:"saveName"`
-	GameVersion int     `db:"gameVersion" json:"gameVersion"`
+	GameVersion string  `db:"gameVersion" json:"gameVersion"`
 	Seasons     string  `db:"years" json:"seasons"`
 	Team        string  `db:"teamName" json:"teamName"`
 	AvgMin      float32 `db:"avgMin" json:"avgMin"`

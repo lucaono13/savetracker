@@ -275,7 +275,7 @@ export namespace backend {
 	    birthdate: string;
 	    position: string;
 	    saveName: string;
-	    gameVersion: number;
+	    gameVersion: string;
 	    seasons: string;
 	    teamName: string;
 	    avgMin: number;
@@ -413,7 +413,7 @@ export namespace backend {
 	    // Go type: NullInt64
 	    id: any;
 	    managerName: string;
-	    gameVersion: number;
+	    gameVersion: string;
 	    saveName: string;
 	    // Go type: NullString
 	    saveImage: any;
@@ -493,6 +493,7 @@ export namespace backend {
 	    avgFee: number;
 	    totFee: number;
 	    numTransfers: number;
+	    numLoans: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new TopTransfers(source);
@@ -505,6 +506,7 @@ export namespace backend {
 	        this.avgFee = source["avgFee"];
 	        this.totFee = source["totFee"];
 	        this.numTransfers = source["numTransfers"];
+	        this.numLoans = source["numLoans"];
 	    }
 	}
 	export class Transfer {
@@ -626,6 +628,7 @@ export namespace main {
 	    TopApps: backend.TopResults[];
 	    TopAvg: backend.TopResults[];
 	    TopTrfs: backend.TopTransfers[];
+	    TopLoans: backend.TopTransfers[];
 	    AvgInFee: number;
 	    AvgOutFee: number;
 	    Trophies: backend.Trophy[];
@@ -658,6 +661,7 @@ export namespace main {
 	        this.TopApps = this.convertValues(source["TopApps"], backend.TopResults);
 	        this.TopAvg = this.convertValues(source["TopAvg"], backend.TopResults);
 	        this.TopTrfs = this.convertValues(source["TopTrfs"], backend.TopTransfers);
+	        this.TopLoans = this.convertValues(source["TopLoans"], backend.TopTransfers);
 	        this.AvgInFee = source["AvgInFee"];
 	        this.AvgOutFee = source["AvgOutFee"];
 	        this.Trophies = this.convertValues(source["Trophies"], backend.Trophy);

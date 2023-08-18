@@ -201,9 +201,6 @@ initFilters()
         border: none!important;
     }
 
-    /* .p-tabview .p-component {
-        height: 100%!important
-    } */
     :deep(.p-tabview-panels) {
         padding: 0%!important;
         height: 100%!important
@@ -217,8 +214,4 @@ initFilters()
     :deep(.p-tabview-panel) {
         height: calc(100vh - 79px - 56px - 16px)!important;
     }
-
-    /* :deep .p-datatable-flex-scrollable .p-datatable-scrollable-wrapper {
-        overflow: hidden;
-    } */
 </style>
