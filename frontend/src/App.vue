@@ -133,7 +133,7 @@ let isDataLoaded = computed(
 
 const GoHome = () => {
   selectedSave.value = {}
-  router.replace({path: "/", replace: true})
+  router.replace({path: "/home", replace: true})
 }
 
 const testing = reactive(finalSaves.value)

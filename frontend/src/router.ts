@@ -15,12 +15,15 @@ const routes = [
       hidden: true,
       totals: false,
     },
-    beforeEnter: async (to: RouteLocationNormalized) => {
+    beforeEnter: async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
       const numSaves: number = await GetNumSaves();
       if (numSaves == 0) {
         localStorage.setItem("saves", "0");
         localStorage.setItem("defaultSave", "");
         return;
+      }
+      if (from.fullPath.startsWith("/save/")) {
+        return
       }
       const dSave: string | null = localStorage.getItem("defaultSave")
       if (dSave != null) {
