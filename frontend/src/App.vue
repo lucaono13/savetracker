@@ -1,16 +1,14 @@
-
-
 <template>
   <Toast />
-  <Menubar class="w-full  top-0" >
-    <template #start style="width:100px">
-      <CascadeSelect style="width:75%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
+  <Menubar class="w-full  top-0 relative left-0" style="width: 98vw!important; padding-right: none!important;">
+    <template #start style="width:250px!important" class="flex flex-row">
+      <div class="flex align-items-center gap-2">
+      <Button @click="GoHome"><FontAwesomeIcon :icon="['fas','house-chimney']"/></Button>
+      <CascadeSelect style="width:80%" id="change" @change="SaveSelected" v-model="selectedSave" :options="isDataLoaded"
         optionLabel="name" optionGroupLabel="gameVersion" :option-group-children="['saves']" placeholder="Select save">
         <template #option="slotProps">
           <div class="flex align-items-center justify-content-center">
-            <!-- <img :src="slotProps.option.image" style="height: 30px;" v-if="slotProps.option.name"> -->
             <FontAwesomeIcon icon="fa-solid fa-list" v-if="slotProps.option.gameVersion" />
-            <!-- <i class="fa-solid fa-list"></i> -->
             <span style="padding-left: 5px;" v-if="slotProps.option.gameVersion">{{
               slotProps.option.gameVersion
             }}</span>
@@ -18,30 +16,42 @@
           </div>
         </template>
       </CascadeSelect>
-
+    </div>
     </template>
     <template #end>
-      <!-- <p>Save Tracker</p> -->
-      <!-- <Button label="Toast" id="toastCheck" class="p-button-text p-button-outlined" @click="beError('Error adding transfers to DB.\nCheck log file for more details.')" >Toast Check</Button> -->
-      <!-- <Button class="p-button-help p-button-outlined mr-3" @click="addSeasonModal=true">New Season</Button> -->
-      
       <Button class="p-button-help p-button-outlined" @click="addSaveModal = true">New Save</Button>
       <AddSaveDialog v-model:visible="addSaveModal" @beError="beError" @saveAdded="GetSaves" @closeDialog="addSaveModal = false" />
-      <!-- <AddSeasonDialog v-model:visible="addSeasonModal" @closeDialog="addSeasonModal=false"/> -->
     </template>
   </Menubar>
 
-  <div class="grid w-full mt-0">
-    
-    <!-- <div class="col"> -->
+  <div class="grid mt-0" style="width:100vw!important">
     <router-view @saveAdded="GetSaves" v-slot="{ Component, route }">
-      <!-- <Sidebar v-if="sbVisible" :id="route.params.id" /> -->
-      <!-- <div class="col"> -->
-      <component :is="Component" :key="route.params.id"></component>
-      <!-- </div> -->
+      <component :is="Component" :key="route.params.id" @getSaves="GetSaves" @beError="beError"></component>
     </router-view>
-    <!-- </div> -->
   </div>
+  <Toast position="bottom-left" group="update" sticky>
+    <template #message="slotProps" >
+      <div class="flex flex-column align-items-center flex-1">
+        <span class="p-toast-summary">{{ slotProps.message.summary }}</span>
+        <a class='p-toast-detail' href="" @click="openLink($event, slotProps.message.detail)" style="color:var(--orange-500)">Click here to download.</a>
+      </div>
+      
+    </template>
+  </Toast>
+  <Dialog :visible="aboutDialog" modal header="About Save Tracker" :draggable="false" :style="{ width: '50vw' }" @update:visible="aboutDialog = false">
+    <!-- <p>Save Tracker</p> -->
+    <p>Author: <a href="" @click="openLink($event, 'https://github.com/lucaono13')">Gianluca</a></p>
+    <p><span class="font-bold">Version: </span><span class="font-italic">{{ appVersion }}</span></p>
+    <p><span class="font-bold">DB Version: </span><span class="font-italic">{{ dbVersion }}</span></p>
+    
+    <p><span>Technologies Used:</span>
+      <ul>
+        <li><a href="" @click="openLink($event, 'https://wails.io')">Wails Framework</a></li>
+        <li><a href="" @click="openLink($event, 'https://primevue.org')">PrimeVue Components</a></li>
+        <li><a href="" @click="openLink($event, 'https://fontawesome.com')">Font Awesome Icons</a></li>
+      </ul>
+    </p>
+  </Dialog>
 </template>
 
 <script lang="ts" async setup>
@@ -53,13 +63,48 @@ import AddSeasonDialog from './components/Components/AddSeasonDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useToast } from 'primevue/usetoast';
+import { BrowserOpenURL, EventsOn } from '../wailsjs/runtime/runtime';
 
 const toast = useToast()
 const route = useRoute()
 const router = useRouter()
-let startup = ref(true)
-let addSaveModal = ref(false)
-let addSeasonModal = ref(false)
+const startup = ref(true)
+const addSaveModal = ref(false)
+const addSeasonModal = ref(false)
+const aboutDialog = ref(false)
+const appVersion = ref()
+const dbVersion = ref()
+
+const newVersionAvail = (url: string) => {
+  toast.add({
+    severity: 'warn',
+    summary: 'New Version Available',
+    detail: url,
+    group: 'update'
+  })
+}
+
+EventsOn('updateVersion', (url: string) => newVersionAvail(url))
+EventsOn('githubIssues', () => BrowserOpenURL( "https://github.com/lucaono13/savetracker/issues"))
+EventsOn('saveDeleted', () => {
+  selectedSave.value = {}
+  GetSaves()
+})
+EventsOn('aboutDialog', (version: string, databaseVersion: string) => {
+  appVersion.value = version
+  dbVersion.value = databaseVersion
+  aboutDialog.value = true
+})
+
+
+const openLink = (event: any, url: string) => {
+    event.preventDefault();
+    BrowserOpenURL(url)
+}
+
+// EventsOn('manageSaves', function() {
+//   console.log('managing now!')
+// })
 
 // Getting number of saves, persists between opening of app
 var noOfSaves: null | string = localStorage.getItem("saves")
@@ -82,10 +127,14 @@ let savesList: {}[] = []
 let finalSaves = ref(savesList)
 let isDataLoaded = computed(
   () => {
-    // console.log(finalSaves.value.length)
     return finalSaves.value.length > 0 ? finalSaves.value : []
   }
 )
+
+const GoHome = () => {
+  selectedSave.value = {}
+  router.replace({path: "/", replace: true})
+}
 
 const testing = reactive(finalSaves.value)
 let isLoaded = ref(false)
@@ -108,28 +157,15 @@ function GetSaves(newID?: number): void {
       return
     }
     let saveList = response.SaveList
-    let savesMap = new Map<number, {}[]>()
-    // let savesList: {}[] = []
+    let savesMap = new Map<string, {}[]>()
     for (var save in saveList) {
-      let gV: number = saveList[save].gameVersion
-      // let image = await fetch(saveList[save].saveImage)
+      let gV: string = saveList[save].gameVersion
       let saveObj: { id: number, name: string, manager: string, image: string | undefined } = { id: saveList[save].id, name: saveList[save].saveName, manager: saveList[save].managerName, image: saveList[save].saveImage }
       
       if (saveObj.image != undefined) {
         GetImage(saveObj.image).then( (response) => {
-          saveObj.image = response
+          saveObj.image = response.b64Image
         })
-        // try {
-        //   new URL(saveObj.image)
-        //   console.log(saveObj.image)
-        // } catch (e) {
-        //   GetImage(saveObj.image).then(async (response) => {
-        //   // console.log(response)
-        //   // console.log('hi')
-        //   saveObj.image = response
-        // })
-        // }
-        
       }
       
       if (!savesMap.has(gV)) {
@@ -154,22 +190,22 @@ function GetSaves(newID?: number): void {
     finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({ gameVersion, saves }))
     localStorage.setItem("saves", finalSaves.value.length.toString())
     isLoaded.value = true
-    nextTick()
+    // nextTick()
     if (newID != null) {
-      console.log(newID)
       if (newID != 0) {
         GoToSave(newID)
       } else {
         if (finalSaves.value.length > 0 && defaultID != null){
           GoToSave(+defaultID)
+          return
         } else {
           router.replace("/")
+          return
         }
-        // TODO: show notification that error occurred when adding save
-        // if 
       }
-    } else if (defaultID != null) {
+    } else if (defaultID != null && defaultID != "" && defaultID != "0") {
       GoToSave(+defaultID)
+      return
     }
   })
 }
@@ -186,110 +222,6 @@ function SaveSelected(e: { originalEvent: Event; value: { id: number; name: stri
 }
 GetSaves()
 </script>
-
-<!-- <script lang="ts">
-  // Below is checking if there are any saves in database
-  // TODO: when page is loaded, check
-  import { nullLiteral } from '@babel/types'
-  import { def } from '@vue/shared'
-  import { nextTick, ref } from 'vue'
-  import { RetrieveSaves } from '../wailsjs/go/main/App'
-  import { backend } from '../wailsjs/go/models'
-  import Sidebar from './components/Components/Sidebar.vue'
-  import { useRoute } from 'vue-router'
-  // import 
-
-  const router = useRoute()
-
-  // Setup for setting sidebar visibility (only if there are 1+ saves)
-  var noOfSaves: null | string = localStorage.getItem("saves")
-  if (noOfSaves == null) {
-    noOfSaves = "0"
-  }
-  let sidebarV = false
-  if (+noOfSaves > 0) {
-    let sidebarV = true
-  }
-  let showSidebar = ref(sidebarV)
-
-  // Setup for setting the default save
-  let defaultID : string | null = localStorage.getItem("defaultSave")
-  let defaultSaveObj : {id: number, name: string} | null
-  let defaultSave = ref({})
-  // console.log(localStorage.getItem("defaultSave"), localStorage.getItem("saves"))
-  // Setup for getting all available saves
-  let savesList: {}[] = []
-  let finalSaves = ref(savesList)
-
-  // Function that gets all the saves in DB and sets the selection to the selected default save
-  function getSaves(): void {
-    let savesMap = new Map<number, {}[]>()
-    let savesList: {}[] = []
-    // let finalSaves = ref(savesList)
-    RetrieveSaves().then((response) => {
-      for (var i in response) {
-        let saveObj : {id: number, name: string, manager: string} = {id: response[i].id, name: response[i].saveName, manager: response[i].managerName}
-        if (!savesMap.has(response[i].gameVersion)) {
-          
-          savesMap.set(response[i].gameVersion, [saveObj])
-        } else if (savesMap.has(response[i].gameVersion)){
-          let newSave: {}[] = savesMap.get(response[i].gameVersion)!
-          
-          newSave.push(saveObj)
-          savesMap.set(response[i].gameVersion, newSave)
-        }
-        if (defaultID != null && saveObj.id == +defaultID) {
-          defaultSave.value = saveObj
-        }
-      }    
-      finalSaves.value = Array.from(new Map([...savesMap.entries()].sort()), ([gameVersion, saves]) => ({gameVersion, saves}))
-      
-      // Changes to the next tick in order to change the variables in the frontend
-      nextTick()
-      localStorage.setItem("saves", finalSaves.value.length.toString())
-      
-      
-      showSidebar.value = true
-    })
-  }
-  getSaves()
-  
-  
-  export default {
-    data() {
-      return {
-        finalSaves: finalSaves,
-        
-        selectedSave: defaultSave,
-        sbVisible : showSidebar,
-        items: [
-          {
-            label: "Test",
-            icon: "pi pi-fw pi-file"
-          }
-        ]
-      }
-    },
-    components: {
-      Sidebar
-    },
-    methods: {
-      GetSaves() {
-        getSaves()
-      },
-      saveSelect(e: { originalEvent: Event; value : { id: number; name: string}}) {
-        console.log(e.value.id, "changed")
-        console.log(this.$router.currentRoute)
-        this.$router.replace({name: 'save', params: { id: e.value.id } })
-        console.log(this.$router.currentRoute)
-        nextTick()
-      },
-    },
-  }
-
-// This template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-</script> -->
 
 <style lang="scss">
 @font-face {
@@ -334,8 +266,6 @@ h3 {
 .p-menu {
   height: 100% !important;
   padding: .75rem !important;
-  // width: 100%!important;
-  // width:calc(max-content+25px)!important;
   background: rgba(240, 248, 255, 0) !important;
   border: rgba(240, 248, 255, 0) !important;
 }
@@ -355,10 +285,9 @@ h3 {
 .p-menubar {
   background: rgba(240, 248, 255, 0) !important;
   border: rgba(240, 248, 255, 0) !important;
-  // padding-right: 5px!important;
 }
 
 .p-menubar-start {
-  width: 250px;
+  width: 350px;
 }
 </style>

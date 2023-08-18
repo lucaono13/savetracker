@@ -17,6 +17,15 @@ var (
 )
 
 func StartLogger() {
+	files, err := os.ReadDir(xdg.DataHome + "/Save Tracker/logs")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error finding logs directory")
+	}
+	if len(files) > 4 {
+		for _, file := range files[:len(files)-4] {
+			os.Remove(xdg.DataHome + "/Save Tracker/logs/" + file.Name())
+		}
+	}
 	// Create the directory for the log file
 	logFilePath, err := xdg.DataFile(logFile)
 	if err != nil {
@@ -29,7 +38,7 @@ func StartLogger() {
 	} else {
 
 		logFileHandler = file
-		Logger = zerolog.New(logFileHandler).With().Logger()
+		Logger = zerolog.New(logFileHandler).With().Timestamp().Caller().Logger()
 	}
 	Logger.Info().Timestamp().Msg("Logger has been created and is starting.")
 }

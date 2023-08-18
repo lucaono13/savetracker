@@ -6,9 +6,10 @@ const (
 	CREATE TABLE IF NOT EXISTS "saves" (
 		"saveID"	INTEGER NOT NULL UNIQUE,
 		"managerName"	TEXT NOT NULL,
-		"gameVersion"	INTEGER NOT NULL,
+		"gameVersion"	TEXT NOT NULL,
 		"saveName"	TEXT NOT NULL,
 		"saveImage"	TEXT,
+		"currency"	TEXT NOT NULL,
 		PRIMARY KEY("saveID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "teams" (
@@ -93,16 +94,22 @@ const (
 		"result"	TEXT NOT NULL,
 		"penalties"	INTEGER NOT NULL,
 		"extraTime"	INTEGER NOT NULL,
-		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID"),
+		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
 		PRIMARY KEY("resultID" AUTOINCREMENT)
 	);
 	CREATE TABLE IF NOT EXISTS "trophies" (
+		"trophyID"	INTEGER NOT NULL UNIQUE,
+		"trophyName"	TEXT NOT NULL,
+		"trophyImage"	INTEGER,
+		PRIMARY KEY("trophyID" AUTOINCREMENT)
+	);
+	CREATE TABLE IF NOT EXISTS "trophiesWon" (
 		"trophyWonID"	INTEGER NOT NULL UNIQUE,
 		"seasonID"	INTEGER NOT NULL,
-		"competitionName"	TEXT NOT NULL,
-		"trophyImage"	TEXT,
+		"trophyID"	TEXT NOT NULL,
+		PRIMARY KEY("trophyWonID" AUTOINCREMENT),
 		FOREIGN KEY("seasonID") REFERENCES "seasons"("seasonID") ON DELETE CASCADE,
-		PRIMARY KEY("trophyWonID" AUTOINCREMENT)
+		FOREIGN KEY("trophyID") REFERENCES "trophies"("trophyID") ON DELETE CASCADE
 	);
 	CREATE TABLE IF NOT EXISTS "playerAttributes" (
 		"playerAttrID"	INTEGER NOT NULL UNIQUE,
@@ -158,13 +165,14 @@ const (
 		PRIMARY KEY("playerAttrID" AUTOINCREMENT)
 	);
 	`
-	AllSaves        = `SELECT * FROM saves`
-	NewSave         = `INSERT INTO saves (saveName, managerName, gameVersion) VALUES (:saveName, :managerName, :gameVersion)`
-	SingleSave      = `SELECT * FROM saves where saveID=?`
-	SingleSaveImage = `SELECT saveImage FROM saves where saveID=?`
-	SaveImageUpdate = `UPDATE saves SET saveImage=? WHERE saveID=?`
-	AllTeams        = `SELECT * FROM teams`
-	NewStats        = `INSERT INTO playerStats (playerSeasonID, minutes, starts, goals, assists, yellowCards, redCards, avgRating, subs, playerOfTheMatch, passPerc, winPerc, shutouts, savePerc) 
+	AllSaves          = `SELECT * FROM saves`
+	NewSave           = `INSERT INTO saves (saveName, managerName, gameVersion, currency) VALUES (:saveName, :managerName, :gameVersion, :currency)`
+	SingleSave        = `SELECT * FROM saves where saveID=?`
+	SingleSaveImage   = `SELECT saveImage FROM saves where saveID=?`
+	SaveImageUpdate   = `UPDATE saves SET saveImage=? WHERE saveID=?`
+	TrophyImageUpdate = `UPDATE trophies SET trophyImage=? WHERE trophyID=?`
+	AllTeams          = `SELECT * FROM teams`
+	NewStats          = `INSERT INTO playerStats (playerSeasonID, minutes, starts, goals, assists, yellowCards, redCards, avgRating, subs, playerOfTheMatch, passPerc, winPerc, shutouts, savePerc) 
 						VALUES (:playerSeasonID, :minutes, :starts, :goals, :assists, :yellowCards, :redCards, :avgRating, :subs, :playerOfTheMatch, :passPerc, :winPerc, :shutouts, :savePerc)`
 	NewAttrs = `INSERT INTO playerAttributes (playerSeasonID, corners, crossing, dribbling, finishing, firstTouch, freeKicks, heading, longShots, longThrows, marking, passing, penalties, tackling, technique, 
 						aggression, anticipation, bravery, composure, concentration, decisions, determination, flair, leadership, offTheBall, positioning, teamwork, vision, workRate,
@@ -178,32 +186,481 @@ const (
 					(:seasonID, :date, :opponentName, :venue, :stadium, :competition, :goalsAgainst, :goalsFor, :result, :extraTime, :penalties)`
 	NewTransfer = `INSERT INTO transfers (seasonID, date, playerName, teamName, fee, potentialFee, transferIn, loan, free) VALUEs
 					(:seasonID, :date, :playerName, :teamName, :fee, :potentialFee, :transferIn, :loan, :free)`
-	NewTeam          = `INSERT INTO teams (teamName, shortName, country) VALUES (:teamName, :shortName, :country)`
-	NewSeason        = `INSERT INTO seasons (teamID, saveID, year) VALUES (?, ?, ?)`
-	NewPlayerSeason  = `INSERT INTO playerSeason (playerID, seasonID) VALUES (?, ?)`
-	AddPlayer1Nat    = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality)`
-	AddPlayer2Nat    = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality, secondNationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality, :secondNationality)`
-	SavePlayers      = `SELECT * FROM players WHERE saveID=?`
-	AllPlayers       = `SELECT * FROM players`
-	PlayerSeasons    = `SELECT * FROM playerSeason`
-	SinglePlayer     = `SELECT * FROM players WHERE playerID=?`
-	OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
-	NewTrophy        = `INSERT INTO trophies VALUES (:seasonID, :competitionName)`
-	SaveResults      = `
-	SELECT saves.saveID,
-		results.date,
-		seasons.year,
-		results.competition,
-		results.stadium,
-		results.venue,
-		results.opponentName,
-		results.result,
-		results.goalsFor,
-		results.goalsAgainst,
-		results.penalties,
-		results.extraTime
-	FROM results
-	INNER JOIN seasons ON results.seasonID = seasons.seasonID
-	INNER JOIN saves ON seasons.saveID = saves.saveID
-	WHERE saves.saveID = ?`
+	NewTeam         = `INSERT INTO teams (teamName, shortName, country) VALUES (:teamName, :shortName, :country)`
+	NewSeason       = `INSERT INTO seasons (teamID, saveID, year) VALUES (?, ?, ?)`
+	NewPlayerSeason = `INSERT INTO playerSeason (playerID, seasonID) VALUES (?, ?)`
+	AddPlayer1Nat   = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality)`
+	AddPlayer2Nat   = `INSERT INTO players (saveID, playerName, position, birthdate, uniqueID, nationality, secondNationality) VALUES (:saveID, :playerName, :position, :birthdate, :uniqueID, :nationality, :secondNationality)`
+	SavePlayers     = `SELECT * FROM players WHERE saveID=?`
+	AllPlayers      = `SELECT * FROM players`
+	PlayerSeasons   = `SELECT * FROM playerSeason`
+	// SinglePlayer    = `SELECT * FROM players WHERE playerID=?`
+	// OnePlayerSeasons = `SELECT * FROM playerSeason WHERE `
+	NewTrophyWon = `INSERT INTO trophiesWon (seasonID, trophyID) VALUES (?, ?)`
+	NewTrophy    = `INSERT INTO trophies (trophyName) VALUES (?)`
+	// AllTrophies  = `SELECT * FROM trophies`
+	SaveResults = `
+		SELECT saves.saveID, results.date, seasons.year, results.competition, results.stadium, results.venue, 
+			results.opponentName, results.result, results.goalsFor, results.goalsAgainst, results.penalties, results.extraTime
+		FROM results INNER JOIN seasons ON results.seasonID = seasons.seasonID 
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?
+	`
+	GetCurrency   = `SELECT currency FROM saves WHERE saveID=?`
+	SaveTransfers = `	
+		SELECT transfers.date, transfers.playerName, transfers.fee, transfers.potentialFee, transfers.teamName, transfers.free, transfers.loan, seasons.year
+		FROM transfers 
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID 
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID=? AND transfers.transferIn=?
+	`
+	SaveOutfieldPlayers = `
+		SELECT players.playerID, players.playerName, players.position, teams.teamName, seasons.year, playerStats.minutes, playerStats.starts,
+			playerStats.subs, playerStats.goals, playerStats.assists, playerStats.yellowCards, playerStats.redCards, playerStats.avgRating, 
+			playerStats.playerOfTheMatch, playerStats.passPerc, playerStats.winPerc, playerStats.shutouts, playerStats.savePerc					
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID 
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID = ? AND players.position != "GK"
+	`
+	SaveGoaliePlayers = `
+		SELECT players.playerID, players.playerName, players.position, teams.teamName, seasons.year, playerStats.minutes,
+			playerStats.starts, playerStats.subs, playerStats.goals, playerStats.assists, playerStats.yellowCards, playerStats.redCards, 
+			playerStats.avgRating, playerStats.playerOfTheMatch, playerStats.passPerc, playerStats.winPerc, playerStats.shutouts, playerStats.savePerc					
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID 
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID = ? AND players.position = "GK"
+	`
+	TotalsSaveOutfieldPlayers = `
+		SELECT players.playerID, players.playerName, players.position, teams.teamName, COUNT(seasons.year) numYears,
+			SUM(playerStats.minutes) totMins, SUM(playerStats.starts) totStarts, SUM(playerStats.subs) totSubs, SUM(playerStats.goals) totGoals, 
+			SUM(playerStats.assists) totAssists, SUM(playerStats.yellowCards) totYellow, SUM(playerStats.redCards) totRed, AVG(playerStats.avgRating) avgRating,
+			SUM(playerStats.playerOfTheMatch) totPOM, AVG(playerStats.passPerc) avgPass, AVG(playerStats.winPerc) avgWin,
+			SUM(playerStats.shutouts) totShutouts, AVG(playerStats.savePerc) avgSaveP	
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID 
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID = ? AND players.position != "GK"
+		GROUP BY players.playerID
+	`
+	TotalsSaveGoalies = `
+		SELECT players.playerID, players.playerName, players.position, teams.teamName, COUNT(seasons.year) numYears,
+			SUM(playerStats.minutes) totMins, SUM(playerStats.starts) totStarts, SUM(playerStats.subs) totSubs, SUM(playerStats.goals) totGoals, 
+			SUM(playerStats.assists) totAssists, SUM(playerStats.yellowCards) totYellow, SUM(playerStats.redCards) totRed, AVG(playerStats.avgRating) avgRating,
+			SUM(playerStats.playerOfTheMatch) totPOM, AVG(playerStats.passPerc) avgPass, AVG(playerStats.winPerc) avgWin, SUM(playerStats.shutouts) totShutouts,
+			AVG(playerStats.savePerc) avgSaveP
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID 
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID = ? AND players.position = "GK"
+		GROUP BY players.playerID
+	`
+	Top5Gls = `
+		SELECT players.playerID, players.playerName, SUM(playerStats.goals) goals
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID=? 
+		GROUP BY players.playerID 
+		ORDER BY goals DESC
+		LIMIT 5
+	`
+	Top5Asts = `
+		SELECT players.playerID, players.playerName, SUM(playerStats.assists) assists
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID 
+		WHERE saves.saveID=?
+		GROUP BY players.playerID 
+		ORDER BY assists DESC
+		LIMIT 5
+	`
+	Top5Apps = `
+		SELECT players.playerID, players.playerName, SUM(playerStats.starts) starts
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID 
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID 
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID=? 
+		GROUP BY players.playerID 
+		ORDER BY starts DESC
+		LIMIT 5
+	`
+	TopRat = `
+		SELECT players.playerID, players.playerName, AVG(playerStats.avgRating) avgRating
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE saves.saveID=? 
+		GROUP BY players.playerID 
+		ORDER BY avgRating DESC
+		LIMIT 5
+	`
+	NumSaves         = `SELECT COUNT(1) FROM saves`
+	NumSeasons       = `SELECT COUNT(1) FROM seasons`
+	NumSeasonsToSave = `SELECT COUNT(1) FROM seasons INNER JOIN saves ON seasons.saveID = saves.saveID WHERE saves.saveID=?`
+	MostTransfers    = `
+		SELECT transfers.teamName, saves.currency, AVG(transfers.fee) avgFee, SUM(transfers.fee) totFee, COUNT(transfers.fee) numTransfers
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?  AND transfers.loan = false AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numTransfers DESC
+		LIMIT 5
+	`
+	MostLoans = `
+		SELECT transfers.teamName, saves.currency,
+			SUM(transfers.fee) totFee, COUNT(transfers.fee) numLoans
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ? AND transfers.loan = true AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numLoans DESC
+		LIMIT 5
+	`
+	AvgTransfersOut = `
+		SELECT AVG(transfers.fee)
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ? AND transfers.transferIn = false AND transfers.free = false 
+	`
+	AvgTransfersIn = `
+		SELECT AVG(transfers.fee)
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ? AND transfers.transferIn = true AND transfers.free = false 
+	`
+	SaveTrophies = `
+		SELECT trophies.trophyID, trophies.trophyName, trophies.trophyImage, seasons.year
+		FROM trophiesWon
+		INNER JOIN trophies ON trophiesWon.trophyID = trophies.trophyID
+		INNER JOIN seasons ON trophiesWon.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?
+	`
+	SinglePlayer = `
+		SELECT 
+			seasons.year,
+			teams.teamName,
+			playerSeason.playerSeasonID,
+			playerAttributes.corners cor,
+			playerAttributes.crossing cro,
+			playerAttributes.dribbling dri,
+			playerAttributes.finishing fin,
+			playerAttributes.firstTouch fir,
+			playerAttributes.freeKicks fre,
+			playerAttributes.heading hea,
+			playerAttributes.longShots lon,
+			playerAttributes.longThrows lth,
+			playerAttributes.marking mar,
+			playerAttributes.passing pas,
+			playerAttributes.penalties pen,
+			playerAttributes.tackling tck,
+			playerAttributes.technique tec,
+			playerAttributes.aggression agg,
+			playerAttributes.anticipation ant,
+			playerAttributes.bravery bra,
+			playerAttributes.composure cmp,
+			playerAttributes.concentration cnt,
+			playerAttributes.decisions dec,
+			playerAttributes.determination det,
+			playerAttributes.flair fla,
+			playerAttributes.leadership ldr,
+			playerAttributes.offTheBall otb,
+			playerAttributes.positioning pos,
+			playerAttributes.teamwork tea,
+			playerAttributes.vision vis,
+			playerAttributes.workRate wor,
+			playerAttributes.acceleration acc,
+			playerAttributes.agility agi,
+			playerAttributes.balance bal,
+			playerAttributes.jumpingReach jum,
+			playerAttributes.naturalFitness nat,
+			playerAttributes.pace pac,
+			playerAttributes.stamina sta,
+			playerAttributes.strength str,
+			playerAttributes.aerialReach aer,
+			playerAttributes.commandOfArea cmd,
+			playerAttributes.communication com,
+			playerAttributes.eccentricity ecc,
+			playerAttributes.handling han,
+			playerAttributes.kicking kic,
+			playerAttributes.oneOnOnes ovo,
+			playerAttributes.punchingTendency pun,
+			playerAttributes.reflexes ref,
+			playerAttributes.rushingOutTendency tro,
+			playerAttributes.throwing thr,
+			playerStats.minutes,
+			playerStats.starts,
+			playerStats.subs,
+			playerStats.goals,
+			playerStats.assists,
+			playerStats.yellowCards,
+			playerStats.redCards,
+			playerStats.avgRating,
+			playerStats.playerOfTheMatch,
+			playerStats.passPerc,
+			playerStats.winPerc,
+			playerStats.shutouts,
+			playerStats.savePerc
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN playerAttributes ON playerAttributes.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		WHERE players.playerID = ?
+	`
+	SinglePlayerSumsAvgs = `
+		SELECT
+			players.playerID,
+			saves.saveID,
+			saves.saveName,
+			COUNT(seasons.year) years,
+			saves.gameVersion,
+			teams.teamName,
+			players.playerName,
+			players.uniqueID,
+			players.birthdate,
+			players.nationality,
+			players.secondNationality,
+			players.position, 
+			AVG(playerStats.minutes) avgMin,
+			SUM(playerStats.minutes) totMin,
+			AVG(playerStats.starts) avgStart,
+			SUM(playerStats.starts) totStart,
+			AVG(playerStats.subs) avgSubs,
+			SUM(playerStats.subs) totSubs,
+			AVG(playerStats.goals) avgGls,
+			SUM(playerStats.goals) totGls,
+			AVG(playerStats.assists) avgAst,
+			SUM(playerStats.assists) totAst,
+			AVG(playerStats.yellowCards) avgYel,
+			SUM(playerStats.yellowCards) totYel,
+			AVG(playerStats.redCards) avgRed,
+			SUM(playerStats.redCards) totRed,
+			AVG(playerStats.avgRating) avgRat,
+			AVG(playerStats.playerOfTheMatch) avgPOM,
+			SUM(playerStats.playerOfTheMatch) totPOM,
+			AVG(playerStats.passPerc) avgPasP,
+			AVG(playerStats.winPerc) avgWinP,
+			AVG(playerStats.shutouts) avgShutouts,
+			SUM(playerStats.shutouts) totShutouts,
+			AVG(playerStats.savePerc) avgSaveP
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN playerAttributes ON playerAttributes.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		WHERE players.playerID = ?
+	`
+	AllAvgTransfersOut = `
+		SELECT AVG(transfers.fee)
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.transferIn = false AND transfers.free = false 
+	`
+	AllAvgTransfersIn = `
+		SELECT AVG(transfers.fee)
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.transferIn = true AND transfers.free = false 
+	`
+	AllTrophies = `
+		SELECT trophies.trophyID, saves.saveName, trophies.trophyName, trophies.trophyImage, seasons.year
+		FROM trophiesWon
+		INNER JOIN trophies ON trophiesWon.trophyID = trophies.trophyID
+		INNER JOIN seasons ON trophiesWon.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+	`
+	AllMostTransfers = `
+		SELECT transfers.teamName, saves.currency,
+			AVG(transfers.fee) avgFee, SUM(transfers.fee) totFee, COUNT(transfers.fee) numTransfers
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.loan = false AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numTransfers DESC
+		LIMIT 5
+	`
+	AllMostLoans = `
+		SELECT transfers.teamName, saves.currency,
+			SUM(transfers.fee) totFee, COUNT(transfers.fee) numLoans
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.loan = true AND transfers.free = false
+		GROUP BY transfers.teamName
+		ORDER BY numLoans DESC
+		LIMIT 5
+	`
+	AllTopRat = `
+		SELECT players.playerID, players.playerName, AVG(playerStats.avgRating) avgRating
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		GROUP BY players.playerID
+		ORDER BY avgRating DESC
+		LIMIT 5
+	`
+	AllSaveResults = `
+		SELECT saves.saveID, results.date, seasons.year, saves.saveName, saves.gameVersion, results.competition,
+			results.stadium, results.venue, results.opponentName, results.result, results.goalsFor,
+			results.goalsAgainst, results.penalties, results.extraTime
+		FROM results
+		INNER JOIN seasons ON results.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+	`
+	AllSaveTransfers = `	
+		SELECT transfers.date, transfers.playerName, transfers.fee, transfers.potentialFee,
+			transfers.teamName, transfers.free, transfers.loan, seasons.year, saves.saveName, saves.currency
+		FROM transfers
+		INNER JOIN seasons ON transfers.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE transfers.transferIn=?
+	`
+	AllSaveOutfieldPlayers = `
+		SELECT players.playerID, players.playerName, players.position, saves.saveName, teams.teamName,
+			seasons.year, playerStats.minutes, playerStats.starts, playerStats.subs, playerStats.goals, 
+			playerStats.assists, playerStats.yellowCards, playerStats.redCards, playerStats.avgRating, 
+			playerStats.playerOfTheMatch, playerStats.passPerc, playerStats.winPerc, playerStats.shutouts,
+			playerStats.savePerc			
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE players.position != "GK"
+	`
+	AllSaveGoaliePlayers = `
+		SELECT players.playerID, players.playerName, players.position, saves.saveName,
+			teams.teamName, seasons.year, playerStats.minutes, playerStats.starts, playerStats.subs,
+			playerStats.goals, playerStats.assists, playerStats.yellowCards, playerStats.redCards, playerStats.avgRating,
+			playerStats.playerOfTheMatch, playerStats.passPerc, playerStats.winPerc, playerStats.shutouts, playerStats.savePerc			
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE players.position = "GK"
+	`
+	AllTotalsSaveOutfieldPlayers = `
+		SELECT players.playerID, players.playerName, players.position, saves.saveName, teams.teamName,
+			COUNT(seasons.year) numYears, SUM(playerStats.minutes) totMins, SUM(playerStats.starts) totStarts, SUM(playerStats.subs) totSubs,
+			SUM(playerStats.goals) totGoals, SUM(playerStats.assists) totAssists, SUM(playerStats.yellowCards) totYellow, SUM(playerStats.redCards) totRed,
+			AVG(playerStats.avgRating) avgRating, SUM(playerStats.playerOfTheMatch) totPOM, AVG(playerStats.passPerc) avgPass, AVG(playerStats.winPerc) avgWin,
+			SUM(playerStats.shutouts) totShutouts, AVG(playerStats.savePerc) avgSaveP
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE players.position != "GK"
+		GROUP BY players.playerID
+	`
+	AllTotalsSaveGoalies = `
+		SELECT players.playerID, players.playerName, players.position, saves.saveName, teams.teamName,
+			COUNT(seasons.year) numYears, SUM(playerStats.minutes) totMins, SUM(playerStats.starts) totStarts, SUM(playerStats.subs) totSubs,
+			SUM(playerStats.goals) totGoals, SUM(playerStats.assists) totAssists, SUM(playerStats.yellowCards) totYellow, SUM(playerStats.redCards) totRed,
+			AVG(playerStats.avgRating) avgRating, SUM(playerStats.playerOfTheMatch) totPOM, AVG(playerStats.passPerc) avgPass, AVG(playerStats.winPerc) avgWin,
+			SUM(playerStats.shutouts) totShutouts, AVG(playerStats.savePerc) avgSaveP
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		WHERE players.position = "GK"
+		GROUP BY players.playerID
+	`
+	AllTop5Gls = `
+		SELECT players.playerID, players.playerName, SUM(playerStats.goals) goals
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		GROUP BY players.playerID
+		ORDER BY goals DESC
+		LIMIT 5
+	`
+	AllTop5Asts = `
+		SELECT players.playerID, players.playerName, SUM(playerStats.assists) assists
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		GROUP BY players.playerID
+		ORDER BY assists DESC
+		LIMIT 5
+	`
+	AllTop5Apps = `
+		SELECT players.playerID, players.playerName, SUM(playerStats.starts) starts
+		FROM playerStats
+		INNER JOIN playerSeason ON playerStats.playerSeasonID = playerSeason.playerSeasonID
+		INNER JOIN players ON playerSeason.playerID = players.playerID
+		INNER JOIN saves ON players.saveID = saves.saveID
+		INNER JOIN seasons on playerSeason.seasonID = seasons.seasonID
+		INNER JOIN teams on seasons.teamID = teams.teamID
+		GROUP BY players.playerID
+		ORDER BY starts DESC
+		LIMIT 5
+	`
+	DeleteSaveQ = `
+		DELETE
+		FROM saves
+		WHERE saveID = ?
+	`
+	SavePlayerSeasons = `
+		SELECT COUNT(1)
+		FROM playerSeason
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+		WHERE saves.saveID = ?
+	`
+	TotalPlayerSeasons = `
+		SELECT COUNT(1)
+		FROM playerSeason
+		INNER JOIN seasons ON playerSeason.seasonID = seasons.seasonID
+		INNER JOIN saves ON seasons.saveID = saves.saveID
+	`
 )

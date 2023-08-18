@@ -1,6 +1,3 @@
-
-<!-- import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'; -->
-
 <template>
     <Dialog header="Add Season" @hide="" :modal="true" :draggable="false" :closable="true" class="w-7">
         <form method="POST" id="addSave" @submit.prevent="addSeason(!v$.$invalid)" class="">
@@ -23,8 +20,10 @@
                             :disabled="addingToDB"
                         />
                         <Button severity="info" @click="explainSN" ><font-awesome-icon icon="fa-solid fa-question"/></Button>
-                        <OverlayPanel ref="explain">
-                            TODO: Add explanation
+                        <OverlayPanel ref="explain" class="w-6">
+                            Some teams have a short name associated with them that will appear in the files downloaded. 
+                            Look in the Transfer file for the best chance to find it. It will be the one that does not match your teams full name if there is one.
+                             (i.e. Borussia Mönchengladbach's short name is Borussia M'gladbach)
                     </OverlayPanel>
                     </span>
                     
@@ -61,14 +60,22 @@
                 </div>
             </div>
             <!-- <Divider/> -->
-            <p style="font-size: small ;"><a type="button" @click="openLink($event, 'https://drive.google.com/drive/folders/1v7EZSIHoykRcBMWbPxGfl5Ux7Q2PosXv?usp=sharing')" href="">Use the views for Squad and Transfer in from this link to export the data properly.</a></p>
+            <p style="font-size: small ;"><a type="button" @click="openLink($event, 'https://www.mediafire.com/folder/0wz6sxqpy4fme/2023_Views')" href="">Use the views for Squad and Transfer in from this link to export the data properly.</a></p>
+            <!-- <div class="mt-4 ">
+
+            </div> -->
             <div class="mt-4 p-inputgroup fileGroup" >
-                <Button style="width: 141px" class="flex-none justify-content-center" @click="GetFile('squadFile', 'Squad')" >Squad File</Button>
+                <Button style="width: 141px" class="flex-none justify-content-center" @click="GetFile('squadFile', 'Squad')" :disabled="!historicalSeason">Squad File</Button>
                 <Textarea v-model="v$.squadFile.$model" class="fileText" id="squadFile"
                     cols="500" disabled
                     :class="{ 'p-invalid': v$.squadFile.$invalid && submitted }"
                 />
+                <ToggleButton v-model="historicalSeason" v-tooltip.left="'Click this button if you do not have the squad file for the season.'" @change=""></ToggleButton>
             </div>
+            <!-- <div class="flex justify-content-end">
+                <small class="font-italic text-right">Click "Have File?"" button if you don't have the squad file for this year.</small>
+            </div>
+             -->
             <div class="p-inputgroup mt-4 fileGroup" >
                 <Button style="width: 141px" class="justify-content-center" @click="GetFile('scheduleFile', 'Schedule')" >Schedule File</Button>
                 <Textarea v-model="v$.scheduleFile.$model" class="fileText" id="scheduleFile" 
@@ -86,7 +93,6 @@
             
         </form>
         <template #footer>
-            <!-- <pre>{{ errors.country }}</pre> -->
             <div class="flex align-content-center justify-content-center">
                 <Button label="Cancel" id="cancelB" :disabled="addingToDB" class="p-button-text" @click="$emit('closeDialog')" />
                 <Button label="Add" id="submitSeasonB" :disabled="addingToDB" form="addSave" type="submit"/>
@@ -100,24 +106,24 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
-import { useRoute } from 'vue-router'
-import { SelectSquadFile, SelectScheduleFile, SelectTransfersFile, SelectFileParse, AddNewSeason } from '../../../wailsjs/go/main/App'
-import { useForm, useField } from 'vee-validate';
+import { useRoute, useRouter } from 'vue-router'
+import { SelectFileParse, AddNewSeason } from '../../../wailsjs/go/main/App'
 import { useVuelidate } from "@vuelidate/core"
 import { required } from '@vuelidate/validators'
 import { main } from '../../../wailsjs/go/models'
-import * as yup from 'yup';
 import InputText from 'primevue/inputtext';
 
 const route = useRoute()
+const router = useRouter()
 
 const addingToDB = ref(false)
-const value = ref()
+const historicalSeason = ref(true)
 const explain = ref()
 const submitted = ref(false)
-const emit = defineEmits(['closeDialog'])
+const emit = defineEmits(['closeDialog', 'beError'])
+
 
 const explainSN = (event: any) => {
     explain.value.toggle(event)
@@ -150,6 +156,7 @@ function GetFile(textArea: string, fileType: string) {
 }
 
 
+
 const state = reactive({
     teamName: '',
     shortName: '',
@@ -167,7 +174,7 @@ const rules = {
     season: { required },
     country: { required },
     trophies: { required },
-    squadFile: { required },
+    squadFile: {  },
     scheduleFile: { required },
     transfersFile: { required }
 }
@@ -193,25 +200,32 @@ function addSeason(isValid: boolean) {
         scheduleFile: v$.value.scheduleFile.$model,
         transfersFile: v$.value.transfersFile.$model,
     }
-    // if (season.trophiesWon.toLowerCase() == "n/a" || season.trophiesWon.toLowerCase() == "none") {
-    //     season.trophiesWon = ''
-    // }
     submitted.value = true
-    // console.log(v$.value.teamName.$model)
     if (!isValid) {
         return;
     }
     addingToDB.value = true
-    AddNewSeason(+route.params.id, season)
+    AddNewSeason(+route.params.id, season, historicalSeason.value).then( (response) => {
+        if (response.Error != "") {
+            emit('beError', response.Error)
+        }
+    })
     setTimeout( () => {
         emit('closeDialog')
         submitted.value = false
         addingToDB.value = false
+        v$.value.teamName.$model = ""
+        v$.value.shortName.$model = ""
+        v$.value.season.$model = ""
+        v$.value.country.$model = ""
+        v$.value.squadFile.$model = ""
+        v$.value.scheduleFile.$model = ""
+        v$.value.transfersFile.$model = ""
+        v$.value.trophies.$model = ""
+        trophies = []
+        router.replace({path: '/save/' + route.params.id + '/home', replace: true})
     }, 2000)
-    
-    // ADD NEW SEASON BACKEND FUNCTION
 }
-
 </script>
 
 <style lang="scss">

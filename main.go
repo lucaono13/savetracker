@@ -9,12 +9,13 @@ import (
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
+	"github.com/wailsapp/wails/v2/pkg/menu"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
-// go:embed all:frontend/dist
+//go:embed all:frontend/dist
 var assets embed.FS
 
 type FileLoader struct {
@@ -43,11 +44,24 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
+	// Menu
+	AppMenu := menu.NewMenu()
+	HelpMenu := AppMenu.AddSubmenu("Help")
+	HelpMenu.AddText("Report Issue", nil, func(_ *menu.CallbackData) {
+		app.openGithubIssues(app.ctx)
+	})
+	HelpMenu.AddSeparator()
+	HelpMenu.AddText("About", nil, func(_ *menu.CallbackData) {
+		app.aboutDialog(app.ctx)
+	})
+
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "Save Tracker",
-		Width:  1024,
-		Height: 768,
+		Title:     "Save Tracker",
+		Width:     1024,
+		Height:    768,
+		MinWidth:  1150,
+		MinHeight: 950,
 		AssetServer: &assetserver.Options{
 			Assets:  assets,
 			Handler: NewFileLoader(),
@@ -57,6 +71,7 @@ func main() {
 		OnStartup:        app.startup,
 		OnDomReady:       app.domReady,
 		OnBeforeClose:    app.shutdown,
+		Menu:             AppMenu,
 		Bind: []interface{}{
 			app,
 		},

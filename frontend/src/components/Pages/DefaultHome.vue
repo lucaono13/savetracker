@@ -1,19 +1,14 @@
 <template>
     <div class="pr-4 pb-4" >
         <div class="mt-3 ml-1">
-            <span class="text-5xl" style="font-family: Didot;">{{ save.saveName }} - {{ save.managerName }}</span>
+            <span class="text-5xl" style="font-family: Didot;">Welcome to the Save Tracker</span>
         </div>
         <Divider class="fullWidth topDiv" style=""/>
-        <div class="grid fullWidth mr-0 gap-0" >
-            <div  class=" col-12 fullWidth ml-1 overflow-auto story" 
-            style="max-height: calc(100vh * 0.175)!important;width:calc(100vw - 205px - 50px)">
-                <span class="font-bold align-items-center">Story:<Button label="Edit" class="editButton ml-1" text @click="editDialog = true"/></span>
-                <span> </span>
-                <span v-if="saveStory.story.length == 0">Click edit to start writing your story</span>
-                <span v-html="saveStory.story"></span>
-            </div>
-            <div v-if="dataAdded && trophies != null" class="col-12" > 
-                        <Carousel v-if="dataAdded" :value="trophies" circular :numVisible="5" :numScroll="1">
+        <NoDefaultSave v-if="numOfSaves > 0 && numOfSeasons <= 0"/>
+        <NoSaves v-if="numOfSaves <= 0" />
+        <div class="grid fullWidth mr-0 gap-0" v-if="numOfSaves > 0 && numOfSeasons > 0">
+            <div v-if="trophies != null" class="col-12" > 
+                        <Carousel :value="trophies" circular :numVisible="5" :numScroll="1">
                             <template #item="slotProps">
                                 <div class="border-2  border-round border-yellow-900 m-2 text-center py-1 px-1 flex flex-column align-items-center justify-content-center" >
                                     <div class="">
@@ -22,14 +17,14 @@
                                             <FontAwesomeIcon icon="trophy"  style="color: var(--text-color); height: 100px!important;" v-if="!slotProps.data[1]['b64']"/>
                                         </Button>                                        
                                     </div>
-                                    <div  v-tooltip.bottom='{value: slotProps.data[1]["years"].toString()}'>
+                                    <div >
                                         {{ slotProps.data[0] }}<br/>X{{ slotProps.data[1]["years"].length }}
                                     </div>
                                 </div>
                             </template>
                         </Carousel> 
             </div> 
-            <div class="col-4 statsDiv" v-if="dataAdded">
+            <div class="col-4 statsDiv">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Transfers</h1></template>
                     <template #content>
@@ -63,22 +58,11 @@
                                 </table>
                             </TabPanel>
                         </TabView>
-                        <!-- <table class="statTable">
-                            <thead>
-                                <tr>
-                                    <th>Team</th>
-                                    <th>Count (Total)</th>
-                                </tr>
-                            </thead>
-                            <tr v-for="team in mostTrfs">
-                                <td>{{ team.teamName }}</td>
-                                <td class="transfer">{{ team.numTransfers }} ({{ numberFormmaterCur.format(team.totFee) }})</td>
-                            </tr>
-                        </table> -->
+                        
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" v-if="dataAdded">
+            <div class="col-4 statsDiv">
                 <Card class="statsCard">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Results</h1></template>
                     <template #content>
@@ -99,7 +83,7 @@
                     </template>
                 </Card>
             </div>
-            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="playerSeasons > 0">
+            <div class="col-4 statsDiv" style="max-height:250px!important ;" v-if="numPlayerSeasons > 0">
                 <Card class="statsCard" style="max-height: 250px!important;">
                     <template #header ><h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1></template>
                     <!-- <h1 class="flex align-content-center justify-content-center my-0">Player Stats</h1> -->
@@ -144,24 +128,21 @@
             </div>
         </div>
     </div>
-    <EditStoryDialog :visible="editDialog" v-if="editDialog" :story="saveStory.story" @updateStory="updateStory" @closeDialog="editDialog = false"/>
     <PlayerDialog :visible="playerDialog" v-if="playerDialog" :playerID="playerDialogID" @closeDialog="playerDialog = false"/>
 </template>
 
 <script lang="ts" async setup>
-import Sidebar from '../Components/Sidebar.vue'
-import { useRoute, useRouter } from 'vue-router';
-import { nextTick, ref, onMounted, watch, onBeforeMount } from 'vue';
-import { GetImage, SingleSave, GetNumSeasonsInSave, GetSaveHomeRankings, GetSaveStory, UpdateSaveStory, SelectNewTrophyImage, GetSavePSeasons } from '../../../wailsjs/go/main/App'
-import EditStoryDialog  from '../../../src/components/Components/EditStoryDialog.vue'
+import { ref, onMounted } from 'vue';
+import { GetImage, GetAllRankings, SelectNewTrophyImage, GetNumSaves, GetNumSeasons, GetAllPSeasons } from '../../../wailsjs/go/main/App'
 import PlayerDialog from '../Components/PlayerDialog.vue';
+import NoDefaultSave from './NoDefaultSave.vue';
+import NoSaves from './NoSaves.vue';
 import { backend, main } from '../../../wailsjs/go/models'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { useRouter } from 'vue-router';
 
-const editDialog = ref(false)
 const playerDialog = ref(false)
 const playerDialogID = ref(0)
-const route = useRoute()
 const sortedResults = ref()
 const topGls = ref()
 const topAsts = ref()
@@ -172,14 +153,13 @@ const mostLoans = ref()
 const avgInFee = ref()
 const avgOutFee = ref()
 const trophies = ref()
-const dataAdded = ref()
-const playerSeasons = ref()
-const saveStory = ref({saveID: 0, story:""})
-const hoverTest = ref("")
-const currency = ref()
+const numOfSaves = ref()
+const numOfSeasons = ref()
+const numPlayerSeasons = ref()
 
+const router = useRouter()
 let imgPlaceholder: string | undefined
-let save = ref({ saveID: 0, managerName: "", gameVersion: '', saveName: '', image: imgPlaceholder })
+let save = ref({ saveID: 0, managerName: "", gameVersion: 0, saveName: '', image: imgPlaceholder })
 const emit = defineEmits(['beError'])
 let numberFormmaterDec: Intl.NumberFormat = new Intl.NumberFormat(navigator.language, {
     style: "decimal",
@@ -187,14 +167,11 @@ let numberFormmaterDec: Intl.NumberFormat = new Intl.NumberFormat(navigator.lang
 })
 let numberFormmaterCur: Intl.NumberFormat
 
-function updateStory(story: string) {
-    let updated : backend.Story = { saveID: saveStory.value.saveID, story: story}
-    UpdateSaveStory(updated)
-    saveStory.value.story = story
+const beError = (error: string) => {
+    emit('beError', error)
 }
 
 function openPlayerDialog(playerID: number) {
-    console.log('opening ', playerID)
     playerDialogID.value = playerID
     playerDialog.value = true
 }
@@ -220,121 +197,115 @@ function newTrophyImage(trophyData: {0: string, 1: {"id": number, "image": strin
     })
 }
 
-onMounted( async () => {
-    SingleSave(+route.params.id).then((response) => {
-        if (response.Error != "") {
-            emit('beError', response.Error)
-            return
-        }
-        let result = response.Save
-        save.value.saveID = result.id
-        save.value.managerName = result.managerName
-        save.value.gameVersion = result.gameVersion
-        save.value.saveName = result.saveName
-        save.value.image = result.saveImage
-        if (result.saveImage) {
-            GetImage(result.saveImage).then(async (result) => {
-                save.value.image = result.b64Image
-            })
-        }
-
-        nextTick()
-    })
-    saveStory.value = await GetSaveStory(+route.params.id)
-    dataAdded.value = await GetNumSeasonsInSave(+route.params.id)
-    if (!dataAdded.value) {
-        return
-    }
-    playerSeasons.value = await GetSavePSeasons(+route.params.id)
-    
-    GetSaveHomeRankings(+route.params.id, playerSeasons.value > 0).then( async (response: main.ErrorReturn) => {
-        if (response.Error != "") {
-            emit('beError', response.Error)
-            return
-        }
-        topApps.value = response.TopApps
-        topAsts.value = response.TopAsts
-        topGls.value = response.TopGls
-        topRat.value = response.TopAvg
-        mostTrfs.value = response.TopTrfs
-        mostLoans.value = response.TopLoans
-        avgInFee.value = response.AvgInFee
-        avgOutFee.value = response.AvgOutFee
-        numberFormmaterCur = new Intl.NumberFormat(navigator.language, {
-            style: "currency",
-            currency: response.TopTrfs[0].currency,
-            notation: "compact"
-        })
-        let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
-        let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
-        let matches: backend.Match[] = response.Matches
-
-        matches.forEach( function (match) {
-            if (!teamsMap.has(match.opposition)) {               
-                teamsMap.set(match.opposition, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0})
+onMounted(  async () => {
+    GetNumSaves().then( (totSaves: number) => {
+        numOfSaves.value = totSaves
+            if (totSaves <= 0){
+                router.replace({name: 'No Saves', replace: true})
+                return
             }
-            let matchResults: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0} = teamsMap.get(match.opposition)!
-            switch (match.result) {
-                case "W": {
-                    matchResults.W += 1
-                    break
-                }
-                case "D": {
-                    matchResults.D += 1
-                    break
-                }
-                case "L": {
-                    matchResults.L += 1
-                    break
-                }
+        GetNumSeasons().then( (totSeasons: number) => {
+            numOfSeasons.value = totSeasons
+            // console.log(numOfSeasons.value)
+            if (totSeasons <= 0) {
+                router.replace({name: 'No Seasons',replace: true})
+                return
             }
-            matchResults.GF += match.goalsFor
-            matchResults.GA += match.goalsAgainst 
-            teamsMap.set(match.opposition, matchResults)
-        })
-
-        teamsMap.forEach( (results: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}, team: string) => {
-            let games: number = results.W + results.D + results.L
-            if (games >= 2) {
-                resultsMap.set(team, {"WinPerc": (results.W / games) * 100, "Record": results})
-            }
-            
-        })
-        sortedResults.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
-            if (v.WinPerc > v2.WinPerc) {
-                return 1
-            }
-            if (v.WinPerc < v2.WinPerc) {
-                return -1
-            }
-            return 0
-        })
-        sortedResults.value = sortedResults.value.slice(0,5)
-        if (response.Trophies == null) {
-            return
-        }
-        let combinedTrophies = new Map<string, {"years": string[], "image": string, "id": number, "b64": string}>()
-        response.Trophies.forEach( async function (trophy) {
-            if (!combinedTrophies.has(trophy.trophyName)) {
-                combinedTrophies.set(trophy.trophyName, {"years": [trophy.season], "image": trophy.trophyImage, "id": trophy.trophyID, "b64": ""})
-            } else if (combinedTrophies.has(trophy.trophyName)) {
-                let trophyInfo: {"years":string[], "image": string, "id": number, "b64": string} = combinedTrophies.get(trophy.trophyName)!
-                trophyInfo.years.push(trophy.season)
-                combinedTrophies.set(trophy.trophyName, trophyInfo)
-            }
-        })
-        trophies.value = [...combinedTrophies]
-        
-        trophies.value.forEach( function (trophy: {"years": string[], "image": string, "id": number, "b64": string}[]) {
-            if (trophy[1]['image'] != null) {
-                GetImage(trophy[1]['image']).then( (response) => {
+            GetAllPSeasons().then( (playerSeasonNum: number) => {
+                numPlayerSeasons.value = playerSeasonNum
+                // console.log(numPlayerSeasons.value > 0)
+                
+                GetAllRankings(numPlayerSeasons.value > 0).then( (response: main.ErrorReturn) => {
                     if (response.Error != "") {
                         emit('beError', response.Error)
                         return
                     }
-                    trophy[1]['b64'] = response.b64Image
+                    topApps.value = response.TopApps
+                    topAsts.value = response.TopAsts
+                    topGls.value = response.TopGls
+                    topRat.value = response.TopAvg
+                    mostTrfs.value = response.TopTrfs
+                    mostLoans.value = response.TopLoans
+                    avgInFee.value = response.AvgInFee
+                    avgOutFee.value = response.AvgOutFee
+                    numberFormmaterCur = new Intl.NumberFormat(navigator.language, {
+                        style: "currency",
+                        currency: response.TopTrfs[0].currency,
+                        notation: "compact"
+                    })
+                    let teamsMap = new Map<string, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}>()
+                    let resultsMap = new Map<string, {"WinPerc": number, "Record": {"W": 0, "D": 0, "L": 0}}>()
+                    let matches: backend.Match[] = response.Matches
+
+                    matches.forEach( function (match) {
+                        if (!teamsMap.has(match.opposition)) {               
+                            teamsMap.set(match.opposition, {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0})
+                        }
+                        let matchResults: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0} = teamsMap.get(match.opposition)!
+                        switch (match.result) {
+                            case "W": {
+                                matchResults.W += 1
+                                break
+                            }
+                            case "D": {
+                                matchResults.D += 1
+                                break
+                            }
+                            case "L": {
+                                matchResults.L += 1
+                                break
+                            }
+                        }
+                        matchResults.GF += match.goalsFor
+                        matchResults.GA += match.goalsAgainst 
+                        teamsMap.set(match.opposition, matchResults)
+                    })
+
+                    teamsMap.forEach( (results: {"W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0}, team: string) => {
+                        let games: number = results.W + results.D + results.L
+                        if (games >= 2) {
+                            resultsMap.set(team, {"WinPerc": (results.W / games) * 100, "Record": results})
+                        }
+                        
+                    })
+                    sortedResults.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
+                        if (v.WinPerc > v2.WinPerc) {
+                            return 1
+                        }
+                        if (v.WinPerc < v2.WinPerc) {
+                            return -1
+                        }
+                        return 0
+                    })
+                    sortedResults.value = sortedResults.value.slice(0,5)
+                    if (response.Trophies == null) {
+                        return
+                    }
+                    let combinedTrophies = new Map<string, {"years": string[], "image": string, "id": number, "b64": string}>()
+                    response.Trophies.forEach( function (trophy) {
+                        if (!combinedTrophies.has(trophy.trophyName)) {
+                            combinedTrophies.set(trophy.trophyName, {"years": [trophy.season], "image": trophy.trophyImage, "id": trophy.trophyID, "b64": ""})
+                        } else if (combinedTrophies.has(trophy.trophyName)) {
+                            let trophyInfo: {"years":string[], "image": string, "id": number, "b64": string} = combinedTrophies.get(trophy.trophyName)!
+                            trophyInfo.years.push(trophy.season)
+                            combinedTrophies.set(trophy.trophyName, trophyInfo)
+                        }
+                    })
+                    trophies.value = [...combinedTrophies]
+                    
+                    trophies.value.forEach( function (trophy: {"years": string[], "image": string, "id": number, "b64": string}[]) {
+                        if (trophy[1]['image'] != null) {
+                            GetImage(trophy[1]['image']).then( (response) => {
+                                if (response.Error != "") {
+                                    emit('beError', response.Error)
+                                    return
+                                }
+                                trophy[1]['b64'] = response.b64Image
+                            })
+                        }
+                    })
                 })
-            }
+            })
         })
     })
     
@@ -350,14 +321,8 @@ onMounted( async () => {
     }
 
 .fullWidth {
+    // height: calc(100vw - 79px)!important;
     width: calc(100vw - 205px - 50px)!important;
-}
-
-.p-divider.p-divider-horizontal::before {
-    border-top: .5px white!important;
-    border-style: solid!important;
-    width: calc(100vw - 205px - 50px)!important;
-    box-sizing: border-box!important;
 }
 
 .isHovered {
@@ -375,6 +340,7 @@ onMounted( async () => {
 
 .statTable {
     width: 100%!important;
+    // border: 1px solid white;
     border-collapse: collapse;
 }
 
