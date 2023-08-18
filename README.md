@@ -131,3 +131,14 @@ Download the installer by going to releases on the right side or clicking <a hre
   - [ ] Youth Intakes
   - [ ] ~~Manager Timelines~~ *Currently not exportable*
   - [ ] Easy export to share with others
+
+<hr>
+
+### Development
+1. Clone repo.
+2. Ensure that Go is installed by going to https://go.dev/dl
+3. In project directory run command: 
+``` go mod download ```
+4. Run ```wails dev ``` to run a dev environment of the application.
+
+*Note: because of the go:embed command in main.go, you either have to save a .go file (there doesn't have to be any changes) or add a space between // and go:embed on line 18 in main.go*
