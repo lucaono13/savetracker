@@ -131,6 +131,7 @@ Download the installer by going to releases on the right side or clicking <a hre
   - [ ] Youth Intakes
   - [ ] ~~Manager Timelines~~ *Currently not exportable*
   - [ ] Easy export to share with others
+  - [ ] Phone app to just view data
 
 <hr>
 
