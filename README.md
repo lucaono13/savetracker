@@ -132,6 +132,7 @@ Download the installer by going to releases on the right side or clicking <a hre
   - [ ] ~~Manager Timelines~~ *Currently not exportable*
   - [ ] Easy export to share with others
   - [ ] Phone app to just view data
+  - [ ] Things to do with dates (i.e. see all games in a specific month, sort by month, etc)
 
 <hr>
 
