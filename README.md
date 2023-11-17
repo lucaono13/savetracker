@@ -1,5 +1,4 @@
 <h1 style="text-align:center; font-size: 50px" >Save Tracker</h1>
-Desktop app developed to help players keep track of player stats, head to head records and trophies across multiple different saves.
 <img src="./build/appicon.png" alt='Save Tracker Logo' width="300" style="display:block; margin-left:auto; margin-right:auto">
 <br>
 
