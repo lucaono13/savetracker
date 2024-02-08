@@ -82,20 +82,40 @@
                 <Card class="statsCard">
                     <template #header><h1 class="flex align-content-center justify-content-center my-0">Results</h1></template>
                     <template #content>
-                        <table class="statTable">
-                            <thead>
-                                <tr>
-                                    <th>Team</th>
-                                    <th>Win %</th>
-                                    <th>Record</th>
-                                </tr>
-                            </thead>
-                            <tr v-for="team in sortedResults">
-                                <td>{{ team[0] }}</td>
-                                <td>{{ numberFormmaterDec.format(team[1].WinPerc) }}%</td>
-                                <td >{{ team[1].Record.W }}-{{ team[1].Record.D }}-{{ team[1].Record.L }}</td>
-                            </tr>
-                        </table>
+                        <TabView class="playerStatView">
+                            <TabPanel header="Best">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Win %</th>
+                                            <th>Record</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in sortedResults_best">
+                                        <td>{{ team[0] }}</td>
+                                        <td>{{ numberFormmaterDec.format(team[1].WinPerc) }}%</td>
+                                        <td >{{ team[1].Record.W }}-{{ team[1].Record.D }}-{{ team[1].Record.L }}</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                            <TabPanel header="Worst">
+                                <table class="statTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Team</th>
+                                            <th>Win %</th>
+                                            <th>Record</th>
+                                        </tr>
+                                    </thead>
+                                    <tr v-for="team in sortedResults_worst">
+                                        <td>{{ team[0] }}</td>
+                                        <td>{{ numberFormmaterDec.format(team[1].WinPerc) }}%</td>
+                                        <td >{{ team[1].Record.W }}-{{ team[1].Record.D }}-{{ team[1].Record.L }}</td>
+                                    </tr>
+                                </table>
+                            </TabPanel>
+                        </TabView>
                     </template>
                 </Card>
             </div>
@@ -162,7 +182,8 @@ const editDialog = ref(false)
 const playerDialog = ref(false)
 const playerDialogID = ref(0)
 const route = useRoute()
-const sortedResults = ref()
+const sortedResults_worst = ref()
+const sortedResults_best = ref()
 const topGls = ref()
 const topAsts = ref()
 const topApps = ref()
@@ -300,16 +321,74 @@ onMounted( async () => {
             }
             
         })
-        sortedResults.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
+        sortedResults_worst.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
             if (v.WinPerc > v2.WinPerc) {
                 return 1
             }
             if (v.WinPerc < v2.WinPerc) {
                 return -1
             }
+            if (v.WinPerc == v2.WinPerc) {
+                if (v.Record.L > v2.Record.L) {
+                    return 1
+                }
+                if (v.Record.L < v2.Record.L) {
+                    return -1
+                }
+                if (v.Record.L == v2.Record.L) {
+                    if (v.Record.D > v2.Record.D) {
+                        return 1
+                    }
+                    if (v.Record.D < v2.Record.D) {
+                        return -1
+                    } 
+                    if (v.Record.D == v2.Record.D) {
+                        if (v.Record.W < v2.Record.W) {
+                            return -1
+                        }
+                        if (v.Record.W > v2.Record.W) {
+                            return 1
+                        }
+                    }
+                }
+            }
             return 0
         })
-        sortedResults.value = sortedResults.value.slice(0,5)
+        sortedResults_best.value = [...resultsMap].sort(([k, v], [k2, v2]) => {
+            if (v.WinPerc < v2.WinPerc) {
+                return 1
+            }
+            if (v.WinPerc > v2.WinPerc) {
+                return -1
+            }
+            if (v.WinPerc == v2.WinPerc) {
+                if (v.Record.W < v2.Record.W) {
+                    return 1
+                }
+                if (v.Record.W > v2.Record.W) {
+                    return -1
+                }
+                if (v.Record.W == v2.Record.W) {
+                    if (v.Record.D < v2.Record.D) {
+                        return 1
+                    }
+                    if (v.Record.D > v2.Record.D) {
+                        return -1
+                    } 
+                    if (v.Record.D == v2.Record.D) {
+                        if (v.Record.L > v2.Record.L) {
+                            return -1
+                        }
+                        if (v.Record.L < v2.Record.L) {
+                            return 1
+                        }
+                    }
+                }
+            }
+            return 0
+        })
+        sortedResults_worst.value = sortedResults_worst.value.slice(0,5)
+        sortedResults_best.value = sortedResults_best.value.slice(0,5)
         if (response.Trophies == null) {
             return
         }
