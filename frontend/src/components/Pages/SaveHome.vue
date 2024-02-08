@@ -116,7 +116,6 @@
                                 </table>
                             </TabPanel>
                         </TabView>
-                        
                     </template>
                 </Card>
             </div>
