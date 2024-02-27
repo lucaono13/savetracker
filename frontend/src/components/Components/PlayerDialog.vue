@@ -11,14 +11,17 @@
                 </span>
             </div>
             <div class="col" style="font-family: Didot;">
-                <span v-tooltip.top='{value: getCountryName(playerAvgs.nationality)}' class="inline-block" style="height: fit-content">
+                <span v-tooltip.top='{value: getCountryName(playerAvgs.nationality)}' class="inline-block" style="height:fit-content" v-if="playerAvgs.secondNationality.Valid == false">
                     <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.nationality)" />
                 </span>
-                <span>&nbsp; &nbsp;</span>
-                <span v-tooltip.top='{value: getCountryName(playerAvgs.secondNationality.String)}' v-if="playerAvgs.secondNationality.Valid == true" class="inline-block" style="height: fit-content">
-                    <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.secondNationality.String)"  />
-                </span>
-                <!-- <br/> -->
+                <Splitter layout="vertical" :gutter-size="0" v-if="playerAvgs.secondNationality.Valid == true" class="inline-block" style="width: 55px">
+                    <SplitterPanel v-tooltip.top='{value: getCountryName(playerAvgs.nationality)}'>
+                        <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.nationality)" />
+                    </SplitterPanel>
+                    <SplitterPanel v-tooltip.top='{value: getCountryName(playerAvgs.secondNationality.String)}'>
+                        <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.secondNationality.String)" />
+                    </SplitterPanel>
+                </Splitter>
                 <span>&nbsp; &nbsp;</span>
                 <span class="text-lg inline-block align-self-center vertical-align-super">D.O.B.: {{ playerAvgs.birthdate }}</span>
             </div>
@@ -528,5 +531,11 @@ onBeforeMount( () => {
         border-bottom: 1px solid var(--surface-border);
         padding-bottom: 3px!important;
     }
+
+    .p-splitter {
+        border: none;
+        background: none;
+    }
+
 
 </style>

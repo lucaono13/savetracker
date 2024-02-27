@@ -47,6 +47,8 @@ import Editor from 'primevue/editor'
 import Chart from 'primevue/chart'
 import InputSwitch from 'primevue/inputswitch'
 import ToggleButton from 'primevue/togglebutton'
+import Splitter from 'primevue/splitter'
+import SplitterPanel from 'primevue/splitterpanel'
 
 // Font Awesome Icons
 //import the fontawesome core
@@ -131,6 +133,8 @@ app.component('ProgressSpinner',ProgressSpinner)
     .component('InputSwitch', InputSwitch)
     .component('ConfirmDialog', ConfirmDialog)
     .component('ToggleButton', ToggleButton)
+    .component('Splitter', Splitter)
+    .component('SplitterPanel', SplitterPanel)
     .directive('tooltip', Tooltip)
 
 app.use(ConfirmationService)
