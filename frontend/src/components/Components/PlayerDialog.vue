@@ -2,8 +2,11 @@
     <Dialog modal :draggable="false" :closable="true" header="" showHeader class="w-11" @update:visible="emit('closeDialog')" style="height:fit-content">
     <div class=" grid" v-if="dataLoaded">
             <!-- <div class="grid"> -->
-            <div class="ml-6 col" style="font-family: Didot;">
-                <span class="text-4xl" >{{ playerAvgs.playerName }}</span>
+            <div class="col-fixed ml-5" style="width:100px">
+                <img src="../../assets/images/head_silhouette.png" style="width:100px;padding-top: 7px;"/>
+            </div>
+            <div class="col-fixed text-right" style="font-family: Didot;width:300px">
+                <span class="text-4xl" style="overflow-wrap:break-word;">{{ playerAvgs.playerName }}</span>
                 <br />
                 <span class="text-lg align-self-center">{{ playerAvgs.position }}</span>
                 <span class="">
@@ -26,14 +29,14 @@
                 <div class="text-lg inline align-items-start vertical-align-top" style=""><span style="vertical-align: sub;">D.O.B.: {{ playerAvgs.birthdate }}</span></div>
             </div>
             
-            <div class="col flex flex-column align-items-end justify-content-end" style="font-family: Didot;">
-                <span class="text-lg">From save: <span class="font-bold text-xl">{{ playerAvgs.saveName }}</span></span>
-                <span class="text-lg">Game Version/Save Type: <span class="font-bold text-xl">{{ playerAvgs.gameVersion }}</span></span>
-                <span class="text-lg">Number of seasons: <span class="font-bold text-xl">{{ playerAvgs.seasons }}</span></span>
+            <div class="col flex flex-column vertical-align-top" style="font-family: Didot;">
+                <span class="text-lg"><span class="font-italic">From save: </span><span class="font-bold text-xl">{{ playerAvgs.saveName }}</span></span>
+                <span class="text-lg"><span class="font-italic">Game Version/Save Type: </span><span class="font-bold text-xl">{{ playerAvgs.gameVersion }}</span></span>
+                <span class="text-lg"><span class="font-italic">Number of seasons: </span><span class="font-bold text-xl">{{ playerAvgs.seasons }}</span></span>
                 
             </div>
         </div>
-        <div style="font-family: Didot" v-if="dataLoaded">
+        <div class="ml-5" style="font-family: Didot" v-if="dataLoaded">
             <table class="totalsTable">
                     <thead>
                          <tr class="justify-content-center">
