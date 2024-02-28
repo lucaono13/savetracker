@@ -10,11 +10,11 @@
                     
                 </span>
             </div>
-            <div class="col" style="font-family: Didot;">
+            <div class="col align-items-start" style="font-family: Didot;">
                 <span v-tooltip.top='{value: getCountryName(playerAvgs.nationality)}' class="inline-block" style="height:fit-content" v-if="playerAvgs.secondNationality.Valid == false">
                     <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.nationality)" />
                 </span>
-                <Splitter layout="vertical" :gutter-size="0" v-if="playerAvgs.secondNationality.Valid == true" class="inline-block" style="width: 55px">
+                <Splitter layout="vertical" :gutter-size="0" v-if="playerAvgs.secondNationality.Valid == true" class="inline-block justify-content-center" style="width: 55px">
                     <SplitterPanel v-tooltip.top='{value: getCountryName(playerAvgs.nationality)}'>
                         <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.nationality)" />
                     </SplitterPanel>
@@ -23,7 +23,7 @@
                     </SplitterPanel>
                 </Splitter>
                 <span>&nbsp; &nbsp;</span>
-                <span class="text-lg inline-block align-self-center vertical-align-super">D.O.B.: {{ playerAvgs.birthdate }}</span>
+                <div class="text-lg inline align-items-start vertical-align-top" style=""><span style="vertical-align: sub;">D.O.B.: {{ playerAvgs.birthdate }}</span></div>
             </div>
             
             <div class="col flex flex-column align-items-end justify-content-end" style="font-family: Didot;">
