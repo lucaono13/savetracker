@@ -19,7 +19,11 @@ var (
 func StartLogger() {
 	files, err := os.ReadDir(xdg.DataHome + "/Save Tracker/logs")
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error finding logs directory")
+		log.Error().Err(err).Msg("Error finding logs directory")
+		err := os.Mkdir(xdg.DataHome+"/Save Tracker/logs", 077)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Unable to create Save Tracker AppData folder.")
+		}
 	}
 	if len(files) > 4 {
 		for _, file := range files[:len(files)-4] {
