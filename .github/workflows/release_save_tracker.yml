@@ -16,14 +16,14 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name:SaveTracker,
-            platform:linux/amd64,
+          - name:SaveTracker
+            platform:linux/amd64
             os:ubuntu-latest
-          - name:SaveTracker,
-            platform:windows/amd64,
+          - name:SaveTracker
+            platform:windows/amd64
             os:windows-latest
-          - name:SaveTracker,
-            platform:darwin/universal,
+          - name:SaveTracker
+            platform:darwin/universal
             os:macos-latest
 
     runs-on: ${{ matrix.build.os }}
