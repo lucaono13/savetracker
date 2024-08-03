@@ -44,9 +44,9 @@ jobs:
 
       - run: echo "${{ matrix.build.os }} ${{ matrix.build.name }} ${{ matrix.build.platform }}"
 
-      - run: echo $GO_VERSION
+      - run: echo "$GO_VERSION"
 
-      - run: echo $WAILS_VERSION
+      - run: echo "$WAILS_VERSION"
 
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
@@ -55,5 +55,5 @@ jobs:
           build-name: SaveTracker
           build-platform: windows/amd64
           package: false
-          go-version: $GO_VERSION
-          wails-version: $WAILS_VERSION
+          go-version: "$GO_VERSION"
+          wails-version: "$WAILS_VERSION"
