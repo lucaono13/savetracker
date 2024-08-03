@@ -16,13 +16,13 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name:"Save Tracker",
+          - name:SaveTracker,
             platform:linux/amd64,
             os:ubuntu-latest
-          - name:"Save Tracker",
+          - name:SaveTracker,
             platform:windows/amd64,
             os:windows-latest
-          - name:"Save Tracker",
+          - name:SaveTracker,
             platform:darwin/universal,
             os:macos-latest
 
@@ -36,6 +36,9 @@ jobs:
       - name: Get Go Version
         run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
 
+      - name: Get Wails Version being used
+        run: sed -En 's/^\tgithub.com/wailsapp/wails/v2 (.*)$/WAILS_VERSION=\1/p' go.mod >> $GITHUB_ENV
+
       - name: Get Save Tracker product version
         run: echo "PROJECT_VERSION=$(jq .Info.productVersion wails.json)" >> $GITHUB_ENV
 
@@ -47,3 +50,4 @@ jobs:
           build-platform: ${{ matrix.build.platform }}
           package: false
           go-version: $GO_VERSION
+          wails-version: $WAILS_VERSION
