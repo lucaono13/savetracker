@@ -46,4 +46,4 @@ jobs:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
           package: false
-          go-version: ${{GITHUB_ENV}}
+          go-version: ${{GO_VERSION}}
