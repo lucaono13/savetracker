@@ -26,7 +26,7 @@ jobs:
             platform:darwin/universal
             os:macos-latest
 
-    runs-on: ${{ matrix.build.os }}
+  runs-on: ${{ matrix.build.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
