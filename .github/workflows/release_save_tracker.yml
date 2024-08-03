@@ -1,6 +1,7 @@
 name: Wails build
 
 on:
+  workflow_dispath:
   push:
     tags:
       # Match any new tag
