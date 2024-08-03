@@ -36,17 +36,23 @@ jobs:
       - name: Get Go Version
         run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
 
+      - name: Test Getting Go Version
+        run: echo "{sed -En 's/^go (.*)$/GO_VERSION=\1/p'}"
+
       - name: Get Wails Version being used
         run: sed -En 's/^\tgithub.com\/wailsapp\/wails\/v2 (.*)$/WAILS_VERSION=\1/p' go.mod >> $GITHUB_ENV
+
+      - name: Test Getting Go Version
+        run: echo "{s/^\tgithub.com\/wailsapp\/wails\/v2 (.*)$/WAILS_VERSION=\1/p}"
 
       - name: Get Save Tracker product version
         run: echo "PROJECT_VERSION=$(jq .Info.productVersion wails.json)" >> $GITHUB_ENV
 
       - run: echo "${{ matrix.build.os }} ${{ matrix.build.name }} ${{ matrix.build.platform }}"
 
-      - run: echo "${{ GO_VERSION }}"
+      - run: echo "$GO_VERSION"
 
-      - run: echo "${{ WAILS_VERSION }}"
+      - run: echo "$WAILS_VERSION"
 
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
