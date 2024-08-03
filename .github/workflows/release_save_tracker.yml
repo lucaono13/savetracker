@@ -42,6 +42,8 @@ jobs:
       - name: Get Save Tracker product version
         run: echo "PROJECT_VERSION=$(jq .Info.productVersion wails.json)" >> $GITHUB_ENV
 
+      - run: echo "${{ matrix.build.os }} ${{ matrix.build.name }} ${{ matrix.build.platform }}"
+
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
         id: build
