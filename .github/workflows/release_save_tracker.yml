@@ -1,48 +1,66 @@
 name: Wails build
-'on':
-  workflow_dispatch: null
+
+on:
+  workflow_dispatch:
   push:
     tags:
-      - v*
+      # Match any new tag
+      - "v*"
 env:
-  NODE_OPTIONS: '--max-old-space-size=4096'
+  # Necessary for most environments as build failure can occur due to OOM issues
+  NODE_OPTIONS: "--max-old-space-size=4096"
 jobs:
   build:
     strategy:
+      # Failure in one platform build won't impact the others
       fail-fast: false
       matrix:
-        build:
-          - platform:windows/amd64
-            os:windows-latest
-    runs-on: '${{ matrix.build.os }}'
+        build: [
+          {
+            "platform":windows/amd64,
+            "os":"windows-latest"
+          },
+          # {
+          #   "platform":linux/amd64,
+          #   "os":"ubuntu-latest"
+          # },          
+          # {
+          #   "platform":darwin/universal,
+          #   "os":"macos-latest"
+          # }
+        ]
+
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+        
       - name: Windows get Go version from go.mod
         if: runner.os == 'Windows'
-        run: >-
-          Add-Content -Path ${env:GITHUB_ENV} -Value "GO_VERSION=$(go mod edit
-          -json | jq -r '(.Go)')"
+        run: Add-Content -Path ${env:GITHUB_ENV} -Value "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')"
+      
       - name: Linux/MacOS get Go Version from go.mod
         if: runner.os != 'Windows'
-        run: >-
-          echo "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')" >>
-          "$GITHUB_ENV"
+        run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')" >> "$GITHUB_ENV"
+
       - name: Windows get Wails version from go.mod
         if: runner.os == 'Windows'
-        run: >-
-          Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod
-          edit -json | jq -r '(.Require.[] |
-          (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split(
-          \"v\" )[1]))')"
+        run: Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split( \"v\" )[1]))')"
+
       - name: Linux/MacOS get Wails Version from go.mod
         if: runner.os != 'Windows'
-        run: >-
-          echo "GO_VERSION=$(go mod edit -json | jq -r '(.Require.[] |
-          (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split(
-          "v" )[1]))')" >> "$GITHUB_ENV"
+        run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split( "v" )[1]))')" >> "$GITHUB_ENV"
+      
+      # - name: Get Save Tracker product version
+      #   run: echo "PROJECT_VERSION=$(jq .Info.productVersion wails.json)" >> $GITHUB_ENV
+
+      - name: Echo Matrix info
+        run: echo "${{ matrix.build.os }} ${{ matrix.build.platform }}"
+
+      # - run: echo "$WAILS_VERSION"
+
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
         id: build
@@ -50,5 +68,7 @@ jobs:
           build-name: SaveTracker
           build-platform: windows/amd64
           package: true
-          go-version: '${{ env.GO_VERSION }}'
-          wails-version: '${{ env.WAILS_VERSION  }}'
+          go-version: "${{ env.GO_VERSION }}"
+          wails-version: "${{ env.WAILS_VERSION  }}"
+      
+      # TODO: setup create new release with version tag 
