@@ -2,10 +2,10 @@ name: Wails build
 
 on:
   workflow_dispatch:
-  # push:
-  #   tags:
-  #     # Match any new tag
-  #     - "v*"
+  push:
+    tags:
+      # Match any new tag
+      - "v*"
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
   NODE_OPTIONS: "--max-old-space-size=4096"
@@ -62,14 +62,15 @@ jobs:
       - run: echo "${{ env.WAILS_VERSION }} ${{ env.GO_VERSION }}"
 
 
-      # - name: Build wails
-      #   uses: dAppServer/wails-build-action@v2.2
-      #   id: build
-      #   with:
-      #     build-name: SaveTracker
-      #     build-platform: windows/amd64
-      #     package: true
-      #     go-version: "${{ env.GO_VERSION }}"
-      #     wails-version: "${{ env.WAILS_VERSION  }}"
+      - name: Build wails
+        uses: dAppServer/wails-build-action@v2.2
+        id: build
+        with:
+          build-name: SaveTracker
+          build-platform: "${{ matrix.build.platform }}"
+          package: true
+          wails-build-webview2: embed
+          go-version: "${{ env.GO_VERSION }}"
+          wails-version: "${{ env.WAILS_VERSION  }}"
       
       # TODO: setup create new release with version tag 
