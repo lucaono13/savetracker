@@ -2,10 +2,10 @@ name: Wails build
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      # Match any new tag
-      - "v*"
+  # push:
+  #   tags:
+  #     # Match any new tag
+  #     - "v*"
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
   NODE_OPTIONS: "--max-old-space-size=4096"
