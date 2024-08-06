@@ -42,21 +42,21 @@ jobs:
       #   run: |
       #     Add-Content -Path ${env:GITHUB_ENV} -Value "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')"
       #     Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path == \"github.com\/wailsapp\/wails\/v2\").Version | split( \"v\" )[1]))')"
-      - name: Windows get Go version from go.mod
-        if: runner.os == 'Windows'
-        run: Add-Content -Path ${env:GITHUB_ENV} -Value "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')"
+      # - name: Windows get Go version from go.mod
+      #   if: runner.os == 'Windows'
+      #   run: Add-Content -Path ${env:GITHUB_ENV} -Value "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')"
       
-      - name: Linux/MacOS get Go Version from go.mod
-        if: runner.os != 'Windows'
-        run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')" >> "$GITHUB_ENV"
+      # - name: Linux/MacOS get Go Version from go.mod
+      #   if: runner.os != 'Windows'
+      #   run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Go)')" >> "$GITHUB_ENV"
 
       - name: Windows get Wails version from go.mod
         if: runner.os == 'Windows'
-        run: Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split( \"v\" )[1]))')"
+        run: Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==github.com\/wailsapp\/wails\/v2).Version | split(v)[1]))')"
 
-      - name: Linux/MacOS get Wails Version from go.mod
-        if: runner.os != 'Windows'
-        run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\'github.com\/wailsapp\/wails\/v2\').Version | split( \'v\' )[1]))')" >> "$GITHUB_ENV"
+      # - name: Linux/MacOS get Wails Version from go.mod
+      #   if: runner.os != 'Windows'
+      #   run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\'github.com\/wailsapp\/wails\/v2\').Version | split( \'v\' )[1]))')" >> "$GITHUB_ENV"
       
       # - name: Get Save Tracker product version
       #   run: echo "PROJECT_VERSION=$(jq .Info.productVersion wails.json)" >> $GITHUB_ENV
@@ -64,7 +64,7 @@ jobs:
       - name: Echo Matrix info
         run: echo "${{ matrix.build.os }} ${{ matrix.build.platform }}"
 
-      - run: echo "${{ env.WAILS_VERSION }} ${{ env.GO_VERSION }}"
+      - run: echo "${{ env.WAILS_VERSION }}"
 
       # - name: Build wails
       #   uses: dAppServer/wails-build-action@v2.2
