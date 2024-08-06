@@ -52,11 +52,11 @@ jobs:
 
       - name: Windows get Wails version from go.mod
         if: runner.os == 'Windows'
-        run: Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod edit -json | jq '(.Require.[] | (select(.Path == \'github.com\/wailsapp\/wails\/v2\').Version | split( \'v\' )[1]))')"
+        run: Add-Content -Path ${env:GITHUB_ENV} -Value "WAILS_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split( \"v\" )[1]))')"
 
       - name: Linux/MacOS get Wails Version from go.mod
         if: runner.os != 'Windows'
-        run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\"github.com\/wailsapp\/wails\/v2\").Version | split( "v" )[1]))')" >> "$GITHUB_ENV"
+        run: echo "GO_VERSION=$(go mod edit -json | jq -r '(.Require.[] | (select(.Path==\'github.com\/wailsapp\/wails\/v2\').Version | split( \'v\' )[1]))')" >> "$GITHUB_ENV"
       
       # - name: Get Save Tracker product version
       #   run: echo "PROJECT_VERSION=$(jq .Info.productVersion wails.json)" >> $GITHUB_ENV
