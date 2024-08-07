@@ -30,7 +30,7 @@ jobs:
           }
         ]
 
-    runs-on: "${{ env.WAILS_VERSION }"
+    runs-on: "${{ env.WAILS_VERSION }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
