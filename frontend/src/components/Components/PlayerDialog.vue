@@ -2,10 +2,10 @@
     <Dialog modal :draggable="false" :closable="true" header="" showHeader class="w-11" @update:visible="emit('closeDialog')" style="height:fit-content">
     <div class=" grid" v-if="dataLoaded">
             <!-- <div class="grid"> -->
-            <div class="col-fixed ml-5" style="width:100px">
-                <img src="../../assets/images/head_silhouette.png" style="width:100px;padding-top: 7px;"/>
+            <div class="col-fixed ml-5" style="width:125px">
+                <img src="../../assets/images/head_silhouette.png" style="width:125px;padding-top: 7px;"/>
             </div>
-            <div class="col-fixed text-right" style="font-family: Didot;width:300px">
+            <div class="col-fixed text-left " style="font-family: Didot;width:300px; padding-left: 7px!important; padding-top: 7px;">
                 <span class="text-4xl" style="overflow-wrap:break-word;">{{ playerAvgs.playerName }}</span>
                 <br />
                 <span class="text-lg align-self-center">{{ playerAvgs.position }}</span>
@@ -13,7 +13,7 @@
                     
                 </span>
             </div>
-            <div class="col align-items-start" style="font-family: Didot;">
+            <div class="col align-items-start" style="font-family: Didot; padding-top: 7px;">
                 <span v-tooltip.top='{value: getCountryName(playerAvgs.nationality)}' class="inline-block" style="height:fit-content" v-if="playerAvgs.secondNationality.Valid == false">
                     <CountryFlag size="big" rounded shadow :country="getCountryCode(playerAvgs.nationality)" />
                 </span>
@@ -29,7 +29,7 @@
                 <div class="text-lg inline align-items-start vertical-align-top" style=""><span style="vertical-align: sub;">D.O.B.: {{ playerAvgs.birthdate }}</span></div>
             </div>
             
-            <div class="col flex flex-column vertical-align-top" style="font-family: Didot;">
+            <div class="col flex flex-column vertical-align-top" style="font-family: Didot;padding-top: 7px;">
                 <span class="text-lg"><span class="font-italic">From save: </span><span class="font-bold text-xl">{{ playerAvgs.saveName }}</span></span>
                 <span class="text-lg"><span class="font-italic">Game Version/Save Type: </span><span class="font-bold text-xl">{{ playerAvgs.gameVersion }}</span></span>
                 <span class="text-lg"><span class="font-italic">Number of seasons: </span><span class="font-bold text-xl">{{ playerAvgs.seasons }}</span></span>
@@ -168,7 +168,7 @@
             <TabPanel header="Attribute Progress">
                 <div class="flex flex-column justify-content-center">
                     
-                    <Chart id="attrChart" type="line" :data="chartData" :options="chartOptions"  class="h-25rem" />
+                    <Chart id="attrChart" type="line" :data="chartData" :options="chartOptions"  class="h-20rem" />
                     <div class="w-full flex justify-content-center"><Button class="w-4" text raised label="Choose Attributes to Show" @click="toggle" /></div>
                     <OverlayPanel ref="attrChoices" :showCloseIcon="true">
                         <div class="flex ">
